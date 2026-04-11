@@ -1,13 +1,12 @@
 """
 Azure AI Foundry client — OpenAI-compatible endpoint.
-Supports text and image (vision) inputs.
+Supports text and image (vision) inputs, with streaming.
 """
 
 from __future__ import annotations
 
 import base64
-from pathlib import Path
-from typing import Any
+from typing import Any, AsyncGenerator
 
 from openai import AsyncOpenAI
 
@@ -71,24 +70,18 @@ def _build_user_content(
     return parts
 
 
-async def complete(
+async def stream_complete(
     model: str,
     system_prompt: str,
     user_message: str,
     images: list[bytes] | None = None,
     image_urls: list[str] | None = None,
     mime_type: str = "image/jpeg",
-) -> str:
+) -> AsyncGenerator[str, None]:
     """
-    Call a model on Azure AI Foundry and return the response text.
+    Stream text chunks from a model on Azure AI Foundry.
 
-    Args:
-        model:        Short model key (e.g. "gpt-5.1-chat") or full deployment name.
-        system_prompt: System instructions for the model.
-        user_message: The user's text query.
-        images:       Optional list of raw image bytes (base64-encoded automatically).
-        image_urls:   Optional list of publicly accessible image URLs.
-        mime_type:    MIME type for raw image bytes (default: image/jpeg).
+    Yields each text delta as it arrives from the model.
     """
     deployment = _models().get(model, model)
     client = get_client()
@@ -100,12 +93,40 @@ async def complete(
         mime_type=mime_type,
     )
 
-    response = await client.chat.completions.create(
+    stream = await client.chat.completions.create(
         model=deployment,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": content},
         ],
+        stream=True,
     )
 
-    return response.choices[0].message.content
+    async for chunk in stream:
+        if chunk.choices and chunk.choices[0].delta.content:
+            yield chunk.choices[0].delta.content
+
+
+async def complete(
+    model: str,
+    system_prompt: str,
+    user_message: str,
+    images: list[bytes] | None = None,
+    image_urls: list[str] | None = None,
+    mime_type: str = "image/jpeg",
+) -> str:
+    """
+    Call a model on Azure AI Foundry and return the full response text.
+    Implemented on top of stream_complete.
+    """
+    chunks: list[str] = []
+    async for chunk in stream_complete(
+        model=model,
+        system_prompt=system_prompt,
+        user_message=user_message,
+        images=images,
+        image_urls=image_urls,
+        mime_type=mime_type,
+    ):
+        chunks.append(chunk)
+    return "".join(chunks)

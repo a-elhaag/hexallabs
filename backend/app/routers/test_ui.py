@@ -1,8 +1,10 @@
+import json
+
 from fastapi import APIRouter
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 
-from app.services.foundry import complete, _models
+from app.services.foundry import stream_complete, _models
 
 router = APIRouter(tags=["test"])
 
@@ -13,24 +15,26 @@ class ChatRequest(BaseModel):
     system_prompt: str = "You are a helpful assistant."
 
 
-class ChatResponse(BaseModel):
-    model: str
-    deployment: str
-    response: str
-
-
-@router.post("/test/chat", response_model=ChatResponse)
+@router.post("/test/chat")
 async def test_chat(body: ChatRequest):
     deployments = _models()
-    response = await complete(
-        model=body.model,
-        system_prompt=body.system_prompt,
-        user_message=body.message,
-    )
-    return ChatResponse(
-        model=body.model,
-        deployment=deployments.get(body.model, body.model),
-        response=response,
+    deployment = deployments.get(body.model, body.model)
+
+    async def generate():
+        # Send metadata first
+        yield f"data: {json.dumps({'type': 'meta', 'model': body.model, 'deployment': deployment})}\n\n"
+        async for chunk in stream_complete(
+            model=body.model,
+            system_prompt=body.system_prompt,
+            user_message=body.message,
+        ):
+            yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+        yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"},
     )
 
 
@@ -153,6 +157,15 @@ async def test_ui():
     border-left: 2px solid #000;
     padding-left: 16px;
   }}
+  .cursor {{
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: #000;
+    vertical-align: text-bottom;
+    animation: blink 900ms step-end infinite;
+  }}
+  @keyframes blink {{ 50% {{ opacity: 0; }} }}
 
   .spinner {{
     display: none;
@@ -202,7 +215,6 @@ async def test_ui():
 const MODELS = {models_json};
 let selected = MODELS[0];
 
-// Build chips
 const grid = document.getElementById('chips');
 MODELS.forEach(m => {{
   const chip = document.createElement('div');
@@ -220,13 +232,19 @@ async function send() {{
   const msg = document.getElementById('msg').value.trim();
   if (!msg) return;
 
-  const btn = document.getElementById('btn');
+  const btn    = document.getElementById('btn');
   const spinner = document.getElementById('spinner');
-  const result = document.getElementById('result');
+  const result  = document.getElementById('result');
+  const textEl  = document.getElementById('result-text');
 
   btn.disabled = true;
   spinner.style.display = 'block';
   result.style.display = 'none';
+  textEl.textContent = '';
+
+  // Add blinking cursor
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
 
   try {{
     const res = await fetch('/test/chat', {{
@@ -239,14 +257,38 @@ async function send() {{
       }}),
     }});
 
-    const data = await res.json();
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-    document.getElementById('result-model').textContent = data.model;
-    document.getElementById('result-deployment').textContent = data.deployment;
-    document.getElementById('result-text').textContent = data.response;
-    result.style.display = 'block';
+    while (true) {{
+      const {{ done, value }} = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, {{ stream: true }});
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop();
+
+      for (const part of parts) {{
+        if (!part.startsWith('data: ')) continue;
+        const data = JSON.parse(part.slice(6));
+
+        if (data.type === 'meta') {{
+          document.getElementById('result-model').textContent = data.model;
+          document.getElementById('result-deployment').textContent = data.deployment;
+          spinner.style.display = 'none';
+          result.style.display = 'block';
+          textEl.appendChild(cursor);
+        }} else if (data.type === 'chunk') {{
+          textEl.insertBefore(document.createTextNode(data.text), cursor);
+        }} else if (data.type === 'done') {{
+          cursor.remove();
+        }}
+      }}
+    }}
   }} catch (e) {{
-    document.getElementById('result-text').textContent = 'Error: ' + e.message;
+    cursor.remove();
+    textEl.textContent = 'Error: ' + e.message;
     result.style.display = 'block';
   }} finally {{
     btn.disabled = false;

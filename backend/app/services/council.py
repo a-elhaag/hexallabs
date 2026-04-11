@@ -123,21 +123,32 @@ async def run_council(
     execution.status = "running"
     await db.commit()
 
-    # --- Phase 1: parallel model responses ---
-    async def call_model(model: str) -> tuple[str, str]:
-        response = await foundry.complete(
+    # --- Phase 1: parallel streaming model responses ---
+    model_responses: dict[str, str] = {}
+    queue: asyncio.Queue[tuple[str, str | None]] = asyncio.Queue()
+
+    async def _stream_model(model: str) -> None:
+        chunks: list[str] = []
+        async for chunk in foundry.stream_complete(
             model=model,
             system_prompt=config.system_prompt,
             user_message=execution.query,
-        )
-        return model, response
+        ):
+            await queue.put((model, chunk))
+            chunks.append(chunk)
+        model_responses[model] = "".join(chunks)
+        await queue.put((model, None))  # sentinel: this model is done
 
-    tasks = [call_model(m) for m in config.models]
-    results: list[tuple[str, str]] = await asyncio.gather(*tasks)
-    model_responses: dict[str, str] = dict(results)
-
-    for model, text in model_responses.items():
-        yield {"type": "model_response", "model": model, "text": text}
+    tasks = [asyncio.create_task(_stream_model(m)) for m in config.models]
+    done = 0
+    while done < len(config.models):
+        model, chunk = await queue.get()
+        if chunk is None:
+            done += 1
+            yield {"type": "model_response", "model": model, "text": model_responses[model]}
+        else:
+            yield {"type": "token", "model": model, "chunk": chunk}
+    await asyncio.gather(*tasks)
 
     # --- Phase 2: anonymous peer review ---
     peer_reviews: dict[str, dict[str, Any]] = {}
@@ -173,19 +184,23 @@ async def run_council(
                 "review": review,
             }
 
-    # --- Phase 3: chairman synthesis ---
+    # --- Phase 3: chairman synthesis (streamed) ---
     responses_block = "\n\n".join(
         f"[Model {i + 1}]:\n{text}"
         for i, (_, text) in enumerate(model_responses.items())
     )
-    synthesis = await foundry.complete(
+    synthesis_chunks: list[str] = []
+    async for chunk in foundry.stream_complete(
         model=CHAIRMAN_MODEL,
         system_prompt=(
             "You are the chairman of a council of AI models. "
             "Synthesize the following responses into a single, definitive answer."
         ),
         user_message=f"Query: {execution.query}\n\nResponses:\n{responses_block}",
-    )
+    ):
+        yield {"type": "synthesis_token", "chunk": chunk}
+        synthesis_chunks.append(chunk)
+    synthesis = "".join(synthesis_chunks)
 
     yield {"type": "synthesis", "text": synthesis}
 
