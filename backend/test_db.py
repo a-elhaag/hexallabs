@@ -13,7 +13,7 @@ import sys
 import psycopg2
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(dotenv_path="../.env")
 
 HOST = "hexallabs-db.postgres.database.azure.com"
 PORT = 5432

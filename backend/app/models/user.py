@@ -1,32 +1,17 @@
+"""
+Prisma-managed table — NextAuth owns creation/writes to `users`.
+This stub registers the table in SQLAlchemy metadata for FK validation only.
+"""
 from __future__ import annotations
 
-from datetime import datetime
-
-from sqlalchemy import DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Column, String, Table
 
 from app.database import Base
 
-
-class User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[str] = mapped_column(String, primary_key=True)
-    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    name: Mapped[str | None] = mapped_column(String)
-    provider: Mapped[str | None] = mapped_column(String)
-    provider_id: Mapped[str | None] = mapped_column(String)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
-
-    council_configs: Mapped[list[CouncilConfig]] = relationship(
-        "CouncilConfig", back_populates="user", cascade="all, delete-orphan"
-    )
-    executions: Mapped[list[Execution]] = relationship(
-        "Execution", back_populates="user"
-    )
-
-
-from app.models.council import CouncilConfig  # noqa: E402
-from app.models.execution import Execution  # noqa: E402
+# Thin reference — create_all will skip this if Prisma already created it
+users_table = Table(
+    "users",
+    Base.metadata,
+    Column("id", String, primary_key=True),
+    extend_existing=True,
+)

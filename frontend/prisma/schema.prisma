@@ -25,6 +25,7 @@ model Post {
     createdById String
 
     @@index([name])
+    @@map("posts")
 }
 
 // Necessary for Next auth
@@ -45,6 +46,7 @@ model Account {
     refresh_token_expires_in Int?
 
     @@unique([provider, providerAccountId])
+    @@map("accounts")
 }
 
 model Session {
@@ -53,17 +55,102 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("sessions")
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String        @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?       @unique
     emailVerified DateTime?
     image         String?
+    password      String?       // null for OAuth users
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
+    subscription  Subscription?
+    usageLogs     UsageLog[]
+    billingEvents BillingEvent[]
+
+    @@map("users")
+}
+
+// ── Billing ────────────────────────────────────────────────────────────────────
+
+model PricingTier {
+    id                  String         @id @default(cuid())
+    name                String         @unique  // "core" | "elite" | "arch"
+    displayName         String                  // shown in UI
+    monthlyPriceUsd     Float                   // 0 / 15 / 29 ...
+    monthlyUsageUsd     Float                   // 5 / 10 / 20 ...
+    weeklyUsageUsd      Float                   // monthlyUsageUsd / 4
+    rolloverPct         Float          @default(0.5)
+    maxModels           Int                     // 2 for core, 7 for elite+
+    active              Boolean        @default(true)
+    sortOrder           Int            @default(0)
+    createdAt           DateTime       @default(now())
+    subscriptions       Subscription[]
+
+    @@map("pricing_tiers")
+}
+
+model Subscription {
+    id                   String      @id @default(cuid())
+    userId               String      @unique
+    tierId               String
+    tier                 PricingTier @relation(fields: [tierId], references: [id])
+
+    // Monthly tracking
+    currentMonthBudgetUsd Float       @default(0)
+    usedThisMonthUsd      Float       @default(0)
+    rolloverBalanceUsd    Float       @default(0)
+
+    // Weekly tracking
+    currentWeekBudgetUsd  Float       @default(0)
+    usedThisWeekUsd       Float       @default(0)
+    weekResetDate         DateTime
+
+    // Stripe
+    stripeSubscriptionId  String?
+    stripeCustomerId      String?
+    nextBillingDate       DateTime?
+    status                String      @default("active") // active | cancelled | past_due
+
+    createdAt             DateTime    @default(now())
+    updatedAt             DateTime    @updatedAt
+    user                  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("subscriptions")
+}
+
+model UsageLog {
+    id             String   @id @default(cuid())
+    userId         String
+    executionId    String?
+    modelName      String           // white-label name (Apex, Swift...)
+    deploymentName String           // Azure deployment name
+    inputTokens    Int      @default(0)
+    outputTokens   Int      @default(0)
+    totalTokens    Int      @default(0)
+    ratePerK       Float            // COST_PER_1K rate used
+    billedUsd      Float            // actual amount deducted from budget
+    createdAt      DateTime @default(now())
+    user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("usage_logs")
+}
+
+model BillingEvent {
+    id        String   @id @default(cuid())
+    userId    String
+    eventType String           // "payment" | "weekly_reset" | "rollover" | "usage_deduction"
+    amountUsd Float
+    metadata  Json?
+    createdAt DateTime @default(now())
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("billing_events")
 }
 
 model VerificationToken {
@@ -72,4 +159,5 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+    @@map("verification_tokens")
 }

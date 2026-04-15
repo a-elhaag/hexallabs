@@ -17,12 +17,30 @@ hexallabs/
 - **Models:** gpt-4o, o1, DeepSeek-R1, Mistral-Large-3 — all on **Azure AI Foundry** (NOT Azure OpenAI)
 - **Auth:** NextAuth.js → JWT → FastAPI validates JWT on every request
 
+## Billing Model
+
+| Tier | Price | Usage Budget | Weekly Budget | Max Models |
+|---|---|---|---|---|
+| Free | $0 | $5/month | $1.25/week | 2 |
+| Pro | $15/month | $10/month | $2.50/week | 7 |
+| Max | TBD | TBD | TBD | 7 |
+
+**Rate formula:** `cost = (input_tokens + output_tokens) / 1000 × (azure_output_price × 0.60)`
+
+**Rollover:** 50% of unused weekly budget carries to next week.
+
+**Tiers are DB-driven** (`PricingTier` table) — add new tiers without code changes.
+
 ## Key Rules
 
 ### Code style
 - Python: use `async/await` throughout FastAPI; SQLAlchemy async sessions
 - TypeScript: strict mode, no `any`
-- Tailwind: B/W/G palette only — `#000000`, `#FFFFFF`, `#6B7280`; no accent colors
+- Tailwind palette — 4 colors only, no others:
+  - Black `#2c2c2c`
+  - Warm gray `#a89080`
+  - Cream `#f5f1ed`
+  - Dusty denim `#6290c3`
 
 ### Motion (frontend)
 - Every state change animates — easing `cubic-bezier(0.16, 1, 0.3, 1)`, 300ms default

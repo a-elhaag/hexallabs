@@ -36,8 +36,6 @@ class Execution(Base):
     council: Mapped[CouncilConfig] = relationship(
         "CouncilConfig", back_populates="executions"
     )
-    user: Mapped[User] = relationship("User", back_populates="executions")
 
 
 from app.models.council import CouncilConfig  # noqa: E402
-from app.models.user import User  # noqa: E402

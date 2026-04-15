@@ -13,13 +13,15 @@ from openai import AsyncOpenAI
 from app.config import settings
 
 def _models() -> dict[str, str]:
-    """Build model key → deployment name map from settings."""
+    """Build deployment name → Azure deployment name map from settings."""
     return {
-        "gpt-5.1-chat": settings.model_gpt,
-        "deepseek-v3": settings.model_deepseek,
-        "llama-3.3-70b": settings.model_llama,
-        "kimi-k2.5": settings.model_kimi,
-        "grok-4": settings.model_grok,
+        "gpt-5.1-chat":           settings.model_gpt,
+        "gpt-5.4-mini":           settings.model_gpt_mini,
+        "o4-mini":                settings.model_o4_mini,
+        "DeepSeek-V3.2-Speciale": settings.model_deepseek,
+        "Llama-3.3-70B-Instruct": settings.model_llama,
+        "Kimi-K2.5":              settings.model_kimi,
+        "grok-4-20-reasoning":    settings.model_grok,
     }
 
 # Models that support image inputs
@@ -77,11 +79,14 @@ async def stream_complete(
     images: list[bytes] | None = None,
     image_urls: list[str] | None = None,
     mime_type: str = "image/jpeg",
+    usage_out: dict | None = None,
 ) -> AsyncGenerator[str, None]:
     """
     Stream text chunks from a model on Azure AI Foundry.
 
     Yields each text delta as it arrives from the model.
+    If usage_out dict is provided, it is populated with token counts after streaming:
+      {"input_tokens": int, "output_tokens": int, "total_tokens": int}
     """
     deployment = _models().get(model, model)
     client = get_client()
@@ -100,11 +105,16 @@ async def stream_complete(
             {"role": "user", "content": content},
         ],
         stream=True,
+        stream_options={"include_usage": True},
     )
 
     async for chunk in stream:
         if chunk.choices and chunk.choices[0].delta.content:
             yield chunk.choices[0].delta.content
+        if usage_out is not None and chunk.usage:
+            usage_out["input_tokens"] = chunk.usage.prompt_tokens
+            usage_out["output_tokens"] = chunk.usage.completion_tokens
+            usage_out["total_tokens"] = chunk.usage.total_tokens
 
 
 async def complete(

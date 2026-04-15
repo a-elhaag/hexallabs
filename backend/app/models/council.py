@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -19,15 +20,14 @@ class CouncilConfig(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     models: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
     system_prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    organizer_model: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
 
-    user: Mapped[User] = relationship("User", back_populates="council_configs")
     executions: Mapped[list[Execution]] = relationship(
         "Execution", back_populates="council", cascade="all, delete-orphan"
     )
 
 
-from app.models.user import User  # noqa: E402
 from app.models.execution import Execution  # noqa: E402
