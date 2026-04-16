@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "e2a9e124-7cc8-48ec-a22e-8b5ad2b5ce11",
-    "name": "Hexallabs FastAPI - Full API Test Suite",
-    "description": "Comprehensive Postman collection for Hexallabs FastAPI backend. Includes health checks, council execution APIs, WebSocket templates, relay templates, test UI routes, auth scenarios, and schema assertions.",
+    "_postman_id": "90d4d5b6-8f6f-4cb8-aea8-6d1bc8a6d3c1",
+    "name": "Hexallabs FastAPI - All In One",
+    "description": "Single Postman collection with auth token generation, health checks, council API, websocket templates, relay templates, and test UI/SSE endpoints.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "event": [
@@ -11,30 +11,30 @@
       "script": {
         "type": "text/javascript",
         "exec": [
+          "const useStatic = (pm.environment.get('use_static_dev_token') || 'false').toLowerCase() === 'true';",
+          "const staticToken = pm.environment.get('static_dev_token') || '';",
+          "if (useStatic && staticToken) {",
+          "  pm.environment.set('jwt_token', staticToken);",
+          "  return;",
+          "}",
+          "",
           "const auto = (pm.environment.get('auto_generate_jwt') || 'true').toLowerCase() === 'true';",
-          "const current = pm.environment.get('jwt_token');",
-          "if (!auto && current) { return; }",
+          "if (!auto) { return; }",
           "",
           "const secret = pm.environment.get('jwt_secret');",
-          "const userId = pm.environment.get('user_id') || '00000000-0000-0000-0000-000000000001';",
+          "const userId = pm.environment.get('user_id');",
           "const email = pm.environment.get('user_email') || 'postman@hexallabs.local';",
+          "const name = pm.environment.get('user_name') || 'Postman Tester';",
           "const ttl = parseInt(pm.environment.get('jwt_ttl_seconds') || '3600', 10);",
           "",
-          "if (!secret) {",
-          "  if (!current) {",
-          "    console.warn('JWT not generated: jwt_secret missing and jwt_token not set manually.');",
-          "  }",
+          "if (!secret || !userId) {",
           "  return;",
           "}",
           "",
           "const now = Math.floor(Date.now() / 1000);",
-          "const payload = {",
-          "  sub: userId,",
-          "  email: email,",
-          "  name: pm.environment.get('user_name') || 'Postman Tester',",
-          "  exp: now + ttl",
-          "};",
           "const header = { alg: 'HS256', typ: 'JWT' };",
+          "const payload = { sub: userId, email, name, exp: now + ttl };",
+          "const expiredPayload = { sub: userId, email, name, exp: now - 120 };",
           "",
           "function base64UrlEncodeWordArray(wordArray) {",
           "  return CryptoJS.enc.Base64.stringify(wordArray)",
@@ -43,21 +43,104 @@
           "    .replace(/\\//g, '_');",
           "}",
           "",
-          "const encodedHeader = base64UrlEncodeWordArray(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
-          "const encodedPayload = base64UrlEncodeWordArray(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
-          "const signingInput = encodedHeader + '.' + encodedPayload;",
-          "const signature = CryptoJS.HmacSHA256(signingInput, secret);",
-          "const encodedSignature = base64UrlEncodeWordArray(signature);",
-          "const token = signingInput + '.' + encodedSignature;",
+          "function signJwt(pl) {",
+          "  const encodedHeader = base64UrlEncodeWordArray(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
+          "  const encodedPayload = base64UrlEncodeWordArray(CryptoJS.enc.Utf8.parse(JSON.stringify(pl)));",
+          "  const signingInput = encodedHeader + '.' + encodedPayload;",
+          "  const signature = CryptoJS.HmacSHA256(signingInput, secret);",
+          "  const encodedSignature = base64UrlEncodeWordArray(signature);",
+          "  return signingInput + '.' + encodedSignature;",
+          "}",
           "",
-          "pm.environment.set('jwt_token', token);"
+          "pm.environment.set('jwt_token', signJwt(payload));",
+          "pm.environment.set('expired_jwt_token', signJwt(expiredPayload));"
         ]
       }
     }
   ],
   "item": [
     {
-      "name": "00 - Health & Diagnostics",
+      "name": "00 - Auth Setup",
+      "item": [
+        {
+          "name": "Generate JWT Tokens",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Triggers collection pre-request script to generate jwt_token and expired_jwt_token."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health returns 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('jwt_token exists', function () {",
+                  "  const t = pm.environment.get('jwt_token');",
+                  "  pm.expect(t).to.be.a('string');",
+                  "  pm.expect(t.split('.').length).to.eql(3);",
+                  "});",
+                  "pm.test('expired_jwt_token exists', function () {",
+                  "  const t = pm.environment.get('expired_jwt_token');",
+                  "  pm.expect(t).to.be.a('string');",
+                  "  pm.expect(t.split('.').length).to.eql(3);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Auth Smoke Test - Protected Endpoint",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"query\": \"Auth smoke test\",\n  \"user_id\": \"{{user_id}}\",\n  \"scout_enabled\": false,\n  \"primal_protocol\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Health & Diagnostics",
       "item": [
         {
           "name": "GET /health",
@@ -72,8 +155,7 @@
               "path": [
                 "health"
               ]
-            },
-            "description": "Basic service health check."
+            }
           },
           "event": [
             {
@@ -105,8 +187,7 @@
                 "health",
                 "db"
               ]
-            },
-            "description": "Database connectivity health check."
+            }
           },
           "event": [
             {
@@ -128,7 +209,7 @@
       ]
     },
     {
-      "name": "01 - Council API (HTTP)",
+      "name": "02 - Council API (HTTP)",
       "item": [
         {
           "name": "POST /api/council/execute - Happy Path",
@@ -136,12 +217,19 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -149,10 +237,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/council/execute",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execute"]
-            },
-            "description": "Creates a new execution and returns execution_id."
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
+            }
           },
           "event": [
             {
@@ -178,12 +271,19 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -191,8 +291,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/council/execute",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execute"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -215,12 +321,19 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -228,8 +341,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/council/execute",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execute"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
             }
           }
         },
@@ -239,17 +358,27 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/council/execution/{{execution_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execution", "{{execution_id}}"]
-            },
-            "description": "Poll this until status becomes complete."
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execution",
+                "{{execution_id}}"
+              ]
+            }
           },
           "event": [
             {
@@ -276,17 +405,27 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/council/execution/{{execution_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execution", "{{execution_id}}"]
-            },
-            "description": "Run this after waiting for the websocket stream to finish."
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execution",
+                "{{execution_id}}"
+              ]
+            }
           },
           "event": [
             {
@@ -310,7 +449,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -318,8 +460,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/council/execute",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execute"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -341,8 +489,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{expired_jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{expired_jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -350,8 +504,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/council/execute",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execute"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -374,12 +534,19 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -387,8 +554,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/council/execute",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execute"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execute"
+              ]
             }
           },
           "event": [
@@ -409,15 +582,26 @@
             "auth": {
               "type": "bearer",
               "bearer": [
-                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/council/execution/{{missing_execution_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "council", "execution", "{{missing_execution_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "council",
+                "execution",
+                "{{missing_execution_id}}"
+              ]
             }
           },
           "event": [
@@ -435,7 +619,7 @@
       ]
     },
     {
-      "name": "02 - WebSocket: The Council",
+      "name": "03 - WebSocket: The Council",
       "item": [
         {
           "name": "WS /ws - Full Streaming Run",
@@ -445,13 +629,29 @@
             "url": {
               "raw": "ws://{{ws_host}}/ws?execution_id={{execution_id}}&token={{jwt_token}}&scout_enabled=false&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws"
+              ],
               "query": [
-                { "key": "execution_id", "value": "{{execution_id}}" },
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "scout_enabled", "value": "false" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "execution_id",
+                  "value": "{{execution_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "scout_enabled",
+                  "value": "false"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
             },
             "description": "Expected events: organizer_token -> organizer_done -> token/model_response -> peer_review (multi-model) -> synthesis_token -> synthesis -> complete."
@@ -465,13 +665,29 @@
             "url": {
               "raw": "ws://{{ws_host}}/ws?execution_id={{execution_id}}&token={{jwt_token}}&scout_enabled=true&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws"
+              ],
               "query": [
-                { "key": "execution_id", "value": "{{execution_id}}" },
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "scout_enabled", "value": "true" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "execution_id",
+                  "value": "{{execution_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "scout_enabled",
+                  "value": "true"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
             },
             "description": "Expected additional event: scout_results."
@@ -485,16 +701,31 @@
             "url": {
               "raw": "ws://{{ws_host}}/ws?execution_id={{missing_execution_id}}&token={{jwt_token}}&scout_enabled=false&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws"
+              ],
               "query": [
-                { "key": "execution_id", "value": "{{missing_execution_id}}" },
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "scout_enabled", "value": "false" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "execution_id",
+                  "value": "{{missing_execution_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "scout_enabled",
+                  "value": "false"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
-            },
-            "description": "Expected websocket message: { type: error, message: 'Execution not found' }."
+            }
           }
         },
         {
@@ -505,41 +736,70 @@
             "url": {
               "raw": "ws://{{ws_host}}/ws?execution_id={{execution_id}}&scout_enabled=false&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws"
+              ],
               "query": [
-                { "key": "execution_id", "value": "{{execution_id}}" },
-                { "key": "scout_enabled", "value": "false" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "execution_id",
+                  "value": "{{execution_id}}"
+                },
+                {
+                  "key": "scout_enabled",
+                  "value": "false"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
-            },
-            "description": "Expected handshake rejection due to missing required token query parameter."
+            }
           }
         }
       ]
     },
     {
-      "name": "03 - WebSocket: The Relay",
+      "name": "04 - WebSocket: The Relay",
       "item": [
         {
           "name": "WS /ws/relay - Single Turn",
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model={{model_name}}&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws", "relay"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws",
+                "relay"
+              ],
               "query": [
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "model", "value": "{{model_name}}" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "model",
+                  "value": "{{model_name}}"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
             },
-            "description": "After connect, send: {\"messages\":[{\"role\":\"user\",\"content\":\"What is 2+2?\"}]}. Expected streamed token events then done."
+            "description": "After connect, send: {\"messages\":[{\"role\":\"user\",\"content\":\"What is 2+2?\"}]}."
           }
         },
         {
@@ -547,20 +807,37 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model={{model_name}}&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws", "relay"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws",
+                "relay"
+              ],
               "query": [
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "model", "value": "{{model_name}}" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "model",
+                  "value": "{{model_name}}"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
             },
-            "description": "After connect, send full history JSON. Expected optional context_compressed event, token stream, done with totalCost."
+            "description": "After connect, send full history JSON."
           }
         },
         {
@@ -568,17 +845,34 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model=Llama-3.3-70B-Instruct&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws", "relay"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws",
+                "relay"
+              ],
               "query": [
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "model", "value": "Llama-3.3-70B-Instruct" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "model",
+                  "value": "Llama-3.3-70B-Instruct"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
             }
           }
@@ -588,19 +882,32 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "ws://{{ws_host}}/ws/relay?model={{model_name}}&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws", "relay"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws",
+                "relay"
+              ],
               "query": [
-                { "key": "model", "value": "{{model_name}}" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "model",
+                  "value": "{{model_name}}"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
-            },
-            "description": "Expected handshake rejection because token is required."
+            }
           }
         },
         {
@@ -608,26 +915,43 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model={{model_name}}&primal_protocol=false",
               "protocol": "ws",
-              "host": ["{{ws_host}}"],
-              "path": ["ws", "relay"],
+              "host": [
+                "{{ws_host}}"
+              ],
+              "path": [
+                "ws",
+                "relay"
+              ],
               "query": [
-                { "key": "token", "value": "{{jwt_token}}" },
-                { "key": "model", "value": "{{model_name}}" },
-                { "key": "primal_protocol", "value": "false" }
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}"
+                },
+                {
+                  "key": "model",
+                  "value": "{{model_name}}"
+                },
+                {
+                  "key": "primal_protocol",
+                  "value": "false"
+                }
               ]
             },
-            "description": "After connect, send {\"messages\":[]}. Expected websocket error payload: No messages provided."
+            "description": "After connect, send {\"messages\":[]}."
           }
         }
       ]
     },
     {
-      "name": "04 - Test UI & SSE",
+      "name": "05 - Test UI & SSE",
       "item": [
         {
           "name": "GET /test",
@@ -636,10 +960,13 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/test",
-              "host": ["{{base_url}}"],
-              "path": ["test"]
-            },
-            "description": "Returns HTML model testing page."
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test"
+              ]
+            }
           },
           "event": [
             {
@@ -649,7 +976,8 @@
                 "exec": [
                   "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('Content type is HTML', function () {",
-                  "  pm.expect((pm.response.headers.get('Content-Type') || '').toLowerCase()).to.include('text/html');",
+                  "  const ct = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "  pm.expect(ct).to.include('text/html');",
                   "});"
                 ]
               }
@@ -661,7 +989,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -669,8 +1000,13 @@
             },
             "url": {
               "raw": "{{base_url}}/test/chat",
-              "host": ["{{base_url}}"],
-              "path": ["test", "chat"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test",
+                "chat"
+              ]
             }
           },
           "event": [
@@ -694,7 +1030,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -702,8 +1041,13 @@
             },
             "url": {
               "raw": "{{base_url}}/test/chat",
-              "host": ["{{base_url}}"],
-              "path": ["test", "chat"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "test",
+                "chat"
+              ]
             }
           }
         }
@@ -711,19 +1055,69 @@
     }
   ],
   "variable": [
-    { "key": "base_url", "value": "http://localhost:8000" },
-    { "key": "ws_host", "value": "localhost:8000" },
-    { "key": "council_id", "value": "00000000-0000-0000-0000-000000000010" },
-    { "key": "execution_id", "value": "" },
-    { "key": "missing_execution_id", "value": "00000000-0000-0000-0000-000000009999" },
-    { "key": "user_id", "value": "00000000-0000-0000-0000-000000000001" },
-    { "key": "user_email", "value": "postman@hexallabs.local" },
-    { "key": "user_name", "value": "Postman Tester" },
-    { "key": "model_name", "value": "gpt-5.1-chat" },
-    { "key": "jwt_secret", "value": "" },
-    { "key": "jwt_token", "value": "" },
-    { "key": "expired_jwt_token", "value": "" },
-    { "key": "jwt_ttl_seconds", "value": "3600" },
-    { "key": "auto_generate_jwt", "value": "true" }
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "ws_host",
+      "value": "localhost:8000"
+    },
+    {
+      "key": "council_id",
+      "value": ""
+    },
+    {
+      "key": "execution_id",
+      "value": ""
+    },
+    {
+      "key": "missing_execution_id",
+      "value": "00000000-0000-0000-0000-000000009999"
+    },
+    {
+      "key": "user_id",
+      "value": ""
+    },
+    {
+      "key": "user_email",
+      "value": "postman@hexallabs.local"
+    },
+    {
+      "key": "user_name",
+      "value": "Postman Tester"
+    },
+    {
+      "key": "model_name",
+      "value": "gpt-5.1-chat"
+    },
+    {
+      "key": "jwt_secret",
+      "value": ""
+    },
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "expired_jwt_token",
+      "value": ""
+    },
+    {
+      "key": "jwt_ttl_seconds",
+      "value": "3600"
+    },
+    {
+      "key": "auto_generate_jwt",
+      "value": "true"
+    },
+    {
+      "key": "use_static_dev_token",
+      "value": "false"
+    },
+    {
+      "key": "static_dev_token",
+      "value": ""
+    }
   ]
 }
