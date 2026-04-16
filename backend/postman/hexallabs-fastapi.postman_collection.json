@@ -1,0 +1,729 @@
+{
+  "info": {
+    "_postman_id": "e2a9e124-7cc8-48ec-a22e-8b5ad2b5ce11",
+    "name": "Hexallabs FastAPI - Full API Test Suite",
+    "description": "Comprehensive Postman collection for Hexallabs FastAPI backend. Includes health checks, council execution APIs, WebSocket templates, relay templates, test UI routes, auth scenarios, and schema assertions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const auto = (pm.environment.get('auto_generate_jwt') || 'true').toLowerCase() === 'true';",
+          "const current = pm.environment.get('jwt_token');",
+          "if (!auto && current) { return; }",
+          "",
+          "const secret = pm.environment.get('jwt_secret');",
+          "const userId = pm.environment.get('user_id') || '00000000-0000-0000-0000-000000000001';",
+          "const email = pm.environment.get('user_email') || 'postman@hexallabs.local';",
+          "const ttl = parseInt(pm.environment.get('jwt_ttl_seconds') || '3600', 10);",
+          "",
+          "if (!secret) {",
+          "  if (!current) {",
+          "    console.warn('JWT not generated: jwt_secret missing and jwt_token not set manually.');",
+          "  }",
+          "  return;",
+          "}",
+          "",
+          "const now = Math.floor(Date.now() / 1000);",
+          "const payload = {",
+          "  sub: userId,",
+          "  email: email,",
+          "  name: pm.environment.get('user_name') || 'Postman Tester',",
+          "  exp: now + ttl",
+          "};",
+          "const header = { alg: 'HS256', typ: 'JWT' };",
+          "",
+          "function base64UrlEncodeWordArray(wordArray) {",
+          "  return CryptoJS.enc.Base64.stringify(wordArray)",
+          "    .replace(/=/g, '')",
+          "    .replace(/\\+/g, '-')",
+          "    .replace(/\\//g, '_');",
+          "}",
+          "",
+          "const encodedHeader = base64UrlEncodeWordArray(CryptoJS.enc.Utf8.parse(JSON.stringify(header)));",
+          "const encodedPayload = base64UrlEncodeWordArray(CryptoJS.enc.Utf8.parse(JSON.stringify(payload)));",
+          "const signingInput = encodedHeader + '.' + encodedPayload;",
+          "const signature = CryptoJS.HmacSHA256(signingInput, secret);",
+          "const encodedSignature = base64UrlEncodeWordArray(signature);",
+          "const token = signingInput + '.' + encodedSignature;",
+          "",
+          "pm.environment.set('jwt_token', token);"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health & Diagnostics",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Basic service health check."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Body has status ok', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('ok');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /health/db",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/db",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health",
+                "db"
+              ]
+            },
+            "description": "Database connectivity health check."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Database is connected', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('ok');",
+                  "  pm.expect(body.database).to.eql('connected');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Council API (HTTP)",
+      "item": [
+        {
+          "name": "POST /api/council/execute - Happy Path",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"query\": \"Give a concise architecture recommendation for a scalable async FastAPI app.\",\n  \"user_id\": \"{{user_id}}\",\n  \"scout_enabled\": false,\n  \"primal_protocol\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execute"]
+            },
+            "description": "Creates a new execution and returns execution_id."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Execution id returned', function () {",
+                  "  pm.expect(body.execution_id).to.be.a('string');",
+                  "  pm.expect(body.status).to.eql('pending');",
+                  "});",
+                  "pm.environment.set('execution_id', body.execution_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/council/execute - Scout Enabled",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"query\": \"What are the latest best practices for websocket scaling in Python services?\",\n  \"user_id\": \"{{user_id}}\",\n  \"scout_enabled\": true,\n  \"primal_protocol\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.environment.set('execution_id', body.execution_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/council/execute - Primal Protocol",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"query\": \"Explain event sourcing tradeoffs in distributed systems.\",\n  \"user_id\": \"{{user_id}}\",\n  \"scout_enabled\": false,\n  \"primal_protocol\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execute"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/council/execution/{{execution_id}} - Poll Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/council/execution/{{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execution", "{{execution_id}}"]
+            },
+            "description": "Poll this until status becomes complete."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Response shape is valid', function () {",
+                  "  pm.expect(body.id).to.be.a('string');",
+                  "  pm.expect(body.council_id).to.be.a('string');",
+                  "  pm.expect(body.query).to.be.a('string');",
+                  "  pm.expect(['pending', 'running', 'complete', 'error']).to.include(body.status);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/council/execution/{{execution_id}} - Expect Complete",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/council/execution/{{execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execution", "{{execution_id}}"]
+            },
+            "description": "Run this after waiting for the websocket stream to finish."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test('Execution eventually completes', function () {",
+                  "  pm.expect(body.status).to.eql('complete');",
+                  "  pm.expect(body.synthesis).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/council/execute - Missing Auth Header",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"query\": \"Should fail auth\",\n  \"user_id\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Unauthorized without token', function () {",
+                  "  pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/council/execute - Expired JWT",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{expired_jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"query\": \"Should fail expired token\",\n  \"user_id\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Expired token should be rejected', function () {",
+                  "  pm.expect(pm.response.code).to.eql(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/council/execute - Validation Error (Missing query)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"council_id\": \"{{council_id}}\",\n  \"user_id\": \"{{user_id}}\",\n  \"scout_enabled\": false,\n  \"primal_protocol\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/council/execute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execute"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Validation returns 422', function () { pm.response.to.have.status(422); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/council/execution/{{missing_execution_id}} - Not Found",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/council/execution/{{missing_execution_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "council", "execution", "{{missing_execution_id}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Not found returns 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - WebSocket: The Council",
+      "item": [
+        {
+          "name": "WS /ws - Full Streaming Run",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws?execution_id={{execution_id}}&token={{jwt_token}}&scout_enabled=false&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws"],
+              "query": [
+                { "key": "execution_id", "value": "{{execution_id}}" },
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "scout_enabled", "value": "false" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "Expected events: organizer_token -> organizer_done -> token/model_response -> peer_review (multi-model) -> synthesis_token -> synthesis -> complete."
+          }
+        },
+        {
+          "name": "WS /ws - Scout Enabled",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws?execution_id={{execution_id}}&token={{jwt_token}}&scout_enabled=true&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws"],
+              "query": [
+                { "key": "execution_id", "value": "{{execution_id}}" },
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "scout_enabled", "value": "true" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "Expected additional event: scout_results."
+          }
+        },
+        {
+          "name": "WS /ws - Invalid Execution Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws?execution_id={{missing_execution_id}}&token={{jwt_token}}&scout_enabled=false&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws"],
+              "query": [
+                { "key": "execution_id", "value": "{{missing_execution_id}}" },
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "scout_enabled", "value": "false" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "Expected websocket message: { type: error, message: 'Execution not found' }."
+          }
+        },
+        {
+          "name": "WS /ws - Missing Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws?execution_id={{execution_id}}&scout_enabled=false&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws"],
+              "query": [
+                { "key": "execution_id", "value": "{{execution_id}}" },
+                { "key": "scout_enabled", "value": "false" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "Expected handshake rejection due to missing required token query parameter."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - WebSocket: The Relay",
+      "item": [
+        {
+          "name": "WS /ws/relay - Single Turn",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model={{model_name}}&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws", "relay"],
+              "query": [
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "model", "value": "{{model_name}}" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "After connect, send: {\"messages\":[{\"role\":\"user\",\"content\":\"What is 2+2?\"}]}. Expected streamed token events then done."
+          }
+        },
+        {
+          "name": "WS /ws/relay - Multi Turn",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model={{model_name}}&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws", "relay"],
+              "query": [
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "model", "value": "{{model_name}}" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "After connect, send full history JSON. Expected optional context_compressed event, token stream, done with totalCost."
+          }
+        },
+        {
+          "name": "WS /ws/relay - Alternate Model",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model=Llama-3.3-70B-Instruct&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws", "relay"],
+              "query": [
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "model", "value": "Llama-3.3-70B-Instruct" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "WS /ws/relay - Missing Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws/relay?model={{model_name}}&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws", "relay"],
+              "query": [
+                { "key": "model", "value": "{{model_name}}" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "Expected handshake rejection because token is required."
+          }
+        },
+        {
+          "name": "WS /ws/relay - Empty Messages Error",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "ws://{{ws_host}}/ws/relay?token={{jwt_token}}&model={{model_name}}&primal_protocol=false",
+              "protocol": "ws",
+              "host": ["{{ws_host}}"],
+              "path": ["ws", "relay"],
+              "query": [
+                { "key": "token", "value": "{{jwt_token}}" },
+                { "key": "model", "value": "{{model_name}}" },
+                { "key": "primal_protocol", "value": "false" }
+              ]
+            },
+            "description": "After connect, send {\"messages\":[]}. Expected websocket error payload: No messages provided."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Test UI & SSE",
+      "item": [
+        {
+          "name": "GET /test",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/test",
+              "host": ["{{base_url}}"],
+              "path": ["test"]
+            },
+            "description": "Returns HTML model testing page."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Content type is HTML', function () {",
+                  "  pm.expect((pm.response.headers.get('Content-Type') || '').toLowerCase()).to.include('text/html');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /test/chat - SSE Stream",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"{{model_name}}\",\n  \"message\": \"Give me 3 bullet points on async SQLAlchemy best practices.\",\n  \"system_prompt\": \"You are a helpful assistant.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/test/chat",
+              "host": ["{{base_url}}"],
+              "path": ["test", "chat"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is SSE', function () {",
+                  "  const ct = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "  pm.expect(ct).to.include('text/event-stream');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /test/chat - Alternate Model",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"o4-mini\",\n  \"message\": \"Explain CAP theorem in one paragraph.\",\n  \"system_prompt\": \"You are a concise teacher.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/test/chat",
+              "host": ["{{base_url}}"],
+              "path": ["test", "chat"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "ws_host", "value": "localhost:8000" },
+    { "key": "council_id", "value": "00000000-0000-0000-0000-000000000010" },
+    { "key": "execution_id", "value": "" },
+    { "key": "missing_execution_id", "value": "00000000-0000-0000-0000-000000009999" },
+    { "key": "user_id", "value": "00000000-0000-0000-0000-000000000001" },
+    { "key": "user_email", "value": "postman@hexallabs.local" },
+    { "key": "user_name", "value": "Postman Tester" },
+    { "key": "model_name", "value": "gpt-5.1-chat" },
+    { "key": "jwt_secret", "value": "" },
+    { "key": "jwt_token", "value": "" },
+    { "key": "expired_jwt_token", "value": "" },
+    { "key": "jwt_ttl_seconds", "value": "3600" },
+    { "key": "auto_generate_jwt", "value": "true" }
+  ]
+}
