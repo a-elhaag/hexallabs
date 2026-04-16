@@ -29,6 +29,8 @@ class ExecuteRequest(BaseModel):
     council_id: str
     query: str
     user_id: str
+    scout_enabled: bool = False       # Scout: run Tavily search before models
+    primal_protocol: bool = False     # Primal Protocol: terse caveman response style
 
 
 class ExecuteResponse(BaseModel):

@@ -58,6 +58,16 @@ export type BillingEvent = $Result.DefaultSelection<Prisma.$BillingEventPayload>
  * 
  */
 export type VerificationToken = $Result.DefaultSelection<Prisma.$VerificationTokenPayload>
+/**
+ * Model CouncilConfig
+ * 
+ */
+export type CouncilConfig = $Result.DefaultSelection<Prisma.$CouncilConfigPayload>
+/**
+ * Model Execution
+ * 
+ */
+export type Execution = $Result.DefaultSelection<Prisma.$ExecutionPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -266,6 +276,26 @@ export class PrismaClient<
     * ```
     */
   get verificationToken(): Prisma.VerificationTokenDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.councilConfig`: Exposes CRUD operations for the **CouncilConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CouncilConfigs
+    * const councilConfigs = await prisma.councilConfig.findMany()
+    * ```
+    */
+  get councilConfig(): Prisma.CouncilConfigDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.execution`: Exposes CRUD operations for the **Execution** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Executions
+    * const executions = await prisma.execution.findMany()
+    * ```
+    */
+  get execution(): Prisma.ExecutionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -715,7 +745,9 @@ export namespace Prisma {
     Subscription: 'Subscription',
     UsageLog: 'UsageLog',
     BillingEvent: 'BillingEvent',
-    VerificationToken: 'VerificationToken'
+    VerificationToken: 'VerificationToken',
+    CouncilConfig: 'CouncilConfig',
+    Execution: 'Execution'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -734,7 +766,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "pricingTier" | "subscription" | "usageLog" | "billingEvent" | "verificationToken"
+      modelProps: "post" | "account" | "session" | "user" | "pricingTier" | "subscription" | "usageLog" | "billingEvent" | "verificationToken" | "councilConfig" | "execution"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1404,6 +1436,154 @@ export namespace Prisma {
           }
         }
       }
+      CouncilConfig: {
+        payload: Prisma.$CouncilConfigPayload<ExtArgs>
+        fields: Prisma.CouncilConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CouncilConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CouncilConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.CouncilConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CouncilConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>
+          }
+          findMany: {
+            args: Prisma.CouncilConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>[]
+          }
+          create: {
+            args: Prisma.CouncilConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>
+          }
+          createMany: {
+            args: Prisma.CouncilConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CouncilConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.CouncilConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>
+          }
+          update: {
+            args: Prisma.CouncilConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.CouncilConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CouncilConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CouncilConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.CouncilConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CouncilConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.CouncilConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCouncilConfig>
+          }
+          groupBy: {
+            args: Prisma.CouncilConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CouncilConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CouncilConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<CouncilConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      Execution: {
+        payload: Prisma.$ExecutionPayload<ExtArgs>
+        fields: Prisma.ExecutionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExecutionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExecutionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>
+          }
+          findFirst: {
+            args: Prisma.ExecutionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExecutionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>
+          }
+          findMany: {
+            args: Prisma.ExecutionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>[]
+          }
+          create: {
+            args: Prisma.ExecutionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>
+          }
+          createMany: {
+            args: Prisma.ExecutionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ExecutionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>[]
+          }
+          delete: {
+            args: Prisma.ExecutionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>
+          }
+          update: {
+            args: Prisma.ExecutionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExecutionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExecutionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ExecutionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>[]
+          }
+          upsert: {
+            args: Prisma.ExecutionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExecutionPayload>
+          }
+          aggregate: {
+            args: Prisma.ExecutionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExecution>
+          }
+          groupBy: {
+            args: Prisma.ExecutionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExecutionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExecutionCountArgs<ExtArgs>
+            result: $Utils.Optional<ExecutionCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1509,6 +1689,8 @@ export namespace Prisma {
     usageLog?: UsageLogOmit
     billingEvent?: BillingEventOmit
     verificationToken?: VerificationTokenOmit
+    councilConfig?: CouncilConfigOmit
+    execution?: ExecutionOmit
   }
 
   /* Types for Logging */
@@ -1594,6 +1776,8 @@ export namespace Prisma {
     posts: number
     usageLogs: number
     billingEvents: number
+    councilConfigs: number
+    executions: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1602,6 +1786,8 @@ export namespace Prisma {
     posts?: boolean | UserCountOutputTypeCountPostsArgs
     usageLogs?: boolean | UserCountOutputTypeCountUsageLogsArgs
     billingEvents?: boolean | UserCountOutputTypeCountBillingEventsArgs
+    councilConfigs?: boolean | UserCountOutputTypeCountCouncilConfigsArgs
+    executions?: boolean | UserCountOutputTypeCountExecutionsArgs
   }
 
   // Custom InputTypes
@@ -1650,6 +1836,20 @@ export namespace Prisma {
     where?: BillingEventWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCouncilConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CouncilConfigWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExecutionWhereInput
+  }
+
 
   /**
    * Count Type PricingTierCountOutputType
@@ -1679,6 +1879,37 @@ export namespace Prisma {
    */
   export type PricingTierCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SubscriptionWhereInput
+  }
+
+
+  /**
+   * Count Type CouncilConfigCountOutputType
+   */
+
+  export type CouncilConfigCountOutputType = {
+    executions: number
+  }
+
+  export type CouncilConfigCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    executions?: boolean | CouncilConfigCountOutputTypeCountExecutionsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CouncilConfigCountOutputType without action
+   */
+  export type CouncilConfigCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfigCountOutputType
+     */
+    select?: CouncilConfigCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CouncilConfigCountOutputType without action
+   */
+  export type CouncilConfigCountOutputTypeCountExecutionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExecutionWhereInput
   }
 
 
@@ -5201,6 +5432,8 @@ export namespace Prisma {
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     usageLogs?: boolean | User$usageLogsArgs<ExtArgs>
     billingEvents?: boolean | User$billingEventsArgs<ExtArgs>
+    councilConfigs?: boolean | User$councilConfigsArgs<ExtArgs>
+    executions?: boolean | User$executionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5239,6 +5472,8 @@ export namespace Prisma {
     subscription?: boolean | User$subscriptionArgs<ExtArgs>
     usageLogs?: boolean | User$usageLogsArgs<ExtArgs>
     billingEvents?: boolean | User$billingEventsArgs<ExtArgs>
+    councilConfigs?: boolean | User$councilConfigsArgs<ExtArgs>
+    executions?: boolean | User$executionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5253,6 +5488,8 @@ export namespace Prisma {
       subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
       usageLogs: Prisma.$UsageLogPayload<ExtArgs>[]
       billingEvents: Prisma.$BillingEventPayload<ExtArgs>[]
+      councilConfigs: Prisma.$CouncilConfigPayload<ExtArgs>[]
+      executions: Prisma.$ExecutionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5661,6 +5898,8 @@ export namespace Prisma {
     subscription<T extends User$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     usageLogs<T extends User$usageLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$usageLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsageLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     billingEvents<T extends User$billingEventsArgs<ExtArgs> = {}>(args?: Subset<T, User$billingEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    councilConfigs<T extends User$councilConfigsArgs<ExtArgs> = {}>(args?: Subset<T, User$councilConfigsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    executions<T extends User$executionsArgs<ExtArgs> = {}>(args?: Subset<T, User$executionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6220,6 +6459,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BillingEventScalarFieldEnum | BillingEventScalarFieldEnum[]
+  }
+
+  /**
+   * User.councilConfigs
+   */
+  export type User$councilConfigsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    where?: CouncilConfigWhereInput
+    orderBy?: CouncilConfigOrderByWithRelationInput | CouncilConfigOrderByWithRelationInput[]
+    cursor?: CouncilConfigWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CouncilConfigScalarFieldEnum | CouncilConfigScalarFieldEnum[]
+  }
+
+  /**
+   * User.executions
+   */
+  export type User$executionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    where?: ExecutionWhereInput
+    orderBy?: ExecutionOrderByWithRelationInput | ExecutionOrderByWithRelationInput[]
+    cursor?: ExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExecutionScalarFieldEnum | ExecutionScalarFieldEnum[]
   }
 
   /**
@@ -11946,6 +12233,2235 @@ export namespace Prisma {
 
 
   /**
+   * Model CouncilConfig
+   */
+
+  export type AggregateCouncilConfig = {
+    _count: CouncilConfigCountAggregateOutputType | null
+    _min: CouncilConfigMinAggregateOutputType | null
+    _max: CouncilConfigMaxAggregateOutputType | null
+  }
+
+  export type CouncilConfigMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    systemPrompt: string | null
+    organizerModel: string | null
+    createdAt: Date | null
+  }
+
+  export type CouncilConfigMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    systemPrompt: string | null
+    organizerModel: string | null
+    createdAt: Date | null
+  }
+
+  export type CouncilConfigCountAggregateOutputType = {
+    id: number
+    userId: number
+    name: number
+    models: number
+    systemPrompt: number
+    organizerModel: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CouncilConfigMinAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    systemPrompt?: true
+    organizerModel?: true
+    createdAt?: true
+  }
+
+  export type CouncilConfigMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    systemPrompt?: true
+    organizerModel?: true
+    createdAt?: true
+  }
+
+  export type CouncilConfigCountAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    models?: true
+    systemPrompt?: true
+    organizerModel?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CouncilConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CouncilConfig to aggregate.
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CouncilConfigs to fetch.
+     */
+    orderBy?: CouncilConfigOrderByWithRelationInput | CouncilConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CouncilConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CouncilConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CouncilConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CouncilConfigs
+    **/
+    _count?: true | CouncilConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CouncilConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CouncilConfigMaxAggregateInputType
+  }
+
+  export type GetCouncilConfigAggregateType<T extends CouncilConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateCouncilConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCouncilConfig[P]>
+      : GetScalarType<T[P], AggregateCouncilConfig[P]>
+  }
+
+
+
+
+  export type CouncilConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CouncilConfigWhereInput
+    orderBy?: CouncilConfigOrderByWithAggregationInput | CouncilConfigOrderByWithAggregationInput[]
+    by: CouncilConfigScalarFieldEnum[] | CouncilConfigScalarFieldEnum
+    having?: CouncilConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CouncilConfigCountAggregateInputType | true
+    _min?: CouncilConfigMinAggregateInputType
+    _max?: CouncilConfigMaxAggregateInputType
+  }
+
+  export type CouncilConfigGroupByOutputType = {
+    id: string
+    userId: string
+    name: string
+    models: string[]
+    systemPrompt: string
+    organizerModel: string | null
+    createdAt: Date
+    _count: CouncilConfigCountAggregateOutputType | null
+    _min: CouncilConfigMinAggregateOutputType | null
+    _max: CouncilConfigMaxAggregateOutputType | null
+  }
+
+  type GetCouncilConfigGroupByPayload<T extends CouncilConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CouncilConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CouncilConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CouncilConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], CouncilConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CouncilConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    models?: boolean
+    systemPrompt?: boolean
+    organizerModel?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    executions?: boolean | CouncilConfig$executionsArgs<ExtArgs>
+    _count?: boolean | CouncilConfigCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["councilConfig"]>
+
+  export type CouncilConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    models?: boolean
+    systemPrompt?: boolean
+    organizerModel?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["councilConfig"]>
+
+  export type CouncilConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    models?: boolean
+    systemPrompt?: boolean
+    organizerModel?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["councilConfig"]>
+
+  export type CouncilConfigSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    models?: boolean
+    systemPrompt?: boolean
+    organizerModel?: boolean
+    createdAt?: boolean
+  }
+
+  export type CouncilConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "models" | "systemPrompt" | "organizerModel" | "createdAt", ExtArgs["result"]["councilConfig"]>
+  export type CouncilConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    executions?: boolean | CouncilConfig$executionsArgs<ExtArgs>
+    _count?: boolean | CouncilConfigCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CouncilConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CouncilConfigIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $CouncilConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CouncilConfig"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      executions: Prisma.$ExecutionPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      name: string
+      models: string[]
+      systemPrompt: string
+      organizerModel: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["councilConfig"]>
+    composites: {}
+  }
+
+  type CouncilConfigGetPayload<S extends boolean | null | undefined | CouncilConfigDefaultArgs> = $Result.GetResult<Prisma.$CouncilConfigPayload, S>
+
+  type CouncilConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CouncilConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CouncilConfigCountAggregateInputType | true
+    }
+
+  export interface CouncilConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CouncilConfig'], meta: { name: 'CouncilConfig' } }
+    /**
+     * Find zero or one CouncilConfig that matches the filter.
+     * @param {CouncilConfigFindUniqueArgs} args - Arguments to find a CouncilConfig
+     * @example
+     * // Get one CouncilConfig
+     * const councilConfig = await prisma.councilConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CouncilConfigFindUniqueArgs>(args: SelectSubset<T, CouncilConfigFindUniqueArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CouncilConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CouncilConfigFindUniqueOrThrowArgs} args - Arguments to find a CouncilConfig
+     * @example
+     * // Get one CouncilConfig
+     * const councilConfig = await prisma.councilConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CouncilConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, CouncilConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CouncilConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigFindFirstArgs} args - Arguments to find a CouncilConfig
+     * @example
+     * // Get one CouncilConfig
+     * const councilConfig = await prisma.councilConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CouncilConfigFindFirstArgs>(args?: SelectSubset<T, CouncilConfigFindFirstArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CouncilConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigFindFirstOrThrowArgs} args - Arguments to find a CouncilConfig
+     * @example
+     * // Get one CouncilConfig
+     * const councilConfig = await prisma.councilConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CouncilConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, CouncilConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CouncilConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CouncilConfigs
+     * const councilConfigs = await prisma.councilConfig.findMany()
+     * 
+     * // Get first 10 CouncilConfigs
+     * const councilConfigs = await prisma.councilConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const councilConfigWithIdOnly = await prisma.councilConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CouncilConfigFindManyArgs>(args?: SelectSubset<T, CouncilConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CouncilConfig.
+     * @param {CouncilConfigCreateArgs} args - Arguments to create a CouncilConfig.
+     * @example
+     * // Create one CouncilConfig
+     * const CouncilConfig = await prisma.councilConfig.create({
+     *   data: {
+     *     // ... data to create a CouncilConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends CouncilConfigCreateArgs>(args: SelectSubset<T, CouncilConfigCreateArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CouncilConfigs.
+     * @param {CouncilConfigCreateManyArgs} args - Arguments to create many CouncilConfigs.
+     * @example
+     * // Create many CouncilConfigs
+     * const councilConfig = await prisma.councilConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CouncilConfigCreateManyArgs>(args?: SelectSubset<T, CouncilConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CouncilConfigs and returns the data saved in the database.
+     * @param {CouncilConfigCreateManyAndReturnArgs} args - Arguments to create many CouncilConfigs.
+     * @example
+     * // Create many CouncilConfigs
+     * const councilConfig = await prisma.councilConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CouncilConfigs and only return the `id`
+     * const councilConfigWithIdOnly = await prisma.councilConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CouncilConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, CouncilConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CouncilConfig.
+     * @param {CouncilConfigDeleteArgs} args - Arguments to delete one CouncilConfig.
+     * @example
+     * // Delete one CouncilConfig
+     * const CouncilConfig = await prisma.councilConfig.delete({
+     *   where: {
+     *     // ... filter to delete one CouncilConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CouncilConfigDeleteArgs>(args: SelectSubset<T, CouncilConfigDeleteArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CouncilConfig.
+     * @param {CouncilConfigUpdateArgs} args - Arguments to update one CouncilConfig.
+     * @example
+     * // Update one CouncilConfig
+     * const councilConfig = await prisma.councilConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CouncilConfigUpdateArgs>(args: SelectSubset<T, CouncilConfigUpdateArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CouncilConfigs.
+     * @param {CouncilConfigDeleteManyArgs} args - Arguments to filter CouncilConfigs to delete.
+     * @example
+     * // Delete a few CouncilConfigs
+     * const { count } = await prisma.councilConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CouncilConfigDeleteManyArgs>(args?: SelectSubset<T, CouncilConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CouncilConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CouncilConfigs
+     * const councilConfig = await prisma.councilConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CouncilConfigUpdateManyArgs>(args: SelectSubset<T, CouncilConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CouncilConfigs and returns the data updated in the database.
+     * @param {CouncilConfigUpdateManyAndReturnArgs} args - Arguments to update many CouncilConfigs.
+     * @example
+     * // Update many CouncilConfigs
+     * const councilConfig = await prisma.councilConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CouncilConfigs and only return the `id`
+     * const councilConfigWithIdOnly = await prisma.councilConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CouncilConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, CouncilConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CouncilConfig.
+     * @param {CouncilConfigUpsertArgs} args - Arguments to update or create a CouncilConfig.
+     * @example
+     * // Update or create a CouncilConfig
+     * const councilConfig = await prisma.councilConfig.upsert({
+     *   create: {
+     *     // ... data to create a CouncilConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CouncilConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CouncilConfigUpsertArgs>(args: SelectSubset<T, CouncilConfigUpsertArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CouncilConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigCountArgs} args - Arguments to filter CouncilConfigs to count.
+     * @example
+     * // Count the number of CouncilConfigs
+     * const count = await prisma.councilConfig.count({
+     *   where: {
+     *     // ... the filter for the CouncilConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends CouncilConfigCountArgs>(
+      args?: Subset<T, CouncilConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CouncilConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CouncilConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CouncilConfigAggregateArgs>(args: Subset<T, CouncilConfigAggregateArgs>): Prisma.PrismaPromise<GetCouncilConfigAggregateType<T>>
+
+    /**
+     * Group by CouncilConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CouncilConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CouncilConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CouncilConfigGroupByArgs['orderBy'] }
+        : { orderBy?: CouncilConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CouncilConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCouncilConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CouncilConfig model
+   */
+  readonly fields: CouncilConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CouncilConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CouncilConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    executions<T extends CouncilConfig$executionsArgs<ExtArgs> = {}>(args?: Subset<T, CouncilConfig$executionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CouncilConfig model
+   */
+  interface CouncilConfigFieldRefs {
+    readonly id: FieldRef<"CouncilConfig", 'String'>
+    readonly userId: FieldRef<"CouncilConfig", 'String'>
+    readonly name: FieldRef<"CouncilConfig", 'String'>
+    readonly models: FieldRef<"CouncilConfig", 'String[]'>
+    readonly systemPrompt: FieldRef<"CouncilConfig", 'String'>
+    readonly organizerModel: FieldRef<"CouncilConfig", 'String'>
+    readonly createdAt: FieldRef<"CouncilConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CouncilConfig findUnique
+   */
+  export type CouncilConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which CouncilConfig to fetch.
+     */
+    where: CouncilConfigWhereUniqueInput
+  }
+
+  /**
+   * CouncilConfig findUniqueOrThrow
+   */
+  export type CouncilConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which CouncilConfig to fetch.
+     */
+    where: CouncilConfigWhereUniqueInput
+  }
+
+  /**
+   * CouncilConfig findFirst
+   */
+  export type CouncilConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which CouncilConfig to fetch.
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CouncilConfigs to fetch.
+     */
+    orderBy?: CouncilConfigOrderByWithRelationInput | CouncilConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CouncilConfigs.
+     */
+    cursor?: CouncilConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CouncilConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CouncilConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CouncilConfigs.
+     */
+    distinct?: CouncilConfigScalarFieldEnum | CouncilConfigScalarFieldEnum[]
+  }
+
+  /**
+   * CouncilConfig findFirstOrThrow
+   */
+  export type CouncilConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which CouncilConfig to fetch.
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CouncilConfigs to fetch.
+     */
+    orderBy?: CouncilConfigOrderByWithRelationInput | CouncilConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CouncilConfigs.
+     */
+    cursor?: CouncilConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CouncilConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CouncilConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CouncilConfigs.
+     */
+    distinct?: CouncilConfigScalarFieldEnum | CouncilConfigScalarFieldEnum[]
+  }
+
+  /**
+   * CouncilConfig findMany
+   */
+  export type CouncilConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which CouncilConfigs to fetch.
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CouncilConfigs to fetch.
+     */
+    orderBy?: CouncilConfigOrderByWithRelationInput | CouncilConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CouncilConfigs.
+     */
+    cursor?: CouncilConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CouncilConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CouncilConfigs.
+     */
+    skip?: number
+    distinct?: CouncilConfigScalarFieldEnum | CouncilConfigScalarFieldEnum[]
+  }
+
+  /**
+   * CouncilConfig create
+   */
+  export type CouncilConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CouncilConfig.
+     */
+    data: XOR<CouncilConfigCreateInput, CouncilConfigUncheckedCreateInput>
+  }
+
+  /**
+   * CouncilConfig createMany
+   */
+  export type CouncilConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CouncilConfigs.
+     */
+    data: CouncilConfigCreateManyInput | CouncilConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CouncilConfig createManyAndReturn
+   */
+  export type CouncilConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many CouncilConfigs.
+     */
+    data: CouncilConfigCreateManyInput | CouncilConfigCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CouncilConfig update
+   */
+  export type CouncilConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CouncilConfig.
+     */
+    data: XOR<CouncilConfigUpdateInput, CouncilConfigUncheckedUpdateInput>
+    /**
+     * Choose, which CouncilConfig to update.
+     */
+    where: CouncilConfigWhereUniqueInput
+  }
+
+  /**
+   * CouncilConfig updateMany
+   */
+  export type CouncilConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CouncilConfigs.
+     */
+    data: XOR<CouncilConfigUpdateManyMutationInput, CouncilConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which CouncilConfigs to update
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * Limit how many CouncilConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CouncilConfig updateManyAndReturn
+   */
+  export type CouncilConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update CouncilConfigs.
+     */
+    data: XOR<CouncilConfigUpdateManyMutationInput, CouncilConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which CouncilConfigs to update
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * Limit how many CouncilConfigs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CouncilConfig upsert
+   */
+  export type CouncilConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CouncilConfig to update in case it exists.
+     */
+    where: CouncilConfigWhereUniqueInput
+    /**
+     * In case the CouncilConfig found by the `where` argument doesn't exist, create a new CouncilConfig with this data.
+     */
+    create: XOR<CouncilConfigCreateInput, CouncilConfigUncheckedCreateInput>
+    /**
+     * In case the CouncilConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CouncilConfigUpdateInput, CouncilConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * CouncilConfig delete
+   */
+  export type CouncilConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+    /**
+     * Filter which CouncilConfig to delete.
+     */
+    where: CouncilConfigWhereUniqueInput
+  }
+
+  /**
+   * CouncilConfig deleteMany
+   */
+  export type CouncilConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CouncilConfigs to delete
+     */
+    where?: CouncilConfigWhereInput
+    /**
+     * Limit how many CouncilConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CouncilConfig.executions
+   */
+  export type CouncilConfig$executionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    where?: ExecutionWhereInput
+    orderBy?: ExecutionOrderByWithRelationInput | ExecutionOrderByWithRelationInput[]
+    cursor?: ExecutionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ExecutionScalarFieldEnum | ExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * CouncilConfig without action
+   */
+  export type CouncilConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CouncilConfig
+     */
+    select?: CouncilConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CouncilConfig
+     */
+    omit?: CouncilConfigOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CouncilConfigInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Execution
+   */
+
+  export type AggregateExecution = {
+    _count: ExecutionCountAggregateOutputType | null
+    _min: ExecutionMinAggregateOutputType | null
+    _max: ExecutionMaxAggregateOutputType | null
+  }
+
+  export type ExecutionMinAggregateOutputType = {
+    id: string | null
+    councilId: string | null
+    userId: string | null
+    query: string | null
+    status: string | null
+    synthesis: string | null
+    createdAt: Date | null
+  }
+
+  export type ExecutionMaxAggregateOutputType = {
+    id: string | null
+    councilId: string | null
+    userId: string | null
+    query: string | null
+    status: string | null
+    synthesis: string | null
+    createdAt: Date | null
+  }
+
+  export type ExecutionCountAggregateOutputType = {
+    id: number
+    councilId: number
+    userId: number
+    query: number
+    status: number
+    modelResponses: number
+    peerReviews: number
+    synthesis: number
+    costBreakdown: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ExecutionMinAggregateInputType = {
+    id?: true
+    councilId?: true
+    userId?: true
+    query?: true
+    status?: true
+    synthesis?: true
+    createdAt?: true
+  }
+
+  export type ExecutionMaxAggregateInputType = {
+    id?: true
+    councilId?: true
+    userId?: true
+    query?: true
+    status?: true
+    synthesis?: true
+    createdAt?: true
+  }
+
+  export type ExecutionCountAggregateInputType = {
+    id?: true
+    councilId?: true
+    userId?: true
+    query?: true
+    status?: true
+    modelResponses?: true
+    peerReviews?: true
+    synthesis?: true
+    costBreakdown?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ExecutionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Execution to aggregate.
+     */
+    where?: ExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Executions to fetch.
+     */
+    orderBy?: ExecutionOrderByWithRelationInput | ExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Executions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Executions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Executions
+    **/
+    _count?: true | ExecutionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExecutionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExecutionMaxAggregateInputType
+  }
+
+  export type GetExecutionAggregateType<T extends ExecutionAggregateArgs> = {
+        [P in keyof T & keyof AggregateExecution]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExecution[P]>
+      : GetScalarType<T[P], AggregateExecution[P]>
+  }
+
+
+
+
+  export type ExecutionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExecutionWhereInput
+    orderBy?: ExecutionOrderByWithAggregationInput | ExecutionOrderByWithAggregationInput[]
+    by: ExecutionScalarFieldEnum[] | ExecutionScalarFieldEnum
+    having?: ExecutionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExecutionCountAggregateInputType | true
+    _min?: ExecutionMinAggregateInputType
+    _max?: ExecutionMaxAggregateInputType
+  }
+
+  export type ExecutionGroupByOutputType = {
+    id: string
+    councilId: string
+    userId: string
+    query: string
+    status: string
+    modelResponses: JsonValue | null
+    peerReviews: JsonValue | null
+    synthesis: string | null
+    costBreakdown: JsonValue | null
+    createdAt: Date
+    _count: ExecutionCountAggregateOutputType | null
+    _min: ExecutionMinAggregateOutputType | null
+    _max: ExecutionMaxAggregateOutputType | null
+  }
+
+  type GetExecutionGroupByPayload<T extends ExecutionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExecutionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExecutionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExecutionGroupByOutputType[P]>
+            : GetScalarType<T[P], ExecutionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExecutionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    councilId?: boolean
+    userId?: boolean
+    query?: boolean
+    status?: boolean
+    modelResponses?: boolean
+    peerReviews?: boolean
+    synthesis?: boolean
+    costBreakdown?: boolean
+    createdAt?: boolean
+    council?: boolean | CouncilConfigDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["execution"]>
+
+  export type ExecutionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    councilId?: boolean
+    userId?: boolean
+    query?: boolean
+    status?: boolean
+    modelResponses?: boolean
+    peerReviews?: boolean
+    synthesis?: boolean
+    costBreakdown?: boolean
+    createdAt?: boolean
+    council?: boolean | CouncilConfigDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["execution"]>
+
+  export type ExecutionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    councilId?: boolean
+    userId?: boolean
+    query?: boolean
+    status?: boolean
+    modelResponses?: boolean
+    peerReviews?: boolean
+    synthesis?: boolean
+    costBreakdown?: boolean
+    createdAt?: boolean
+    council?: boolean | CouncilConfigDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["execution"]>
+
+  export type ExecutionSelectScalar = {
+    id?: boolean
+    councilId?: boolean
+    userId?: boolean
+    query?: boolean
+    status?: boolean
+    modelResponses?: boolean
+    peerReviews?: boolean
+    synthesis?: boolean
+    costBreakdown?: boolean
+    createdAt?: boolean
+  }
+
+  export type ExecutionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "councilId" | "userId" | "query" | "status" | "modelResponses" | "peerReviews" | "synthesis" | "costBreakdown" | "createdAt", ExtArgs["result"]["execution"]>
+  export type ExecutionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    council?: boolean | CouncilConfigDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ExecutionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    council?: boolean | CouncilConfigDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ExecutionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    council?: boolean | CouncilConfigDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $ExecutionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Execution"
+    objects: {
+      council: Prisma.$CouncilConfigPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      councilId: string
+      userId: string
+      query: string
+      status: string
+      modelResponses: Prisma.JsonValue | null
+      peerReviews: Prisma.JsonValue | null
+      synthesis: string | null
+      costBreakdown: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["execution"]>
+    composites: {}
+  }
+
+  type ExecutionGetPayload<S extends boolean | null | undefined | ExecutionDefaultArgs> = $Result.GetResult<Prisma.$ExecutionPayload, S>
+
+  type ExecutionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ExecutionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ExecutionCountAggregateInputType | true
+    }
+
+  export interface ExecutionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Execution'], meta: { name: 'Execution' } }
+    /**
+     * Find zero or one Execution that matches the filter.
+     * @param {ExecutionFindUniqueArgs} args - Arguments to find a Execution
+     * @example
+     * // Get one Execution
+     * const execution = await prisma.execution.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExecutionFindUniqueArgs>(args: SelectSubset<T, ExecutionFindUniqueArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Execution that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ExecutionFindUniqueOrThrowArgs} args - Arguments to find a Execution
+     * @example
+     * // Get one Execution
+     * const execution = await prisma.execution.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExecutionFindUniqueOrThrowArgs>(args: SelectSubset<T, ExecutionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Execution that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionFindFirstArgs} args - Arguments to find a Execution
+     * @example
+     * // Get one Execution
+     * const execution = await prisma.execution.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExecutionFindFirstArgs>(args?: SelectSubset<T, ExecutionFindFirstArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Execution that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionFindFirstOrThrowArgs} args - Arguments to find a Execution
+     * @example
+     * // Get one Execution
+     * const execution = await prisma.execution.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExecutionFindFirstOrThrowArgs>(args?: SelectSubset<T, ExecutionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Executions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Executions
+     * const executions = await prisma.execution.findMany()
+     * 
+     * // Get first 10 Executions
+     * const executions = await prisma.execution.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const executionWithIdOnly = await prisma.execution.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExecutionFindManyArgs>(args?: SelectSubset<T, ExecutionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Execution.
+     * @param {ExecutionCreateArgs} args - Arguments to create a Execution.
+     * @example
+     * // Create one Execution
+     * const Execution = await prisma.execution.create({
+     *   data: {
+     *     // ... data to create a Execution
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExecutionCreateArgs>(args: SelectSubset<T, ExecutionCreateArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Executions.
+     * @param {ExecutionCreateManyArgs} args - Arguments to create many Executions.
+     * @example
+     * // Create many Executions
+     * const execution = await prisma.execution.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExecutionCreateManyArgs>(args?: SelectSubset<T, ExecutionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Executions and returns the data saved in the database.
+     * @param {ExecutionCreateManyAndReturnArgs} args - Arguments to create many Executions.
+     * @example
+     * // Create many Executions
+     * const execution = await prisma.execution.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Executions and only return the `id`
+     * const executionWithIdOnly = await prisma.execution.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ExecutionCreateManyAndReturnArgs>(args?: SelectSubset<T, ExecutionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Execution.
+     * @param {ExecutionDeleteArgs} args - Arguments to delete one Execution.
+     * @example
+     * // Delete one Execution
+     * const Execution = await prisma.execution.delete({
+     *   where: {
+     *     // ... filter to delete one Execution
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExecutionDeleteArgs>(args: SelectSubset<T, ExecutionDeleteArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Execution.
+     * @param {ExecutionUpdateArgs} args - Arguments to update one Execution.
+     * @example
+     * // Update one Execution
+     * const execution = await prisma.execution.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExecutionUpdateArgs>(args: SelectSubset<T, ExecutionUpdateArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Executions.
+     * @param {ExecutionDeleteManyArgs} args - Arguments to filter Executions to delete.
+     * @example
+     * // Delete a few Executions
+     * const { count } = await prisma.execution.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExecutionDeleteManyArgs>(args?: SelectSubset<T, ExecutionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Executions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Executions
+     * const execution = await prisma.execution.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExecutionUpdateManyArgs>(args: SelectSubset<T, ExecutionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Executions and returns the data updated in the database.
+     * @param {ExecutionUpdateManyAndReturnArgs} args - Arguments to update many Executions.
+     * @example
+     * // Update many Executions
+     * const execution = await prisma.execution.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Executions and only return the `id`
+     * const executionWithIdOnly = await prisma.execution.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ExecutionUpdateManyAndReturnArgs>(args: SelectSubset<T, ExecutionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Execution.
+     * @param {ExecutionUpsertArgs} args - Arguments to update or create a Execution.
+     * @example
+     * // Update or create a Execution
+     * const execution = await prisma.execution.upsert({
+     *   create: {
+     *     // ... data to create a Execution
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Execution we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExecutionUpsertArgs>(args: SelectSubset<T, ExecutionUpsertArgs<ExtArgs>>): Prisma__ExecutionClient<$Result.GetResult<Prisma.$ExecutionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Executions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionCountArgs} args - Arguments to filter Executions to count.
+     * @example
+     * // Count the number of Executions
+     * const count = await prisma.execution.count({
+     *   where: {
+     *     // ... the filter for the Executions we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExecutionCountArgs>(
+      args?: Subset<T, ExecutionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExecutionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Execution.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExecutionAggregateArgs>(args: Subset<T, ExecutionAggregateArgs>): Prisma.PrismaPromise<GetExecutionAggregateType<T>>
+
+    /**
+     * Group by Execution.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExecutionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExecutionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExecutionGroupByArgs['orderBy'] }
+        : { orderBy?: ExecutionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExecutionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExecutionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Execution model
+   */
+  readonly fields: ExecutionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Execution.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExecutionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    council<T extends CouncilConfigDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CouncilConfigDefaultArgs<ExtArgs>>): Prisma__CouncilConfigClient<$Result.GetResult<Prisma.$CouncilConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Execution model
+   */
+  interface ExecutionFieldRefs {
+    readonly id: FieldRef<"Execution", 'String'>
+    readonly councilId: FieldRef<"Execution", 'String'>
+    readonly userId: FieldRef<"Execution", 'String'>
+    readonly query: FieldRef<"Execution", 'String'>
+    readonly status: FieldRef<"Execution", 'String'>
+    readonly modelResponses: FieldRef<"Execution", 'Json'>
+    readonly peerReviews: FieldRef<"Execution", 'Json'>
+    readonly synthesis: FieldRef<"Execution", 'String'>
+    readonly costBreakdown: FieldRef<"Execution", 'Json'>
+    readonly createdAt: FieldRef<"Execution", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Execution findUnique
+   */
+  export type ExecutionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which Execution to fetch.
+     */
+    where: ExecutionWhereUniqueInput
+  }
+
+  /**
+   * Execution findUniqueOrThrow
+   */
+  export type ExecutionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which Execution to fetch.
+     */
+    where: ExecutionWhereUniqueInput
+  }
+
+  /**
+   * Execution findFirst
+   */
+  export type ExecutionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which Execution to fetch.
+     */
+    where?: ExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Executions to fetch.
+     */
+    orderBy?: ExecutionOrderByWithRelationInput | ExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Executions.
+     */
+    cursor?: ExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Executions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Executions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Executions.
+     */
+    distinct?: ExecutionScalarFieldEnum | ExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * Execution findFirstOrThrow
+   */
+  export type ExecutionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which Execution to fetch.
+     */
+    where?: ExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Executions to fetch.
+     */
+    orderBy?: ExecutionOrderByWithRelationInput | ExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Executions.
+     */
+    cursor?: ExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Executions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Executions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Executions.
+     */
+    distinct?: ExecutionScalarFieldEnum | ExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * Execution findMany
+   */
+  export type ExecutionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * Filter, which Executions to fetch.
+     */
+    where?: ExecutionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Executions to fetch.
+     */
+    orderBy?: ExecutionOrderByWithRelationInput | ExecutionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Executions.
+     */
+    cursor?: ExecutionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Executions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Executions.
+     */
+    skip?: number
+    distinct?: ExecutionScalarFieldEnum | ExecutionScalarFieldEnum[]
+  }
+
+  /**
+   * Execution create
+   */
+  export type ExecutionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Execution.
+     */
+    data: XOR<ExecutionCreateInput, ExecutionUncheckedCreateInput>
+  }
+
+  /**
+   * Execution createMany
+   */
+  export type ExecutionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Executions.
+     */
+    data: ExecutionCreateManyInput | ExecutionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Execution createManyAndReturn
+   */
+  export type ExecutionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Executions.
+     */
+    data: ExecutionCreateManyInput | ExecutionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Execution update
+   */
+  export type ExecutionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Execution.
+     */
+    data: XOR<ExecutionUpdateInput, ExecutionUncheckedUpdateInput>
+    /**
+     * Choose, which Execution to update.
+     */
+    where: ExecutionWhereUniqueInput
+  }
+
+  /**
+   * Execution updateMany
+   */
+  export type ExecutionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Executions.
+     */
+    data: XOR<ExecutionUpdateManyMutationInput, ExecutionUncheckedUpdateManyInput>
+    /**
+     * Filter which Executions to update
+     */
+    where?: ExecutionWhereInput
+    /**
+     * Limit how many Executions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Execution updateManyAndReturn
+   */
+  export type ExecutionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * The data used to update Executions.
+     */
+    data: XOR<ExecutionUpdateManyMutationInput, ExecutionUncheckedUpdateManyInput>
+    /**
+     * Filter which Executions to update
+     */
+    where?: ExecutionWhereInput
+    /**
+     * Limit how many Executions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Execution upsert
+   */
+  export type ExecutionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Execution to update in case it exists.
+     */
+    where: ExecutionWhereUniqueInput
+    /**
+     * In case the Execution found by the `where` argument doesn't exist, create a new Execution with this data.
+     */
+    create: XOR<ExecutionCreateInput, ExecutionUncheckedCreateInput>
+    /**
+     * In case the Execution was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExecutionUpdateInput, ExecutionUncheckedUpdateInput>
+  }
+
+  /**
+   * Execution delete
+   */
+  export type ExecutionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+    /**
+     * Filter which Execution to delete.
+     */
+    where: ExecutionWhereUniqueInput
+  }
+
+  /**
+   * Execution deleteMany
+   */
+  export type ExecutionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Executions to delete
+     */
+    where?: ExecutionWhereInput
+    /**
+     * Limit how many Executions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Execution without action
+   */
+  export type ExecutionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Execution
+     */
+    select?: ExecutionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Execution
+     */
+    omit?: ExecutionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ExecutionInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -12085,6 +14601,35 @@ export namespace Prisma {
   };
 
   export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFieldEnum)[keyof typeof VerificationTokenScalarFieldEnum]
+
+
+  export const CouncilConfigScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    name: 'name',
+    models: 'models',
+    systemPrompt: 'systemPrompt',
+    organizerModel: 'organizerModel',
+    createdAt: 'createdAt'
+  };
+
+  export type CouncilConfigScalarFieldEnum = (typeof CouncilConfigScalarFieldEnum)[keyof typeof CouncilConfigScalarFieldEnum]
+
+
+  export const ExecutionScalarFieldEnum: {
+    id: 'id',
+    councilId: 'councilId',
+    userId: 'userId',
+    query: 'query',
+    status: 'status',
+    modelResponses: 'modelResponses',
+    peerReviews: 'peerReviews',
+    synthesis: 'synthesis',
+    costBreakdown: 'costBreakdown',
+    createdAt: 'createdAt'
+  };
+
+  export type ExecutionScalarFieldEnum = (typeof ExecutionScalarFieldEnum)[keyof typeof ExecutionScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -12434,6 +14979,8 @@ export namespace Prisma {
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     usageLogs?: UsageLogListRelationFilter
     billingEvents?: BillingEventListRelationFilter
+    councilConfigs?: CouncilConfigListRelationFilter
+    executions?: ExecutionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -12449,6 +14996,8 @@ export namespace Prisma {
     subscription?: SubscriptionOrderByWithRelationInput
     usageLogs?: UsageLogOrderByRelationAggregateInput
     billingEvents?: BillingEventOrderByRelationAggregateInput
+    councilConfigs?: CouncilConfigOrderByRelationAggregateInput
+    executions?: ExecutionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -12467,6 +15016,8 @@ export namespace Prisma {
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     usageLogs?: UsageLogListRelationFilter
     billingEvents?: BillingEventListRelationFilter
+    councilConfigs?: CouncilConfigListRelationFilter
+    executions?: ExecutionListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -12882,6 +15433,157 @@ export namespace Prisma {
     expires?: DateTimeWithAggregatesFilter<"VerificationToken"> | Date | string
   }
 
+  export type CouncilConfigWhereInput = {
+    AND?: CouncilConfigWhereInput | CouncilConfigWhereInput[]
+    OR?: CouncilConfigWhereInput[]
+    NOT?: CouncilConfigWhereInput | CouncilConfigWhereInput[]
+    id?: StringFilter<"CouncilConfig"> | string
+    userId?: StringFilter<"CouncilConfig"> | string
+    name?: StringFilter<"CouncilConfig"> | string
+    models?: StringNullableListFilter<"CouncilConfig">
+    systemPrompt?: StringFilter<"CouncilConfig"> | string
+    organizerModel?: StringNullableFilter<"CouncilConfig"> | string | null
+    createdAt?: DateTimeFilter<"CouncilConfig"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    executions?: ExecutionListRelationFilter
+  }
+
+  export type CouncilConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    models?: SortOrder
+    systemPrompt?: SortOrder
+    organizerModel?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    executions?: ExecutionOrderByRelationAggregateInput
+  }
+
+  export type CouncilConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CouncilConfigWhereInput | CouncilConfigWhereInput[]
+    OR?: CouncilConfigWhereInput[]
+    NOT?: CouncilConfigWhereInput | CouncilConfigWhereInput[]
+    userId?: StringFilter<"CouncilConfig"> | string
+    name?: StringFilter<"CouncilConfig"> | string
+    models?: StringNullableListFilter<"CouncilConfig">
+    systemPrompt?: StringFilter<"CouncilConfig"> | string
+    organizerModel?: StringNullableFilter<"CouncilConfig"> | string | null
+    createdAt?: DateTimeFilter<"CouncilConfig"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    executions?: ExecutionListRelationFilter
+  }, "id">
+
+  export type CouncilConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    models?: SortOrder
+    systemPrompt?: SortOrder
+    organizerModel?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: CouncilConfigCountOrderByAggregateInput
+    _max?: CouncilConfigMaxOrderByAggregateInput
+    _min?: CouncilConfigMinOrderByAggregateInput
+  }
+
+  export type CouncilConfigScalarWhereWithAggregatesInput = {
+    AND?: CouncilConfigScalarWhereWithAggregatesInput | CouncilConfigScalarWhereWithAggregatesInput[]
+    OR?: CouncilConfigScalarWhereWithAggregatesInput[]
+    NOT?: CouncilConfigScalarWhereWithAggregatesInput | CouncilConfigScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CouncilConfig"> | string
+    userId?: StringWithAggregatesFilter<"CouncilConfig"> | string
+    name?: StringWithAggregatesFilter<"CouncilConfig"> | string
+    models?: StringNullableListFilter<"CouncilConfig">
+    systemPrompt?: StringWithAggregatesFilter<"CouncilConfig"> | string
+    organizerModel?: StringNullableWithAggregatesFilter<"CouncilConfig"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CouncilConfig"> | Date | string
+  }
+
+  export type ExecutionWhereInput = {
+    AND?: ExecutionWhereInput | ExecutionWhereInput[]
+    OR?: ExecutionWhereInput[]
+    NOT?: ExecutionWhereInput | ExecutionWhereInput[]
+    id?: StringFilter<"Execution"> | string
+    councilId?: StringFilter<"Execution"> | string
+    userId?: StringFilter<"Execution"> | string
+    query?: StringFilter<"Execution"> | string
+    status?: StringFilter<"Execution"> | string
+    modelResponses?: JsonNullableFilter<"Execution">
+    peerReviews?: JsonNullableFilter<"Execution">
+    synthesis?: StringNullableFilter<"Execution"> | string | null
+    costBreakdown?: JsonNullableFilter<"Execution">
+    createdAt?: DateTimeFilter<"Execution"> | Date | string
+    council?: XOR<CouncilConfigScalarRelationFilter, CouncilConfigWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type ExecutionOrderByWithRelationInput = {
+    id?: SortOrder
+    councilId?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    status?: SortOrder
+    modelResponses?: SortOrderInput | SortOrder
+    peerReviews?: SortOrderInput | SortOrder
+    synthesis?: SortOrderInput | SortOrder
+    costBreakdown?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    council?: CouncilConfigOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type ExecutionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ExecutionWhereInput | ExecutionWhereInput[]
+    OR?: ExecutionWhereInput[]
+    NOT?: ExecutionWhereInput | ExecutionWhereInput[]
+    councilId?: StringFilter<"Execution"> | string
+    userId?: StringFilter<"Execution"> | string
+    query?: StringFilter<"Execution"> | string
+    status?: StringFilter<"Execution"> | string
+    modelResponses?: JsonNullableFilter<"Execution">
+    peerReviews?: JsonNullableFilter<"Execution">
+    synthesis?: StringNullableFilter<"Execution"> | string | null
+    costBreakdown?: JsonNullableFilter<"Execution">
+    createdAt?: DateTimeFilter<"Execution"> | Date | string
+    council?: XOR<CouncilConfigScalarRelationFilter, CouncilConfigWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type ExecutionOrderByWithAggregationInput = {
+    id?: SortOrder
+    councilId?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    status?: SortOrder
+    modelResponses?: SortOrderInput | SortOrder
+    peerReviews?: SortOrderInput | SortOrder
+    synthesis?: SortOrderInput | SortOrder
+    costBreakdown?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ExecutionCountOrderByAggregateInput
+    _max?: ExecutionMaxOrderByAggregateInput
+    _min?: ExecutionMinOrderByAggregateInput
+  }
+
+  export type ExecutionScalarWhereWithAggregatesInput = {
+    AND?: ExecutionScalarWhereWithAggregatesInput | ExecutionScalarWhereWithAggregatesInput[]
+    OR?: ExecutionScalarWhereWithAggregatesInput[]
+    NOT?: ExecutionScalarWhereWithAggregatesInput | ExecutionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Execution"> | string
+    councilId?: StringWithAggregatesFilter<"Execution"> | string
+    userId?: StringWithAggregatesFilter<"Execution"> | string
+    query?: StringWithAggregatesFilter<"Execution"> | string
+    status?: StringWithAggregatesFilter<"Execution"> | string
+    modelResponses?: JsonNullableWithAggregatesFilter<"Execution">
+    peerReviews?: JsonNullableWithAggregatesFilter<"Execution">
+    synthesis?: StringNullableWithAggregatesFilter<"Execution"> | string | null
+    costBreakdown?: JsonNullableWithAggregatesFilter<"Execution">
+    createdAt?: DateTimeWithAggregatesFilter<"Execution"> | Date | string
+  }
+
   export type PostCreateInput = {
     name: string
     createdAt?: Date | string
@@ -13106,6 +15808,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -13121,6 +15825,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -13136,6 +15842,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -13151,6 +15859,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -13607,6 +16317,168 @@ export namespace Prisma {
     expires?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CouncilConfigCreateInput = {
+    id?: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutCouncilConfigsInput
+    executions?: ExecutionCreateNestedManyWithoutCouncilInput
+  }
+
+  export type CouncilConfigUncheckedCreateInput = {
+    id?: string
+    userId: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+    executions?: ExecutionUncheckedCreateNestedManyWithoutCouncilInput
+  }
+
+  export type CouncilConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCouncilConfigsNestedInput
+    executions?: ExecutionUpdateManyWithoutCouncilNestedInput
+  }
+
+  export type CouncilConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executions?: ExecutionUncheckedUpdateManyWithoutCouncilNestedInput
+  }
+
+  export type CouncilConfigCreateManyInput = {
+    id?: string
+    userId: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CouncilConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CouncilConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionCreateInput = {
+    id?: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    council: CouncilConfigCreateNestedOneWithoutExecutionsInput
+    user: UserCreateNestedOneWithoutExecutionsInput
+  }
+
+  export type ExecutionUncheckedCreateInput = {
+    id?: string
+    councilId: string
+    userId: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ExecutionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    council?: CouncilConfigUpdateOneRequiredWithoutExecutionsNestedInput
+    user?: UserUpdateOneRequiredWithoutExecutionsNestedInput
+  }
+
+  export type ExecutionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    councilId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionCreateManyInput = {
+    id?: string
+    councilId: string
+    userId: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ExecutionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    councilId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -13924,6 +16796,18 @@ export namespace Prisma {
     none?: BillingEventWhereInput
   }
 
+  export type CouncilConfigListRelationFilter = {
+    every?: CouncilConfigWhereInput
+    some?: CouncilConfigWhereInput
+    none?: CouncilConfigWhereInput
+  }
+
+  export type ExecutionListRelationFilter = {
+    every?: ExecutionWhereInput
+    some?: ExecutionWhereInput
+    none?: ExecutionWhereInput
+  }
+
   export type AccountOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -13941,6 +16825,14 @@ export namespace Prisma {
   }
 
   export type BillingEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CouncilConfigOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ExecutionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -14333,6 +17225,80 @@ export namespace Prisma {
     expires?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type CouncilConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    models?: SortOrder
+    systemPrompt?: SortOrder
+    organizerModel?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CouncilConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    systemPrompt?: SortOrder
+    organizerModel?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CouncilConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    systemPrompt?: SortOrder
+    organizerModel?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CouncilConfigScalarRelationFilter = {
+    is?: CouncilConfigWhereInput
+    isNot?: CouncilConfigWhereInput
+  }
+
+  export type ExecutionCountOrderByAggregateInput = {
+    id?: SortOrder
+    councilId?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    status?: SortOrder
+    modelResponses?: SortOrder
+    peerReviews?: SortOrder
+    synthesis?: SortOrder
+    costBreakdown?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExecutionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    councilId?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    status?: SortOrder
+    synthesis?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExecutionMinOrderByAggregateInput = {
+    id?: SortOrder
+    councilId?: SortOrder
+    userId?: SortOrder
+    query?: SortOrder
+    status?: SortOrder
+    synthesis?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type UserCreateNestedOneWithoutPostsInput = {
     create?: XOR<UserCreateWithoutPostsInput, UserUncheckedCreateWithoutPostsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPostsInput
@@ -14444,6 +17410,20 @@ export namespace Prisma {
     connect?: BillingEventWhereUniqueInput | BillingEventWhereUniqueInput[]
   }
 
+  export type CouncilConfigCreateNestedManyWithoutUserInput = {
+    create?: XOR<CouncilConfigCreateWithoutUserInput, CouncilConfigUncheckedCreateWithoutUserInput> | CouncilConfigCreateWithoutUserInput[] | CouncilConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CouncilConfigCreateOrConnectWithoutUserInput | CouncilConfigCreateOrConnectWithoutUserInput[]
+    createMany?: CouncilConfigCreateManyUserInputEnvelope
+    connect?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+  }
+
+  export type ExecutionCreateNestedManyWithoutUserInput = {
+    create?: XOR<ExecutionCreateWithoutUserInput, ExecutionUncheckedCreateWithoutUserInput> | ExecutionCreateWithoutUserInput[] | ExecutionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutUserInput | ExecutionCreateOrConnectWithoutUserInput[]
+    createMany?: ExecutionCreateManyUserInputEnvelope
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+  }
+
   export type AccountUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -14483,6 +17463,20 @@ export namespace Prisma {
     connectOrCreate?: BillingEventCreateOrConnectWithoutUserInput | BillingEventCreateOrConnectWithoutUserInput[]
     createMany?: BillingEventCreateManyUserInputEnvelope
     connect?: BillingEventWhereUniqueInput | BillingEventWhereUniqueInput[]
+  }
+
+  export type CouncilConfigUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CouncilConfigCreateWithoutUserInput, CouncilConfigUncheckedCreateWithoutUserInput> | CouncilConfigCreateWithoutUserInput[] | CouncilConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CouncilConfigCreateOrConnectWithoutUserInput | CouncilConfigCreateOrConnectWithoutUserInput[]
+    createMany?: CouncilConfigCreateManyUserInputEnvelope
+    connect?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+  }
+
+  export type ExecutionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ExecutionCreateWithoutUserInput, ExecutionUncheckedCreateWithoutUserInput> | ExecutionCreateWithoutUserInput[] | ExecutionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutUserInput | ExecutionCreateOrConnectWithoutUserInput[]
+    createMany?: ExecutionCreateManyUserInputEnvelope
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -14569,6 +17563,34 @@ export namespace Prisma {
     deleteMany?: BillingEventScalarWhereInput | BillingEventScalarWhereInput[]
   }
 
+  export type CouncilConfigUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CouncilConfigCreateWithoutUserInput, CouncilConfigUncheckedCreateWithoutUserInput> | CouncilConfigCreateWithoutUserInput[] | CouncilConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CouncilConfigCreateOrConnectWithoutUserInput | CouncilConfigCreateOrConnectWithoutUserInput[]
+    upsert?: CouncilConfigUpsertWithWhereUniqueWithoutUserInput | CouncilConfigUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CouncilConfigCreateManyUserInputEnvelope
+    set?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    disconnect?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    delete?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    connect?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    update?: CouncilConfigUpdateWithWhereUniqueWithoutUserInput | CouncilConfigUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CouncilConfigUpdateManyWithWhereWithoutUserInput | CouncilConfigUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CouncilConfigScalarWhereInput | CouncilConfigScalarWhereInput[]
+  }
+
+  export type ExecutionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ExecutionCreateWithoutUserInput, ExecutionUncheckedCreateWithoutUserInput> | ExecutionCreateWithoutUserInput[] | ExecutionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutUserInput | ExecutionCreateOrConnectWithoutUserInput[]
+    upsert?: ExecutionUpsertWithWhereUniqueWithoutUserInput | ExecutionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ExecutionCreateManyUserInputEnvelope
+    set?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    disconnect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    delete?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    update?: ExecutionUpdateWithWhereUniqueWithoutUserInput | ExecutionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ExecutionUpdateManyWithWhereWithoutUserInput | ExecutionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ExecutionScalarWhereInput | ExecutionScalarWhereInput[]
+  }
+
   export type AccountUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -14647,6 +17669,34 @@ export namespace Prisma {
     update?: BillingEventUpdateWithWhereUniqueWithoutUserInput | BillingEventUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: BillingEventUpdateManyWithWhereWithoutUserInput | BillingEventUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: BillingEventScalarWhereInput | BillingEventScalarWhereInput[]
+  }
+
+  export type CouncilConfigUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CouncilConfigCreateWithoutUserInput, CouncilConfigUncheckedCreateWithoutUserInput> | CouncilConfigCreateWithoutUserInput[] | CouncilConfigUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CouncilConfigCreateOrConnectWithoutUserInput | CouncilConfigCreateOrConnectWithoutUserInput[]
+    upsert?: CouncilConfigUpsertWithWhereUniqueWithoutUserInput | CouncilConfigUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CouncilConfigCreateManyUserInputEnvelope
+    set?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    disconnect?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    delete?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    connect?: CouncilConfigWhereUniqueInput | CouncilConfigWhereUniqueInput[]
+    update?: CouncilConfigUpdateWithWhereUniqueWithoutUserInput | CouncilConfigUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CouncilConfigUpdateManyWithWhereWithoutUserInput | CouncilConfigUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CouncilConfigScalarWhereInput | CouncilConfigScalarWhereInput[]
+  }
+
+  export type ExecutionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ExecutionCreateWithoutUserInput, ExecutionUncheckedCreateWithoutUserInput> | ExecutionCreateWithoutUserInput[] | ExecutionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutUserInput | ExecutionCreateOrConnectWithoutUserInput[]
+    upsert?: ExecutionUpsertWithWhereUniqueWithoutUserInput | ExecutionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ExecutionCreateManyUserInputEnvelope
+    set?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    disconnect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    delete?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    update?: ExecutionUpdateWithWhereUniqueWithoutUserInput | ExecutionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ExecutionUpdateManyWithWhereWithoutUserInput | ExecutionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ExecutionScalarWhereInput | ExecutionScalarWhereInput[]
   }
 
   export type SubscriptionCreateNestedManyWithoutTierInput = {
@@ -14757,6 +17807,99 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutBillingEventsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBillingEventsInput, UserUpdateWithoutBillingEventsInput>, UserUncheckedUpdateWithoutBillingEventsInput>
+  }
+
+  export type CouncilConfigCreatemodelsInput = {
+    set: string[]
+  }
+
+  export type UserCreateNestedOneWithoutCouncilConfigsInput = {
+    create?: XOR<UserCreateWithoutCouncilConfigsInput, UserUncheckedCreateWithoutCouncilConfigsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCouncilConfigsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ExecutionCreateNestedManyWithoutCouncilInput = {
+    create?: XOR<ExecutionCreateWithoutCouncilInput, ExecutionUncheckedCreateWithoutCouncilInput> | ExecutionCreateWithoutCouncilInput[] | ExecutionUncheckedCreateWithoutCouncilInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutCouncilInput | ExecutionCreateOrConnectWithoutCouncilInput[]
+    createMany?: ExecutionCreateManyCouncilInputEnvelope
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+  }
+
+  export type ExecutionUncheckedCreateNestedManyWithoutCouncilInput = {
+    create?: XOR<ExecutionCreateWithoutCouncilInput, ExecutionUncheckedCreateWithoutCouncilInput> | ExecutionCreateWithoutCouncilInput[] | ExecutionUncheckedCreateWithoutCouncilInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutCouncilInput | ExecutionCreateOrConnectWithoutCouncilInput[]
+    createMany?: ExecutionCreateManyCouncilInputEnvelope
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+  }
+
+  export type CouncilConfigUpdatemodelsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UserUpdateOneRequiredWithoutCouncilConfigsNestedInput = {
+    create?: XOR<UserCreateWithoutCouncilConfigsInput, UserUncheckedCreateWithoutCouncilConfigsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCouncilConfigsInput
+    upsert?: UserUpsertWithoutCouncilConfigsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCouncilConfigsInput, UserUpdateWithoutCouncilConfigsInput>, UserUncheckedUpdateWithoutCouncilConfigsInput>
+  }
+
+  export type ExecutionUpdateManyWithoutCouncilNestedInput = {
+    create?: XOR<ExecutionCreateWithoutCouncilInput, ExecutionUncheckedCreateWithoutCouncilInput> | ExecutionCreateWithoutCouncilInput[] | ExecutionUncheckedCreateWithoutCouncilInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutCouncilInput | ExecutionCreateOrConnectWithoutCouncilInput[]
+    upsert?: ExecutionUpsertWithWhereUniqueWithoutCouncilInput | ExecutionUpsertWithWhereUniqueWithoutCouncilInput[]
+    createMany?: ExecutionCreateManyCouncilInputEnvelope
+    set?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    disconnect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    delete?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    update?: ExecutionUpdateWithWhereUniqueWithoutCouncilInput | ExecutionUpdateWithWhereUniqueWithoutCouncilInput[]
+    updateMany?: ExecutionUpdateManyWithWhereWithoutCouncilInput | ExecutionUpdateManyWithWhereWithoutCouncilInput[]
+    deleteMany?: ExecutionScalarWhereInput | ExecutionScalarWhereInput[]
+  }
+
+  export type ExecutionUncheckedUpdateManyWithoutCouncilNestedInput = {
+    create?: XOR<ExecutionCreateWithoutCouncilInput, ExecutionUncheckedCreateWithoutCouncilInput> | ExecutionCreateWithoutCouncilInput[] | ExecutionUncheckedCreateWithoutCouncilInput[]
+    connectOrCreate?: ExecutionCreateOrConnectWithoutCouncilInput | ExecutionCreateOrConnectWithoutCouncilInput[]
+    upsert?: ExecutionUpsertWithWhereUniqueWithoutCouncilInput | ExecutionUpsertWithWhereUniqueWithoutCouncilInput[]
+    createMany?: ExecutionCreateManyCouncilInputEnvelope
+    set?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    disconnect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    delete?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    connect?: ExecutionWhereUniqueInput | ExecutionWhereUniqueInput[]
+    update?: ExecutionUpdateWithWhereUniqueWithoutCouncilInput | ExecutionUpdateWithWhereUniqueWithoutCouncilInput[]
+    updateMany?: ExecutionUpdateManyWithWhereWithoutCouncilInput | ExecutionUpdateManyWithWhereWithoutCouncilInput[]
+    deleteMany?: ExecutionScalarWhereInput | ExecutionScalarWhereInput[]
+  }
+
+  export type CouncilConfigCreateNestedOneWithoutExecutionsInput = {
+    create?: XOR<CouncilConfigCreateWithoutExecutionsInput, CouncilConfigUncheckedCreateWithoutExecutionsInput>
+    connectOrCreate?: CouncilConfigCreateOrConnectWithoutExecutionsInput
+    connect?: CouncilConfigWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutExecutionsInput = {
+    create?: XOR<UserCreateWithoutExecutionsInput, UserUncheckedCreateWithoutExecutionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutExecutionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CouncilConfigUpdateOneRequiredWithoutExecutionsNestedInput = {
+    create?: XOR<CouncilConfigCreateWithoutExecutionsInput, CouncilConfigUncheckedCreateWithoutExecutionsInput>
+    connectOrCreate?: CouncilConfigCreateOrConnectWithoutExecutionsInput
+    upsert?: CouncilConfigUpsertWithoutExecutionsInput
+    connect?: CouncilConfigWhereUniqueInput
+    update?: XOR<XOR<CouncilConfigUpdateToOneWithWhereWithoutExecutionsInput, CouncilConfigUpdateWithoutExecutionsInput>, CouncilConfigUncheckedUpdateWithoutExecutionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutExecutionsNestedInput = {
+    create?: XOR<UserCreateWithoutExecutionsInput, UserUncheckedCreateWithoutExecutionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutExecutionsInput
+    upsert?: UserUpsertWithoutExecutionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutExecutionsInput, UserUpdateWithoutExecutionsInput>, UserUncheckedUpdateWithoutExecutionsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -15011,6 +18154,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPostsInput = {
@@ -15025,6 +18170,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPostsInput = {
@@ -15055,6 +18202,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPostsInput = {
@@ -15069,6 +18218,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -15083,6 +18234,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -15097,6 +18250,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -15127,6 +18282,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -15141,6 +18298,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -15155,6 +18314,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -15169,6 +18330,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -15199,6 +18362,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -15213,6 +18378,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateWithoutUserInput = {
@@ -15398,6 +18565,70 @@ export namespace Prisma {
 
   export type BillingEventCreateManyUserInputEnvelope = {
     data: BillingEventCreateManyUserInput | BillingEventCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CouncilConfigCreateWithoutUserInput = {
+    id?: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+    executions?: ExecutionCreateNestedManyWithoutCouncilInput
+  }
+
+  export type CouncilConfigUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+    executions?: ExecutionUncheckedCreateNestedManyWithoutCouncilInput
+  }
+
+  export type CouncilConfigCreateOrConnectWithoutUserInput = {
+    where: CouncilConfigWhereUniqueInput
+    create: XOR<CouncilConfigCreateWithoutUserInput, CouncilConfigUncheckedCreateWithoutUserInput>
+  }
+
+  export type CouncilConfigCreateManyUserInputEnvelope = {
+    data: CouncilConfigCreateManyUserInput | CouncilConfigCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ExecutionCreateWithoutUserInput = {
+    id?: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    council: CouncilConfigCreateNestedOneWithoutExecutionsInput
+  }
+
+  export type ExecutionUncheckedCreateWithoutUserInput = {
+    id?: string
+    councilId: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ExecutionCreateOrConnectWithoutUserInput = {
+    where: ExecutionWhereUniqueInput
+    create: XOR<ExecutionCreateWithoutUserInput, ExecutionUncheckedCreateWithoutUserInput>
+  }
+
+  export type ExecutionCreateManyUserInputEnvelope = {
+    data: ExecutionCreateManyUserInput | ExecutionCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -15595,6 +18826,67 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"BillingEvent"> | Date | string
   }
 
+  export type CouncilConfigUpsertWithWhereUniqueWithoutUserInput = {
+    where: CouncilConfigWhereUniqueInput
+    update: XOR<CouncilConfigUpdateWithoutUserInput, CouncilConfigUncheckedUpdateWithoutUserInput>
+    create: XOR<CouncilConfigCreateWithoutUserInput, CouncilConfigUncheckedCreateWithoutUserInput>
+  }
+
+  export type CouncilConfigUpdateWithWhereUniqueWithoutUserInput = {
+    where: CouncilConfigWhereUniqueInput
+    data: XOR<CouncilConfigUpdateWithoutUserInput, CouncilConfigUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CouncilConfigUpdateManyWithWhereWithoutUserInput = {
+    where: CouncilConfigScalarWhereInput
+    data: XOR<CouncilConfigUpdateManyMutationInput, CouncilConfigUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CouncilConfigScalarWhereInput = {
+    AND?: CouncilConfigScalarWhereInput | CouncilConfigScalarWhereInput[]
+    OR?: CouncilConfigScalarWhereInput[]
+    NOT?: CouncilConfigScalarWhereInput | CouncilConfigScalarWhereInput[]
+    id?: StringFilter<"CouncilConfig"> | string
+    userId?: StringFilter<"CouncilConfig"> | string
+    name?: StringFilter<"CouncilConfig"> | string
+    models?: StringNullableListFilter<"CouncilConfig">
+    systemPrompt?: StringFilter<"CouncilConfig"> | string
+    organizerModel?: StringNullableFilter<"CouncilConfig"> | string | null
+    createdAt?: DateTimeFilter<"CouncilConfig"> | Date | string
+  }
+
+  export type ExecutionUpsertWithWhereUniqueWithoutUserInput = {
+    where: ExecutionWhereUniqueInput
+    update: XOR<ExecutionUpdateWithoutUserInput, ExecutionUncheckedUpdateWithoutUserInput>
+    create: XOR<ExecutionCreateWithoutUserInput, ExecutionUncheckedCreateWithoutUserInput>
+  }
+
+  export type ExecutionUpdateWithWhereUniqueWithoutUserInput = {
+    where: ExecutionWhereUniqueInput
+    data: XOR<ExecutionUpdateWithoutUserInput, ExecutionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ExecutionUpdateManyWithWhereWithoutUserInput = {
+    where: ExecutionScalarWhereInput
+    data: XOR<ExecutionUpdateManyMutationInput, ExecutionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ExecutionScalarWhereInput = {
+    AND?: ExecutionScalarWhereInput | ExecutionScalarWhereInput[]
+    OR?: ExecutionScalarWhereInput[]
+    NOT?: ExecutionScalarWhereInput | ExecutionScalarWhereInput[]
+    id?: StringFilter<"Execution"> | string
+    councilId?: StringFilter<"Execution"> | string
+    userId?: StringFilter<"Execution"> | string
+    query?: StringFilter<"Execution"> | string
+    status?: StringFilter<"Execution"> | string
+    modelResponses?: JsonNullableFilter<"Execution">
+    peerReviews?: JsonNullableFilter<"Execution">
+    synthesis?: StringNullableFilter<"Execution"> | string | null
+    costBreakdown?: JsonNullableFilter<"Execution">
+    createdAt?: DateTimeFilter<"Execution"> | Date | string
+  }
+
   export type SubscriptionCreateWithoutTierInput = {
     id?: string
     currentMonthBudgetUsd?: number
@@ -15721,6 +19013,8 @@ export namespace Prisma {
     posts?: PostCreateNestedManyWithoutCreatedByInput
     usageLogs?: UsageLogCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionInput = {
@@ -15735,6 +19029,8 @@ export namespace Prisma {
     posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
     usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
     billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionInput = {
@@ -15804,6 +19100,8 @@ export namespace Prisma {
     posts?: PostUpdateManyWithoutCreatedByNestedInput
     usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionInput = {
@@ -15818,6 +19116,8 @@ export namespace Prisma {
     posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
     usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
     billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutUsageLogsInput = {
@@ -15832,6 +19132,8 @@ export namespace Prisma {
     posts?: PostCreateNestedManyWithoutCreatedByInput
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUsageLogsInput = {
@@ -15846,6 +19148,8 @@ export namespace Prisma {
     posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUsageLogsInput = {
@@ -15876,6 +19180,8 @@ export namespace Prisma {
     posts?: PostUpdateManyWithoutCreatedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUsageLogsInput = {
@@ -15890,6 +19196,8 @@ export namespace Prisma {
     posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutBillingEventsInput = {
@@ -15904,6 +19212,8 @@ export namespace Prisma {
     posts?: PostCreateNestedManyWithoutCreatedByInput
     subscription?: SubscriptionCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBillingEventsInput = {
@@ -15918,6 +19228,8 @@ export namespace Prisma {
     posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
     usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBillingEventsInput = {
@@ -15948,6 +19260,8 @@ export namespace Prisma {
     posts?: PostUpdateManyWithoutCreatedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBillingEventsInput = {
@@ -15962,6 +19276,274 @@ export namespace Prisma {
     posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
     usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutCouncilConfigsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    password?: string | null
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    posts?: PostCreateNestedManyWithoutCreatedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageLogs?: UsageLogCreateNestedManyWithoutUserInput
+    billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    executions?: ExecutionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCouncilConfigsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    password?: string | null
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
+    billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    executions?: ExecutionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCouncilConfigsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCouncilConfigsInput, UserUncheckedCreateWithoutCouncilConfigsInput>
+  }
+
+  export type ExecutionCreateWithoutCouncilInput = {
+    id?: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutExecutionsInput
+  }
+
+  export type ExecutionUncheckedCreateWithoutCouncilInput = {
+    id?: string
+    userId: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ExecutionCreateOrConnectWithoutCouncilInput = {
+    where: ExecutionWhereUniqueInput
+    create: XOR<ExecutionCreateWithoutCouncilInput, ExecutionUncheckedCreateWithoutCouncilInput>
+  }
+
+  export type ExecutionCreateManyCouncilInputEnvelope = {
+    data: ExecutionCreateManyCouncilInput | ExecutionCreateManyCouncilInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutCouncilConfigsInput = {
+    update: XOR<UserUpdateWithoutCouncilConfigsInput, UserUncheckedUpdateWithoutCouncilConfigsInput>
+    create: XOR<UserCreateWithoutCouncilConfigsInput, UserUncheckedCreateWithoutCouncilConfigsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCouncilConfigsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCouncilConfigsInput, UserUncheckedUpdateWithoutCouncilConfigsInput>
+  }
+
+  export type UserUpdateWithoutCouncilConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    posts?: PostUpdateManyWithoutCreatedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
+    billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCouncilConfigsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
+    billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    executions?: ExecutionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ExecutionUpsertWithWhereUniqueWithoutCouncilInput = {
+    where: ExecutionWhereUniqueInput
+    update: XOR<ExecutionUpdateWithoutCouncilInput, ExecutionUncheckedUpdateWithoutCouncilInput>
+    create: XOR<ExecutionCreateWithoutCouncilInput, ExecutionUncheckedCreateWithoutCouncilInput>
+  }
+
+  export type ExecutionUpdateWithWhereUniqueWithoutCouncilInput = {
+    where: ExecutionWhereUniqueInput
+    data: XOR<ExecutionUpdateWithoutCouncilInput, ExecutionUncheckedUpdateWithoutCouncilInput>
+  }
+
+  export type ExecutionUpdateManyWithWhereWithoutCouncilInput = {
+    where: ExecutionScalarWhereInput
+    data: XOR<ExecutionUpdateManyMutationInput, ExecutionUncheckedUpdateManyWithoutCouncilInput>
+  }
+
+  export type CouncilConfigCreateWithoutExecutionsInput = {
+    id?: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutCouncilConfigsInput
+  }
+
+  export type CouncilConfigUncheckedCreateWithoutExecutionsInput = {
+    id?: string
+    userId: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+  }
+
+  export type CouncilConfigCreateOrConnectWithoutExecutionsInput = {
+    where: CouncilConfigWhereUniqueInput
+    create: XOR<CouncilConfigCreateWithoutExecutionsInput, CouncilConfigUncheckedCreateWithoutExecutionsInput>
+  }
+
+  export type UserCreateWithoutExecutionsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    password?: string | null
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    posts?: PostCreateNestedManyWithoutCreatedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutUserInput
+    usageLogs?: UsageLogCreateNestedManyWithoutUserInput
+    billingEvents?: BillingEventCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutExecutionsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    emailVerified?: Date | string | null
+    image?: string | null
+    password?: string | null
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    posts?: PostUncheckedCreateNestedManyWithoutCreatedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutUserInput
+    usageLogs?: UsageLogUncheckedCreateNestedManyWithoutUserInput
+    billingEvents?: BillingEventUncheckedCreateNestedManyWithoutUserInput
+    councilConfigs?: CouncilConfigUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutExecutionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutExecutionsInput, UserUncheckedCreateWithoutExecutionsInput>
+  }
+
+  export type CouncilConfigUpsertWithoutExecutionsInput = {
+    update: XOR<CouncilConfigUpdateWithoutExecutionsInput, CouncilConfigUncheckedUpdateWithoutExecutionsInput>
+    create: XOR<CouncilConfigCreateWithoutExecutionsInput, CouncilConfigUncheckedCreateWithoutExecutionsInput>
+    where?: CouncilConfigWhereInput
+  }
+
+  export type CouncilConfigUpdateToOneWithWhereWithoutExecutionsInput = {
+    where?: CouncilConfigWhereInput
+    data: XOR<CouncilConfigUpdateWithoutExecutionsInput, CouncilConfigUncheckedUpdateWithoutExecutionsInput>
+  }
+
+  export type CouncilConfigUpdateWithoutExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCouncilConfigsNestedInput
+  }
+
+  export type CouncilConfigUncheckedUpdateWithoutExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpsertWithoutExecutionsInput = {
+    update: XOR<UserUpdateWithoutExecutionsInput, UserUncheckedUpdateWithoutExecutionsInput>
+    create: XOR<UserCreateWithoutExecutionsInput, UserUncheckedCreateWithoutExecutionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutExecutionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutExecutionsInput, UserUncheckedUpdateWithoutExecutionsInput>
+  }
+
+  export type UserUpdateWithoutExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    posts?: PostUpdateManyWithoutCreatedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutUserNestedInput
+    usageLogs?: UsageLogUpdateManyWithoutUserNestedInput
+    billingEvents?: BillingEventUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutExecutionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    posts?: PostUncheckedUpdateManyWithoutCreatedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutUserNestedInput
+    usageLogs?: UsageLogUncheckedUpdateManyWithoutUserNestedInput
+    billingEvents?: BillingEventUncheckedUpdateManyWithoutUserNestedInput
+    councilConfigs?: CouncilConfigUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -16010,6 +19592,27 @@ export namespace Prisma {
     eventType: string
     amountUsd: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CouncilConfigCreateManyUserInput = {
+    id?: string
+    name: string
+    models?: CouncilConfigCreatemodelsInput | string[]
+    systemPrompt: string
+    organizerModel?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ExecutionCreateManyUserInput = {
+    id?: string
+    councilId: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -16159,6 +19762,71 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CouncilConfigUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executions?: ExecutionUpdateManyWithoutCouncilNestedInput
+  }
+
+  export type CouncilConfigUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executions?: ExecutionUncheckedUpdateManyWithoutCouncilNestedInput
+  }
+
+  export type CouncilConfigUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    models?: CouncilConfigUpdatemodelsInput | string[]
+    systemPrompt?: StringFieldUpdateOperationsInput | string
+    organizerModel?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    council?: CouncilConfigUpdateOneRequiredWithoutExecutionsNestedInput
+  }
+
+  export type ExecutionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    councilId?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    councilId?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SubscriptionCreateManyTierInput = {
     id?: string
     userId: string
@@ -16225,6 +19893,54 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionCreateManyCouncilInput = {
+    id?: string
+    userId: string
+    query: string
+    status?: string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type ExecutionUpdateWithoutCouncilInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutExecutionsNestedInput
+  }
+
+  export type ExecutionUncheckedUpdateWithoutCouncilInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExecutionUncheckedUpdateManyWithoutCouncilInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    query?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    modelResponses?: NullableJsonNullValueInput | InputJsonValue
+    peerReviews?: NullableJsonNullValueInput | InputJsonValue
+    synthesis?: NullableStringFieldUpdateOperationsInput | string | null
+    costBreakdown?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

@@ -69,9 +69,11 @@ model User {
     accounts      Account[]
     sessions      Session[]
     posts         Post[]
-    subscription  Subscription?
-    usageLogs     UsageLog[]
-    billingEvents BillingEvent[]
+    subscription   Subscription?
+    usageLogs      UsageLog[]
+    billingEvents  BillingEvent[]
+    councilConfigs CouncilConfig[]
+    executions     Execution[]
 
     @@map("users")
 }
@@ -160,4 +162,37 @@ model VerificationToken {
 
     @@unique([identifier, token])
     @@map("verification_tokens")
+}
+
+// ── Council / Execution ────────────────────────────────────────────────────────
+
+model CouncilConfig {
+    id             String      @id @default(cuid())
+    userId         String      @map("user_id")
+    name           String
+    models         String[]
+    systemPrompt   String      @map("system_prompt")
+    organizerModel String?     @map("organizer_model")
+    createdAt      DateTime    @default(now()) @map("created_at")
+    user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    executions     Execution[]
+
+    @@map("council_configs")
+}
+
+model Execution {
+    id             String        @id @default(cuid())
+    councilId      String        @map("council_id")
+    userId         String        @map("user_id")
+    query          String
+    status         String        @default("pending") // pending | running | complete | error
+    modelResponses Json?         @map("model_responses")
+    peerReviews    Json?         @map("peer_reviews")
+    synthesis      String?
+    costBreakdown  Json?         @map("cost_breakdown")
+    createdAt      DateTime      @default(now()) @map("created_at")
+    council        CouncilConfig @relation(fields: [councilId], references: [id], onDelete: Cascade)
+    user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@map("executions")
 }

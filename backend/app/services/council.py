@@ -2,10 +2,12 @@
 Council orchestration service.
 
 Flow per execution:
-  0. (Optional) Organizer model structures the query — streamed, appended to council context
-  1. All selected models answer the augmented query in parallel
-  2. (Skipped if only 1 model) Models anonymously peer-review each other
-  3. Chairman synthesizes a final answer — OR single model response returned directly
+  0a. (Optional) Scout — Tavily web search injects results into query context
+  0b. (Optional) Organizer model structures the query — streamed
+  1.  All selected models answer the augmented query in parallel
+  2.  (Skipped if only 1 model) Models anonymously peer-review each other
+  3.  Chairman synthesizes a final answer — OR single model response returned directly
+  Post. Budget check → run → deduct usage
 """
 
 from __future__ import annotations
@@ -19,14 +21,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.council import CouncilConfig
 from app.models.execution import Execution
-from app.schemas.council import CouncilConfigCreate, ExecuteRequest
+from app.schemas.council import ExecuteRequest
 from app.services import foundry
+from app.services import search as search_service
 
 CHAIRMAN_MODEL = "gpt-5.1-chat"
 BILLING_RATE = 0.60  # users billed at 60% of Azure output price
 
-# Azure output price per 1k tokens — applied to (input + output) × BILLING_RATE
-# Formula: cost = (input_tokens + output_tokens) / 1000 × COST_PER_1K[model] × BILLING_RATE
+# Azure output price per 1k tokens
 _AZURE_OUTPUT_PRICE_PER_1K: dict[str, float] = {
     "gpt-5.1-chat":           0.015,
     "gpt-5.4-mini":           0.003,
@@ -52,39 +54,16 @@ ORGANIZER_SYSTEM_PROMPT = (
     "Be brief. Do not answer the query."
 )
 
+PRIMAL_PROTOCOL_SUFFIX = (
+    "\n\nIMPORTANT: Respond in Primal Protocol mode — terse, direct, no filler. "
+    "Drop articles, pleasantries, hedging. Fragments OK. "
+    "Technical terms exact. Every word must earn its place."
+)
+
 
 # ---------------------------------------------------------------------------
 # CRUD helpers
 # ---------------------------------------------------------------------------
-
-
-async def create_council(
-    db: AsyncSession, user_id: str, body: CouncilConfigCreate
-) -> CouncilConfig:
-    config = CouncilConfig(
-        id=str(uuid.uuid4()),
-        user_id=user_id,
-        name=body.name,
-        models=body.models,
-        system_prompt=body.system_prompt,
-        organizer_model=body.organizer_model,
-    )
-    db.add(config)
-    await db.commit()
-    await db.refresh(config)
-    return config
-
-
-async def get_council(
-    db: AsyncSession, council_id: str, user_id: str
-) -> CouncilConfig | None:
-    result = await db.execute(
-        select(CouncilConfig).where(
-            CouncilConfig.id == council_id,
-            CouncilConfig.user_id == user_id,
-        )
-    )
-    return result.scalar_one_or_none()
 
 
 async def create_execution(
@@ -121,11 +100,17 @@ async def get_execution(
 
 
 async def run_council(
-    db: AsyncSession, execution_id: str, user_id: str
+    db: AsyncSession,
+    execution_id: str,
+    user_id: str,
+    scout_enabled: bool = False,
+    primal_protocol: bool = False,
 ) -> AsyncGenerator[dict[str, Any], None]:
     """
     Generator that drives a full council run and yields WebSocket events.
     """
+    from app.services import billing  # avoid circular import
+
     execution = await get_execution(db, execution_id, user_id)
     if not execution:
         yield {"type": "error", "message": "Execution not found"}
@@ -139,14 +124,39 @@ async def run_council(
         yield {"type": "error", "message": "Council config not found"}
         return
 
+    # --- Budget + model count enforcement ---
+    can_proceed, budget_err = await billing.check_budget(db, user_id)
+    if not can_proceed:
+        yield {"type": "error", "message": budget_err}
+        return
+
+    can_proceed, model_err = await billing.check_max_models(db, user_id, len(config.models))
+    if not can_proceed:
+        yield {"type": "error", "message": model_err}
+        return
+
     execution.status = "running"
     await db.commit()
 
     solo_mode = len(config.models) == 1
 
-    # --- Phase 0: Organizer pre-processing (optional) ---
-    organized_context = ""
+    # Build system prompt — apply Primal Protocol if requested
+    system_prompt = config.system_prompt
+    if primal_protocol:
+        system_prompt += PRIMAL_PROTOCOL_SUFFIX
 
+    # --- Phase 0a: Scout — web search (optional) ---
+    scout_context = ""
+    if scout_enabled:
+        try:
+            scout_results = await search_service.scout(execution.query)
+            scout_context = search_service.format_scout_context(scout_results)
+            yield {"type": "scout_results", "results": scout_results}
+        except Exception as e:
+            yield {"type": "scout_error", "message": str(e)}
+
+    # --- Phase 0b: Organizer pre-processing (optional) ---
+    organized_context = ""
     if config.organizer_model:
         organizer_chunks: list[str] = []
         async for chunk in foundry.stream_complete(
@@ -159,17 +169,16 @@ async def run_council(
         organized_context = "".join(organizer_chunks)
         yield {"type": "organizer_done", "organized": organized_context}
 
-    # Build augmented query for council models
+    # Build augmented query
+    augmented_query = execution.query
+    if scout_context:
+        augmented_query += f"\n\n{scout_context}"
     if organized_context:
-        augmented_query = (
-            f"{execution.query}\n\n--- Query Analysis ---\n{organized_context}"
-        )
-    else:
-        augmented_query = execution.query
+        augmented_query += f"\n\n--- Query Analysis ---\n{organized_context}"
 
     # --- Phase 1: parallel streaming model responses ---
     model_responses: dict[str, str] = {}
-    model_usage: dict[str, dict] = {}  # token counts per model
+    model_usage: dict[str, dict] = {}
     queue: asyncio.Queue[tuple[str, str | None]] = asyncio.Queue()
 
     async def _stream_model(model: str) -> None:
@@ -177,7 +186,7 @@ async def run_council(
         usage: dict = {}
         async for chunk in foundry.stream_complete(
             model=model,
-            system_prompt=config.system_prompt,
+            system_prompt=system_prompt,
             user_message=augmented_query,
             usage_out=usage,
         ):
@@ -185,7 +194,7 @@ async def run_council(
             chunks.append(chunk)
         model_responses[model] = "".join(chunks)
         model_usage[model] = usage
-        await queue.put((model, None))  # sentinel: this model is done
+        await queue.put((model, None))  # sentinel
 
     tasks = [asyncio.create_task(_stream_model(m)) for m in config.models]
     done = 0
@@ -235,7 +244,6 @@ async def run_council(
 
     # --- Phase 3: synthesis ---
     if solo_mode:
-        # Single model response is the final answer — no chairman call needed
         only_model = config.models[0]
         synthesis = model_responses[only_model]
         yield {"type": "synthesis_token", "chunk": synthesis}
@@ -260,7 +268,6 @@ async def run_council(
     yield {"type": "synthesis", "text": synthesis}
 
     # --- Persist results ---
-    # cost = (input_tokens + output_tokens) / 1000 × billed_rate
     cost_breakdown = {
         model: round(
             model_usage.get(model, {}).get("total_tokens", 0)
@@ -276,6 +283,15 @@ async def run_council(
     execution.cost_breakdown = cost_breakdown
     execution.status = "complete"
     await db.commit()
+
+    # --- Deduct usage from billing ---
+    await billing.log_and_deduct(
+        db=db,
+        user_id=user_id,
+        execution_id=execution_id,
+        model_usage=model_usage,
+        cost_breakdown=cost_breakdown,
+    )
 
     yield {
         "type": "complete",

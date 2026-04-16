@@ -117,6 +117,34 @@ async def stream_complete(
             usage_out["total_tokens"] = chunk.usage.total_tokens
 
 
+async def stream_chat(
+    model: str,
+    messages: list[dict],
+    usage_out: dict | None = None,
+) -> AsyncGenerator[str, None]:
+    """
+    Stream a multi-turn conversation. `messages` is a standard OpenAI messages list:
+    [{"role": "system"|"user"|"assistant", "content": str}, ...]
+    """
+    deployment = _models().get(model, model)
+    client = get_client()
+
+    stream = await client.chat.completions.create(
+        model=deployment,
+        messages=messages,
+        stream=True,
+        stream_options={"include_usage": True},
+    )
+
+    async for chunk in stream:
+        if chunk.choices and chunk.choices[0].delta.content:
+            yield chunk.choices[0].delta.content
+        if usage_out is not None and chunk.usage:
+            usage_out["input_tokens"] = chunk.usage.prompt_tokens
+            usage_out["output_tokens"] = chunk.usage.completion_tokens
+            usage_out["total_tokens"] = chunk.usage.total_tokens
+
+
 async def complete(
     model: str,
     system_prompt: str,
@@ -124,6 +152,7 @@ async def complete(
     images: list[bytes] | None = None,
     image_urls: list[str] | None = None,
     mime_type: str = "image/jpeg",
+    usage_out: dict | None = None,
 ) -> str:
     """
     Call a model on Azure AI Foundry and return the full response text.
@@ -137,6 +166,7 @@ async def complete(
         images=images,
         image_urls=image_urls,
         mime_type=mime_type,
+        usage_out=usage_out,
     ):
         chunks.append(chunk)
     return "".join(chunks)

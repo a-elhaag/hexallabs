@@ -222,6 +222,29 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.CouncilConfigScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  models: 'models',
+  systemPrompt: 'systemPrompt',
+  organizerModel: 'organizerModel',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ExecutionScalarFieldEnum = {
+  id: 'id',
+  councilId: 'councilId',
+  userId: 'userId',
+  query: 'query',
+  status: 'status',
+  modelResponses: 'modelResponses',
+  peerReviews: 'peerReviews',
+  synthesis: 'synthesis',
+  costBreakdown: 'costBreakdown',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -258,7 +281,9 @@ exports.Prisma.ModelName = {
   Subscription: 'Subscription',
   UsageLog: 'UsageLog',
   BillingEvent: 'BillingEvent',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  CouncilConfig: 'CouncilConfig',
+  Execution: 'Execution'
 };
 
 /**

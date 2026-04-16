@@ -1,9 +1,22 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import health, council, ws, test_ui
+from app.routers import relay
+from app.services.scheduler import setup_scheduler
 
-app = FastAPI(title="Hexallabs API", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = setup_scheduler()
+    scheduler.start()
+    yield
+    scheduler.shutdown()
+
+
+app = FastAPI(title="Hexallabs API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,4 +32,5 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(council.router)
 app.include_router(ws.router)
+app.include_router(relay.router)
 app.include_router(test_ui.router)

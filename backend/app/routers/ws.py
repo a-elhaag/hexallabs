@@ -1,5 +1,4 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import AsyncSessionLocal
 from app.services.auth import decode_token
@@ -13,8 +12,9 @@ async def council_ws(
     websocket: WebSocket,
     execution_id: str = Query(...),
     token: str = Query(...),
+    scout_enabled: bool = Query(False),
+    primal_protocol: bool = Query(False),
 ):
-    # Validate JWT before accepting the connection
     payload = decode_token(token)
     if not payload:
         await websocket.close(code=4001, reason="Unauthorized")
@@ -24,7 +24,13 @@ async def council_ws(
 
     async with AsyncSessionLocal() as db:
         try:
-            async for event in council_service.run_council(db, execution_id, payload.sub):
+            async for event in council_service.run_council(
+                db,
+                execution_id,
+                payload.sub,
+                scout_enabled=scout_enabled,
+                primal_protocol=primal_protocol,
+            ):
                 await websocket.send_json(event)
         except WebSocketDisconnect:
             pass
