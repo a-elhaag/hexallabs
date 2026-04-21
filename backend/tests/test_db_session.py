@@ -13,12 +13,12 @@ def test_get_engine_is_async_engine() -> None:
     assert isinstance(engine, AsyncEngine)
 
 
-def test_sessionmaker_produces_async_sessions() -> None:
+async def test_sessionmaker_produces_async_sessions() -> None:
     _build_engine.cache_clear()
     _build_sessionmaker.cache_clear()
     sm = get_sessionmaker()
     assert isinstance(sm, async_sessionmaker)
-    with sm() as session:
+    async with sm() as session:
         assert isinstance(session, AsyncSession)
 
 

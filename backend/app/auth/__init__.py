@@ -1,6 +1,6 @@
+from app.auth.jwt import InvalidTokenError, verify_supabase_jwt
 from app.auth.middleware import get_current_user
 from app.auth.models import AuthUser
-from app.auth.jwt import InvalidTokenError, verify_supabase_jwt
 
 __all__ = [
     "AuthUser",

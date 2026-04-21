@@ -34,7 +34,9 @@
       "Bash(git ls-tree *)",
       "Edit(/.claude/skills/hexal-stack-constraints/**)",
       "Bash(uv sync *)",
-      "Bash(uv pip *)"
+      "Bash(uv pip *)",
+      "Bash(git check-ignore *)",
+      "Bash(supabase --version)"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",

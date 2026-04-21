@@ -47,7 +47,7 @@ def client(monkeypatch: pytest.MonkeyPatch) -> tuple[TestClient, bytes]:
     app = FastAPI()
 
     @app.get("/me")
-    def me(user: AuthUser = Depends(get_current_user)) -> dict[str, str]:
+    def me(user: AuthUser = Depends(get_current_user)) -> dict[str, str]:  # noqa: B008
         return {"id": str(user.id), "email": user.email}
 
     return TestClient(app), pem

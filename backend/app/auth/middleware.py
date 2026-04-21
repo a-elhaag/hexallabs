@@ -12,7 +12,7 @@ _bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    creds: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    creds: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),  # noqa: B008
 ) -> AuthUser:
     if creds is None or creds.scheme.lower() != "bearer":
         raise HTTPException(
