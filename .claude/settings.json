@@ -23,7 +23,8 @@
       "Bash(pip install *)",
       "Bash(pip3 install *)",
       "Bash(uv tool *)",
-      "Bash(code-review-graph build *)"
+      "Bash(code-review-graph build *)",
+      "mcp__code-review-graph__build_or_update_graph_tool"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",
