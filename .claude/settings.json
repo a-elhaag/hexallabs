@@ -12,7 +12,8 @@
       "Bash(python -c \"from app.main import app; print\\('✓ app imports successfully'\\)\")",
       "Bash(.venv/bin/python -c \"from app.main import app; print\\('✓ app imports successfully'\\); print\\(f'Routes: {[route.path for route in app.routes]}'\\)\")",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(python -m mypy app/llm/base.py tests/test_base.py)"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",
