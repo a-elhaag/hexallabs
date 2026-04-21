@@ -36,7 +36,11 @@
       "Bash(uv sync *)",
       "Bash(uv pip *)",
       "Bash(git check-ignore *)",
-      "Bash(supabase --version)"
+      "Bash(supabase --version)",
+      "Bash(mkdir -p frontend)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",
