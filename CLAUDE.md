@@ -4,12 +4,12 @@
 Horizontal LLM council platform. User submits a query → multiple models run in parallel → models anonymously peer-review each other → Apex (chairman) synthesizes final answer. Supports Oracle (single model), Relay (mid-generation handoff), and Workflow (node pipeline) modes.
 
 ## Stack
-- **Frontend:** Next.js 14 App Router, TypeScript strict, Tailwind CSS, Prisma — T3 stack minus tRPC
-- **Backend:** FastAPI, Python, async/await, SQLAlchemy async
-- **Database:** PostgreSQL 17
-- **Auth:** NextAuth.js v5, implement last
-- **Models:** Azure AI Foundry (OpenAI-compatible endpoint)
-- **Monorepo:** `frontend/` + `backend/` + single root `.env`
+- **Frontend:** Next.js 14 App Router, TypeScript strict, Tailwind CSS, `@supabase/ssr` for auth + light DB reads (no ORM on frontend)
+- **Backend:** FastAPI, Python, async/await, SQLAlchemy async + asyncpg, Alembic for table DDL
+- **Database:** Supabase Postgres (17). Backend connects direct via pooler and bypasses RLS. Frontend uses anon key, RLS enforced.
+- **Auth:** Supabase Auth. Next.js API routes handle signup/login/profile. FastAPI verifies Supabase JWT (RS256) via JWKS with `pyjwt[crypto]`.
+- **Models:** Apex/Pulse → Anthropic direct. Swift/Prism/Depth/Atlas/Horizon → Azure AI Foundry.
+- **Monorepo:** `frontend/` + `backend/` + `supabase/` (RLS + triggers SQL) + root `.env`
 
 ## Models
 | White-label | Role |
@@ -106,7 +106,7 @@ Always follow Explore → Plan → Code → Commit:
 7. Workflow mode
 8. Prompt Lens
 9. Primal Protocol
-10. Auth (NextAuth) — last
+10. Auth (Supabase Auth) — last
 
 ## What NOT to Build
 - Billing / tiers

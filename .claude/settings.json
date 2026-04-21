@@ -28,7 +28,13 @@
       "Bash(python -m mypy backend/app/llm/factory.py --strict)",
       "Bash(python3 -m mypy backend/app/llm/factory.py --strict)",
       "Bash(claude mcp *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'feat\\(backend\\): FastAPI skeleton + LLM client factory' --body ' *)",
+      "Bash(git config *)",
+      "Bash(git ls-tree *)",
+      "Edit(/.claude/skills/hexal-stack-constraints/**)",
+      "Bash(uv sync *)",
+      "Bash(uv pip *)"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",

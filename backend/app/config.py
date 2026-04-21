@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     azure_foundry_endpoint: str = Field(alias="AZURE_FOUNDRY_ENDPOINT")
     azure_foundry_api_version: str = Field(default="2024-10-21", alias="AZURE_FOUNDRY_API_VERSION")
 
+    supabase_url: str = Field(alias="SUPABASE_URL")
+    supabase_jwt_audience: str = Field(default="authenticated", alias="SUPABASE_JWT_AUDIENCE")
+    database_url: str = Field(alias="DATABASE_URL")
+    database_pool_size: int = Field(default=10, alias="DATABASE_POOL_SIZE")
+    database_max_overflow: int = Field(default=5, alias="DATABASE_MAX_OVERFLOW")
+
     models: dict[str, str] = Field(default_factory=dict)
     providers: dict[str, str] = Field(default_factory=dict)
 
@@ -40,10 +46,18 @@ class Settings(BaseSettings):
                 self.models[name] = deploy
                 self.providers[name] = prov
 
-    @field_validator("azure_foundry_endpoint")
+    @field_validator("azure_foundry_endpoint", "supabase_url")
     @classmethod
     def _strip_trailing_slash(cls, v: str) -> str:
         return v.rstrip("/")
+
+    @property
+    def supabase_jwt_issuer(self) -> str:
+        return f"{self.supabase_url}/auth/v1"
+
+    @property
+    def supabase_jwks_url(self) -> str:
+        return f"{self.supabase_url}/auth/v1/.well-known/jwks.json"
 
 
 def get_settings() -> Settings:

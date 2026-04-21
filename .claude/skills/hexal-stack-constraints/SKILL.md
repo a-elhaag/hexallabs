@@ -17,9 +17,11 @@ description: Locked tech stack for Hexal-LM. Invoke before adding ANY new depend
 | Lint | **ruff** | replaces black+isort+flake8 |
 | Types | **mypy** (strict) | static guarantees |
 | Test | **pytest** + **pytest-asyncio** + **httpx.AsyncClient** | async native |
-| DB ORM | **SQLAlchemy async** | mirrors Prisma schema, read-side |
+| DB ORM | **SQLAlchemy async** | single source of truth for schema |
 | DB driver | **asyncpg** | fastest async PG |
-| Migrations | **NOT alembic** — Prisma owns schema | single source |
+| Migrations (tables) | **alembic** (async env) | owns DDL, indexes, FKs |
+| Migrations (policies) | **Supabase CLI** (SQL files in `supabase/migrations/`) | owns RLS, triggers, extensions |
+| Auth JWT verify | **pyjwt[crypto]** + JWKS | verify Supabase access tokens (RS256/ES256) |
 | LLM (Anthropic) | **anthropic** SDK | Apex, Pulse |
 | LLM (Azure) | **openai** SDK w/ Azure endpoint + **azure-identity** | Swift/Prism/Depth/Horizon |
 | LLM (Azure inference) | **azure-ai-inference** | Atlas (DeepSeek/Llama) |
@@ -31,10 +33,9 @@ description: Locked tech stack for Hexal-LM. Invoke before adding ANY new depend
 | Framework | **Next.js 14 App Router** | per CLAUDE.md |
 | Language | **TypeScript strict** | no `any` |
 | Styling | **Tailwind CSS** | per CLAUDE.md |
-| ORM | **Prisma** | migrations owner, free tier |
-| DB client | Prisma → Supabase PG direct URL | no Supabase JS client for DB |
-| Auth (now) | **Supabase Auth** | interim |
-| Auth (future) | **Clerk** | deferred, swap later |
+| Auth + DB client | **@supabase/ssr** + **@supabase/supabase-js** | signup/login/profile in Next.js API routes, RLS-scoped reads |
+| ORM on frontend | none — no Prisma, DB owned by backend | single schema authority |
+| Auth (now + future) | **Supabase Auth** | JWT (RS256) via JWKS, verified by FastAPI |
 | State | React Server Components + minimal client | default |
 | Animation | CSS + Framer Motion if needed | follow CLAUDE.md motion rules |
 
@@ -52,8 +53,9 @@ description: Locked tech stack for Hexal-LM. Invoke before adding ANY new depend
 - Adding a third LLM provider
 - Swapping Supabase → Neon/RDS/etc.
 - Adding Redis/queue (unless Relay mode needs it — evaluate then)
-- NextAuth (replaced by Supabase Auth now, Clerk later)
-- alembic migrations
+- NextAuth (Supabase Auth owns identity)
+- Prisma or any ORM on the frontend (backend owns schema)
+- Clerk or other auth providers (Supabase Auth stays)
 - poetry / pipenv / pip-tools (use uv)
 - pnpm swap for npm/yarn — use pnpm consistently in Next.js side
 - Docker in dev (run processes directly; Docker only for prod deploy)
