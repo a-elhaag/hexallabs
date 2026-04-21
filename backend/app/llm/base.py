@@ -23,4 +23,6 @@ class StreamChunk:
 class LLMClient(Protocol):
     whitelabel: str
 
-    def stream(self, messages: list[Message]) -> AsyncIterator[StreamChunk]: ...
+    def stream(
+        self, messages: list[Message], cache_key: str | None = None
+    ) -> AsyncIterator[StreamChunk]: ...

@@ -22,7 +22,9 @@ class AnthropicClient(LLMClient):
         self._max_tokens = max_tokens
         self._sdk = sdk if sdk is not None else AsyncAnthropic(api_key=api_key)
 
-    async def stream(self, messages: list[Message]) -> AsyncIterator[StreamChunk]:
+    async def stream(
+        self, messages: list[Message], cache_key: str | None = None
+    ) -> AsyncIterator[StreamChunk]:
         system_blocks: list[dict[str, Any]] = []
         user_messages: list[dict[str, Any]] = []
         for m in messages:
