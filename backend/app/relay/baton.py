@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import logging
-import re
 
 from app.llm.base import LLMClient, Message
 from app.relay.triggers import CONF_RE, MARKER_RE, TriggerFired
 
 logger = logging.getLogger(__name__)
 
-_SHORT_THRESHOLD = 600  # chars — skip summary below this
+_SHORT_THRESHOLD = 600  # chars — summarise only when strictly above this
 
 _RELAY_B_SYSTEM = """You are continuing an assistant response that was handed off to you mid-generation. The original assistant began answering but transferred control to you. Your job is to continue seamlessly and naturally, as if you were always the one answering. Do not say "as the previous assistant said" or acknowledge the handoff. Just continue the response."""
 
