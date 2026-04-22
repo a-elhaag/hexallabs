@@ -58,7 +58,11 @@
       "Bash(git checkout *)",
       "Bash(git reset *)",
       "Bash(bash \"/Users/anas/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts/start-server.sh\" --project-dir /Users/anas/Projects/hexal-lm)",
-      "Bash(pkill -f \"next dev\")"
+      "Bash(pkill -f \"next dev\")",
+      "Bash(python -c ' *)",
+      "Bash(cat)",
+      "Bash(chmod +x /tmp/test_models.sh)",
+      "Bash(/tmp/test_models.sh)"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",

@@ -5,7 +5,10 @@ from typing import Any
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-WHITELABELS = ("Apex", "Pulse", "Swift", "Prism", "Depth", "Atlas", "Horizon")
+WHITELABELS = (
+    "Apex", "Pulse", "Swift", "Prism", "Depth", "Atlas", "Horizon",
+    "Spark", "Craft", "Flux", "Bolt",
+)
 VALID_PROVIDERS = {"anthropic", "azure"}
 
 
@@ -20,6 +23,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str = Field(alias="ANTHROPIC_API_KEY")
     azure_foundry_endpoint: str = Field(alias="AZURE_FOUNDRY_ENDPOINT")
     azure_foundry_api_version: str = Field(default="2024-10-21", alias="AZURE_FOUNDRY_API_VERSION")
+    azure_foundry_api_key: str | None = Field(default=None, alias="AZURE_FOUNDRY_API_KEY")
+
+    tavily_api_key: str | None = Field(default=None, alias="TAVILY_API_KEY")
+    scout_max_results: int = Field(default=5, alias="SCOUT_MAX_RESULTS")
+    scout_max_turns: int = Field(default=4, alias="SCOUT_MAX_TURNS")
 
     supabase_url: str = Field(alias="SUPABASE_URL")
     supabase_jwt_audience: str = Field(default="authenticated", alias="SUPABASE_JWT_AUDIENCE")
@@ -33,6 +41,9 @@ class Settings(BaseSettings):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         import os
+
+        from dotenv import load_dotenv
+        load_dotenv()
 
         for name in WHITELABELS:
             deploy = os.getenv(f"MODEL_{name.upper()}")

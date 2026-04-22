@@ -14,6 +14,7 @@ from app.auth.models import AuthUser
 from app.db.session import get_session
 from app.llm.base import Message, StreamChunk
 from app.main import app
+from typing import Any
 
 
 class _FakeClient:
@@ -30,7 +31,10 @@ class _FakeClient:
         self._cached = cached
 
     async def stream(
-        self, messages: list[Message], cache_key: str | None = None
+        self,
+        messages: list[Message],
+        cache_key: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[StreamChunk]:
         for d in self._deltas:
             yield StreamChunk(delta=d)
@@ -47,7 +51,10 @@ class _FakeApex:
         self._reason = reason
 
     async def stream(
-        self, messages: list[Message], cache_key: str | None = None
+        self,
+        messages: list[Message],
+        cache_key: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[StreamChunk]:
         verdict = json.dumps({"handoff": self._handoff, "reason": self._reason})
         yield StreamChunk(delta=verdict)
@@ -252,7 +259,10 @@ def test_relay_a_fails_mid_stream(monkeypatch: pytest.MonkeyPatch) -> None:
         whitelabel = "Swift"
 
         async def stream(
-            self, messages: list[Message], cache_key: str | None = None
+            self,
+            messages: list[Message],
+            cache_key: str | None = None,
+            tools: list[dict[str, Any]] | None = None,
         ) -> AsyncIterator[StreamChunk]:
             yield StreamChunk(delta="partial")
             raise RuntimeError("A exploded")
@@ -304,7 +314,10 @@ def test_relay_b_fails_after_handoff(monkeypatch: pytest.MonkeyPatch) -> None:
         whitelabel = "Depth"
 
         async def stream(
-            self, messages: list[Message], cache_key: str | None = None
+            self,
+            messages: list[Message],
+            cache_key: str | None = None,
+            tools: list[dict[str, Any]] | None = None,
         ) -> AsyncIterator[StreamChunk]:
             yield StreamChunk(delta="B partial")
             raise RuntimeError("B exploded")

@@ -7,7 +7,6 @@ from app.llm.anthropic_client import AnthropicClient
 from app.llm.azure_client import AzureFoundryClient
 from app.llm.base import LLMClient
 
-
 def get_client(whitelabel: str, settings: Settings | None = None) -> LLMClient:
     s = settings or _cached_settings()
     if whitelabel not in s.models:
@@ -27,6 +26,7 @@ def get_client(whitelabel: str, settings: Settings | None = None) -> LLMClient:
             endpoint=s.azure_foundry_endpoint,
             api_version=s.azure_foundry_api_version,
             deployment=model,
+            api_key=s.azure_foundry_api_key,
         )
     raise ValueError(f"Unsupported provider {provider!r} for {whitelabel}")
 

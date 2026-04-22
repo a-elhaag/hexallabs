@@ -13,6 +13,7 @@ from app.auth.models import AuthUser
 from app.db.session import get_session
 from app.llm.base import Message, StreamChunk
 from app.main import app
+from typing import Any
 
 
 class _FakeClient:
@@ -24,7 +25,10 @@ class _FakeClient:
         self._cached = cached
 
     async def stream(
-        self, messages: list[Message], cache_key: str | None = None
+        self,
+        messages: list[Message],
+        cache_key: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
     ) -> AsyncIterator[StreamChunk]:
         for d in self._deltas:
             yield StreamChunk(delta=d)
