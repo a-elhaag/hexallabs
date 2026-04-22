@@ -97,23 +97,21 @@ Always follow Explore → Plan → Code → Commit:
 - All timestamps UTC
 
 ## Build Order
-1. FastAPI backend — model calls + SSE streaming + council logic
-   - ✅ Backend skeleton: LLMClient Protocol + Anthropic/Azure clients + factory (PR #1)
-   - ✅ Auth: Supabase JWT verification via JWKS (`app/auth/`)
-   - ✅ DB: SQLAlchemy async models — User, Session, Query, Message, PeerReview, PromptLens, RelayHandoff, Workflow
-   - ✅ Oracle SSE: `POST /api/query` streams `text/event-stream` with locked event schema (`app/sse/events.py`)
-   - ⏳ Council fan-out, Relay, Workflow modes — not yet wired
-2. Next.js frontend — hex grid UI, query input, streaming
-   - ✅ Scaffold: Next.js 14 + TypeScript + Tailwind + Bun (`frontend/`, commit bf4c32c)
-   - ⏳ Hex grid, SSE consumer, query input
-3. Peer review + confidence scoring
-4. Prompt Forge
-5. Oracle + Relay
-6. Scout
-7. Workflow mode
-8. Prompt Lens
-9. Primal Protocol
-10. ✅ Auth (moved earlier — Supabase JWT live)
+**Backend:**
+- ✅ Skeleton: LLMClient Protocol, Anthropic/Azure clients, factory
+- ✅ Auth: Supabase JWT verification via JWKS
+- ✅ DB: SQLAlchemy async models (User, Session, Query, Message, PeerReview, PromptLens, RelayHandoff, Workflow)
+- ✅ Oracle SSE: `POST /api/query` with event schema
+- ✅ Relay: mid-generation handoff, Apex verdict
+- ⏳ Council: parallel fan-out + peer review
+- ⏳ Workflow: node pipeline execution
+- ⏳ Prompt Lens: interpretation analysis per model
+- ⏳ Prompt Forge: pre-send rewrite
+- ⏳ Scout: web search injection
+- ⏳ Primal Protocol: caveman synthesis (Apex only)
+
+**Frontend:**
+- ⏳ Rebuild: Next.js 14, TypeScript, Tailwind, Bun
 
 ## Backend Patterns
 
@@ -173,6 +171,7 @@ Invoke via `Skill` tool. Auto-apply when editing relevant code:
 6. Apex synthesizes — center hex glows
 7. Toggle Primal Protocol — caveman rewrite
 8. Switch to Workflow — show 3-node pipeline
+<<<<<<< HEAD
 9. Prompt Lens — show how models interpreted differently
 
 <!-- code-review-graph MCP tools -->
@@ -213,3 +212,11 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 2. Use `detect_changes` for code review.
 3. Use `get_affected_flows` to understand impact.
 4. Use `query_graph` pattern="tests_for" to check coverage.
+=======
+<<<<<<< Updated upstream
+9. Prompt Lens — show how models interpreted differently
+=======
+9. Prompt Lens — show how models interpreted differently
+
+>>>>>>> Stashed changes
+>>>>>>> 08bb8e4 (Remove frontend directory — rebuilding from scratch)
