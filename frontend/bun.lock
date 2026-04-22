@@ -6,6 +6,7 @@
       "name": "frontend",
       "dependencies": {
         "@t3-oss/env-nextjs": "^0.12.0",
+        "gsap": "^3.15.0",
         "next": "^15.2.3",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
@@ -14,6 +15,7 @@
       "devDependencies": {
         "@eslint/eslintrc": "^3.3.1",
         "@tailwindcss/postcss": "^4.0.15",
+        "@types/gsap": "^3.0.0",
         "@types/node": "^20.14.10",
         "@types/react": "^19.0.0",
         "@types/react-dom": "^19.0.0",
@@ -198,6 +200,8 @@
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
 
     "@types/estree": ["@types/estree@1.0.8", "", {}, "sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w=="],
+
+    "@types/gsap": ["@types/gsap@3.0.0", "", { "dependencies": { "gsap": "*" } }, "sha512-BbWLi4WRHGze4C8NV7U7yRevuBFiPkPZZyGa0rryanvh/9HPUFXTNBXsGQxJZJq7Ix7j4RXMYodP3s+OsqCErg=="],
 
     "@types/json-schema": ["@types/json-schema@7.0.15", "", {}, "sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA=="],
 
@@ -460,6 +464,8 @@
     "gopd": ["gopd@1.2.0", "", {}, "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg=="],
 
     "graceful-fs": ["graceful-fs@4.2.11", "", {}, "sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ=="],
+
+    "gsap": ["gsap@3.15.0", "", {}, "sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A=="],
 
     "has-bigints": ["has-bigints@1.1.0", "", {}, "sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg=="],
 

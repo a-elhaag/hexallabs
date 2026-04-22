@@ -98,7 +98,14 @@ Always follow Explore → Plan → Code → Commit:
 
 ## Build Order
 1. FastAPI backend — model calls + SSE streaming + council logic
+   - ✅ Backend skeleton: LLMClient Protocol + Anthropic/Azure clients + factory (PR #1)
+   - ✅ Auth: Supabase JWT verification via JWKS (`app/auth/`)
+   - ✅ DB: SQLAlchemy async models — User, Session, Query, Message, PeerReview, PromptLens, RelayHandoff, Workflow
+   - ✅ Oracle SSE: `POST /api/query` streams `text/event-stream` with locked event schema (`app/sse/events.py`)
+   - ⏳ Council fan-out, Relay, Workflow modes — not yet wired
 2. Next.js frontend — hex grid UI, query input, streaming
+   - ✅ Scaffold: Next.js 14 + TypeScript + Tailwind + Bun (`frontend/`, commit bf4c32c)
+   - ⏳ Hex grid, SSE consumer, query input
 3. Peer review + confidence scoring
 4. Prompt Forge
 5. Oracle + Relay
@@ -106,7 +113,49 @@ Always follow Explore → Plan → Code → Commit:
 7. Workflow mode
 8. Prompt Lens
 9. Primal Protocol
-10. Auth (Supabase Auth) — last
+10. ✅ Auth (moved earlier — Supabase JWT live)
+
+## Backend Patterns
+
+### LLM Clients (`app/llm/`)
+- `LLMClient` Protocol: `stream(messages, cache_key=None) -> AsyncIterator[StreamChunk]`
+- `AnthropicClient` — Apex/Pulse. Honors `Message.cache=True` → `cache_control: {"type": "ephemeral"}`
+- `AzureFoundryClient` — Swift/Prism/Depth/Atlas/Horizon. Routes `cache_key` → `extra_body.prompt_cache_key`
+- `get_client(whitelabel)` factory — routes by env-configured provider (`MODEL_*_PROVIDER`)
+- Dependency inject SDKs via optional constructor param for tests
+
+### Auth (`app/auth/`)
+- `verify_supabase_jwt(token)` — JWKS-based RS256, `PyJWKClient` cached
+- `get_current_user` FastAPI dependency returns `AuthUser(id, email)`
+- Frontend owns signup/login via `@supabase/ssr`. Backend only verifies JWTs.
+
+### SSE (`app/sse/`)
+- `SseEvent` is validated against `_ALLOWED_EVENTS` — any new event type must be added there AND follow `hexal-sse-contract` skill
+- `format_event()` emits `event: <name>\ndata: <json>\n\n`
+- Heartbeat: `: keep-alive\n\n` every 15s to keep connection warm
+- All modes (Oracle, Council, Relay, Workflow) emit the same event vocabulary so frontend has one consumer
+
+### Database (`app/db/`)
+- SQLAlchemy 2.0 async + asyncpg via Supabase pooler
+- Models split per-file under `app/db/models/` (no monolithic models.py)
+- Alembic for DDL (tables); Supabase `supabase/` dir for RLS + triggers
+- Backend bypasses RLS (service role); frontend uses anon key with RLS
+
+### Testing
+- pytest + pytest-asyncio, `conftest._default_env` seeds env creds
+- Mock SDKs via DI (e.g. `AzureFoundryClient(sdk=mock)`) — never mock `get_client` unless testing factory routing
+- Live API tests behind opt-in marker (`test_live.py`)
+
+## Custom Skills (Hexal-specific)
+Invoke via `Skill` tool. Auto-apply when editing relevant code:
+
+| Skill | When |
+|---|---|
+| `hexal-caching-rules` | Writing Apex synthesis / peer review / Council / Prompt Forge prompts |
+| `hexal-whitelabel-names` | Any user-facing string, API schema, frontend component |
+| `hexal-stack-constraints` | Before adding a dependency or changing a core tool |
+| `hexal-model-router` | Creating/editing any LLM client, factory, or model call site |
+| `hexal-sse-contract` | Adding/modifying any SSE endpoint |
 
 ## What NOT to Build
 - Billing / tiers
