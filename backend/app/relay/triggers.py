@@ -68,6 +68,8 @@ async def apex_watcher(
             except Exception:
                 logger.exception("apex_watcher: verdict call failed, continuing")
                 continue
+            if fire_event.is_set():
+                return
             if verdict.get("handoff"):
                 if not reason_box:
                     reason_box.append(verdict.get("reason", "apex flagged off-track"))
@@ -79,7 +81,7 @@ async def apex_watcher(
         logger.exception("apex_watcher: unexpected error, watcher exiting")
 
 
-async def _apex_verdict(apex: LLMClient, snapshot: str) -> dict:
+async def _apex_verdict(apex: LLMClient, snapshot: str) -> dict[str, object]:
     """Ask Apex to judge whether model A should hand off. Returns {"handoff": bool, "reason": str}."""
     messages = [
         Message(role="system", content=_APEX_WATCHER_SYSTEM, cache=True),
@@ -91,8 +93,10 @@ async def _apex_verdict(apex: LLMClient, snapshot: str) -> dict:
             collected.append(chunk.delta)
     raw = "".join(collected).strip()
     try:
-        return json.loads(raw)
+        result = json.loads(raw)
+        if "handoff" not in result:
+            logger.warning("apex_watcher: response missing 'handoff' key: %r", raw[:200])
+        return result
     except json.JSONDecodeError:
-        # If Apex doesn't return valid JSON, don't trigger handoff
         logger.warning("apex_watcher: non-JSON response %r", raw[:200])
         return {"handoff": False, "reason": ""}
