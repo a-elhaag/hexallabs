@@ -344,26 +344,41 @@ async def _council_stream(
     for wl in whitelabels:
         yield format_event(SseEvent("hex_start", {"hex": wl}))
 
-    try:
-        per_model_sse: list[list[bytes]] = await asyncio.gather(
-            *[
-                _fanout_one(client, prompt, result, session_id, scout_context=scout_system_msg)
-                for client, result in zip(clients, results)
-            ]
-        )
-    except Exception as exc:
-        logger.exception("council: phase 1 fan-out failed")
+    raw_outcomes = await asyncio.gather(
+        *[
+            _fanout_one(client, prompt, result, session_id, scout_context=scout_system_msg)
+            for client, result in zip(clients, results)
+        ],
+        return_exceptions=True,
+    )
+
+    # Separate successful SSE chunks from per-model failures
+    per_model_sse: list[list[bytes]] = []
+    failed_indices: list[int] = []
+    for idx, outcome in enumerate(raw_outcomes):
+        if isinstance(outcome, BaseException):
+            failed_indices.append(idx)
+            wl = whitelabels[idx]
+            per_model_sse.append([
+                format_event(SseEvent("error", {"hex": wl, "code": type(outcome).__name__, "message": str(outcome)[:300]}))
+            ])
+        else:
+            per_model_sse.append(outcome)
+
+    # If ALL models failed, abort
+    if len(failed_indices) == len(whitelabels):
+        logger.error("council: all models failed in phase 1")
         query_row.status = "error"
-        query_row.error = str(exc)[:500]
-        yield format_event(
-            SseEvent(
-                "error",
-                {"hex": "council", "code": type(exc).__name__, "message": str(exc)[:500]},
-            )
-        )
+        query_row.error = "all models failed"
+        yield format_event(SseEvent("error", {"hex": "council", "code": "AllModelsFailed", "message": "all models failed in phase 1"}))
         duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
         yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
         return
+
+    # Mark failed models so they're excluded from peer review + synthesis
+    for idx in failed_indices:
+        results[idx].parts = []
+        results[idx].confidence = 0
 
     # Emit token bytes in per-model order (each model's tokens are sequential)
     for model_chunks in per_model_sse:
@@ -401,8 +416,16 @@ async def _council_stream(
                 },
             )
         )
-        if quota is not None and result.total_tokens:
-            await QuotaService.deduct(db, quota, result.total_tokens, result.whitelabel)
+
+    # Batch quota deduction — one flush for all models instead of N flushes
+    if quota is not None:
+        deductions = [
+            (result.total_tokens, result.whitelabel)
+            for result in results
+            if result.total_tokens
+        ]
+        if deductions:
+            await QuotaService.deduct_many(db, quota, deductions)
 
     # Flush so MessageRow IDs are populated (needed as PeerReview FKs)
     await db.flush()
@@ -411,26 +434,27 @@ async def _council_stream(
     # Phase 2 — Parallel peer review
     # -----------------------------------------------------------------------
 
-    try:
-        review_outcomes: list[_ReviewOutcome] = await asyncio.gather(
-            *[
-                _peer_review_one(client, i, results, session_id)
-                for i, client in enumerate(clients)
-            ]
-        )
-    except Exception as exc:
-        logger.exception("council: phase 2 peer review failed")
-        query_row.status = "error"
-        query_row.error = str(exc)[:500]
-        yield format_event(
-            SseEvent(
-                "error",
-                {"hex": "council", "code": type(exc).__name__, "message": str(exc)[:500]},
-            )
-        )
-        duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
-        yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
-        return
+    raw_review_outcomes = await asyncio.gather(
+        *[
+            _peer_review_one(client, i, results, session_id)
+            for i, client in enumerate(clients)
+        ],
+        return_exceptions=True,
+    )
+
+    review_outcomes: list[_ReviewOutcome] = []
+    for idx, outcome in enumerate(raw_review_outcomes):
+        if isinstance(outcome, BaseException):
+            wl = whitelabels[idx]
+            yield format_event(SseEvent("error", {"hex": wl, "code": type(outcome).__name__, "message": str(outcome)[:300]}))
+            # Use unchanged confidence from phase 1
+            review_outcomes.append(_ReviewOutcome(
+                sse_chunks=[],
+                final_confidence=results[idx].confidence,
+                critique_text="",
+            ))
+        else:
+            review_outcomes.append(outcome)
 
     # Emit peer review SSE bytes and update final confidences in results
     for i, outcome in enumerate(review_outcomes):

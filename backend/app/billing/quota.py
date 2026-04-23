@@ -93,3 +93,19 @@ class QuotaService:
         # rollover_balance intentionally NOT touched here — computed once at
         # window reset in get_or_create() only.
         await db.flush()
+
+    @staticmethod
+    async def deduct_many(
+        db: AsyncSession,
+        quota: UserQuota,
+        deductions: list[tuple[int, str]],  # (tokens_out, model)
+    ) -> None:
+        """Accumulate multiple token deductions and flush once.
+
+        Prefer over calling deduct() in a loop — reduces DB round-trips
+        from N flushes to 1 for multi-model requests (e.g. Council fan-out).
+        """
+        for tokens_out, model in deductions:
+            weight = config.MODEL_WEIGHTS.get(model, 1.0)
+            quota.daily_used += int(tokens_out * weight)
+        await db.flush()

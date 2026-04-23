@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any
 
 from app.tools.registry import ToolSpec
@@ -41,6 +43,7 @@ class SearchResult:
     raw: list[dict[str, Any]]
 
 
+@lru_cache(maxsize=None)
 def _get_tavily_client(api_key: str) -> Any:
     from tavily import AsyncTavilyClient  # lazy import — optional dep
 
@@ -54,7 +57,13 @@ async def execute_web_search(
     api_key: str,
 ) -> SearchResult:
     client = _get_tavily_client(api_key)
-    response = await client.search(query, max_results=max_results)
+    try:
+        response = await asyncio.wait_for(
+            client.search(query, max_results=max_results),
+            timeout=15.0,
+        )
+    except TimeoutError as exc:
+        raise RuntimeError(f"web_search timed out after 15s for query: {query!r}") from exc
 
     results: list[dict[str, Any]] = response.get("results", [])
     urls = [r.get("url", "") for r in results if r.get("url")]

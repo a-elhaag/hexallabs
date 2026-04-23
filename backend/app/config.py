@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any
 
 from pydantic import Field, field_validator
@@ -71,5 +72,6 @@ class Settings(BaseSettings):
         return f"{self.supabase_url}/auth/v1/.well-known/jwks.json"
 
 
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
