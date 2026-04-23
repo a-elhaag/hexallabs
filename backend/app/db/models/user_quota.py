@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import Date, ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -21,6 +21,8 @@ class UserQuota(Base):
     )
     daily_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     rollover_balance: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    window_start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    # Start of current 24h window. Set on first request; reset on next request
+    # after 24h elapsed — never on a timer, only on user activity.
+    window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     timezone: Mapped[str] = mapped_column(String(64), nullable=False, default="UTC")
     updated_at: Mapped[datetime] = updated_at_col()
