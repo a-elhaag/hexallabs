@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import json
 import time
 import uuid
 from collections.abc import AsyncIterator
-from typing import Any, Literal
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -12,16 +11,18 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import AuthUser, get_current_user
+from app.council.stream import _council_stream
 from app.db import get_session
 from app.db.models import Message as MessageRow
 from app.db.models import Query as QueryRow
 from app.db.models import Session as SessionRow
-from app.llm.base import Message, ToolCall
+from app.llm.base import LLMClient
 from app.llm.factory import get_client
 from app.relay.stream import _relay_stream
-from app.sse import SseEvent, _TokenCarry, _ToolCallCarry, _client_tokens, _with_heartbeat, format_event
-from app.tools.registry import anthropic_schema, openai_schema
-from app.tools.web_search import WEB_SEARCH_SPEC, SearchResult, execute_web_search, format_search_context
+from app.sse import SseEvent, _with_heartbeat, format_event
+from app.synthesis.apex import _PRIMAL_SYSTEM
+from app.tools.scout import scout_auto_tool_messages, scout_force
+from app.workflow.executor import _workflow_stream
 
 router = APIRouter(prefix="/api", tags=["query"])
 
@@ -75,7 +76,8 @@ async def query(
 
         async def _stream() -> AsyncIterator[bytes]:
             async for chunk in _oracle_stream(
-                db, client, query_row, req.query, whitelabel, req.scout
+                db, client, query_row, req.query, whitelabel, req.scout,
+                primal=req.primal_protocol,
             ):
                 yield chunk
 
@@ -105,7 +107,8 @@ async def query(
 
         async def _relay() -> AsyncIterator[bytes]:
             async for chunk in _relay_stream(
-                db, client_a, client_b, apex_client, query_row, req.query, wl_a, wl_b
+                db, client_a, client_b, apex_client, query_row, req.query, wl_a, wl_b,
+                scout=req.scout,
             ):
                 yield chunk
 
@@ -115,10 +118,61 @@ async def query(
             headers=_SSE_HEADERS,
         )
 
+    elif req.mode == "council":
+        if len(req.models) < 2:
+            raise HTTPException(
+                status_code=422,
+                detail="council mode requires at least 2 models",
+            )
+
+        try:
+            clients = [get_client(wl) for wl in req.models]
+            apex_client = get_client("Apex")
+        except KeyError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+        session_row, query_row = await _open_session_and_query(
+            db, user.id, req, req.models[0]
+        )
+        query_row.selected_models = list(req.models)
+        query_row.apex_model = "Apex"
+
+        async def _council() -> AsyncIterator[bytes]:
+            async for chunk in _council_stream(
+                db,
+                clients,
+                apex_client,
+                query_row,
+                req.query,
+                list(req.models),
+                primal=req.primal_protocol,
+                scout=req.scout,
+            ):
+                yield chunk
+
+        return StreamingResponse(
+            _with_heartbeat(_council()),
+            media_type="text/event-stream",
+            headers=_SSE_HEADERS,
+        )
+
     else:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail=f"mode {req.mode!r} not yet implemented",
+        # req.mode == "workflow"
+        if not req.workflow_nodes:
+            raise HTTPException(
+                status_code=422,
+                detail="workflow mode requires workflow_nodes",
+            )
+        session_row, query_row = await _open_session_and_query(db, user.id, req, "workflow")
+
+        async def _workflow() -> AsyncIterator[bytes]:
+            async for chunk in _workflow_stream(db, query_row, req.query, req.workflow_nodes, scout=req.scout):
+                yield chunk
+
+        return StreamingResponse(
+            _with_heartbeat(_workflow()),
+            media_type="text/event-stream",
+            headers=_SSE_HEADERS,
         )
 
 
@@ -158,34 +212,6 @@ async def _open_session_and_query(
     return session_row, query_row
 
 
-def _build_tools_for_client(client: object) -> list[dict[str, Any]]:
-    """Render the web_search tool in the correct schema for this client's provider."""
-    from app.llm.anthropic_client import AnthropicClient
-    from app.llm.azure_client import AzureFoundryClient
-
-    if isinstance(client, AnthropicClient):
-        return [anthropic_schema(WEB_SEARCH_SPEC, cache=True)]
-    if isinstance(client, AzureFoundryClient):
-        return [openai_schema(WEB_SEARCH_SPEC)]
-    # Fallback: try Anthropic shape
-    return [anthropic_schema(WEB_SEARCH_SPEC, cache=True)]
-
-
-async def _dispatch_tool(
-    tc: ToolCall,
-    *,
-    tavily_api_key: str,
-    scout_max_results: int,
-) -> SearchResult:
-    if tc.name == "web_search":
-        query_str = tc.input.get("query", "")
-        max_results = int(tc.input.get("max_results", scout_max_results))
-        return await execute_web_search(
-            query_str, max_results, api_key=tavily_api_key
-        )
-    raise ValueError(f"unknown tool: {tc.name!r}")
-
-
 async def _oracle_stream(
     db: AsyncSession,
     client: object,
@@ -193,6 +219,8 @@ async def _oracle_stream(
     prompt: str,
     whitelabel: str,
     scout: ScoutMode,
+    *,
+    primal: bool = False,
 ) -> AsyncIterator[bytes]:
     from app.config import get_settings
     from app.llm.base import Message as LLMMessage
@@ -205,24 +233,18 @@ async def _oracle_stream(
     yield format_event(SseEvent("hex_start", {"hex": whitelabel}))
 
     messages: list[LLMMessage] = []
-    tools_arg: list[dict[str, Any]] | None = None
 
     # Force mode: pre-execute search, inject as system context.
     if scout == "force":
-        if not settings.tavily_api_key:
+        try:
+            context_text, pre_result = await scout_force(prompt, settings)
+        except ValueError:
             yield format_event(SseEvent(
                 "error",
                 {"hex": whitelabel, "code": "MissingConfig", "message": "TAVILY_API_KEY not set"},
             ))
             yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": 0}))
             return
-
-        try:
-            pre_result = await execute_web_search(
-                prompt,
-                settings.scout_max_results,
-                api_key=settings.tavily_api_key,
-            )
         except Exception as e:
             yield format_event(SseEvent(
                 "error",
@@ -248,115 +270,25 @@ async def _oracle_stream(
             "result_count": pre_result.result_count,
         }))
 
-        context_text = format_search_context(pre_result)
         messages.append(LLMMessage(role="system", content=context_text, cache=True))
 
     messages.append(LLMMessage(role="user", content=prompt))
 
-    if scout in ("auto", "force"):
-        if settings.tavily_api_key:
-            tools_arg = _build_tools_for_client(client)
-
     # Agentic loop — run up to scout_max_turns to handle tool calls.
     collected: list[str] = []
-    total_tokens: int | None = None
-    cached_tokens: int | None = None
+    token_counts: dict[str, int | None] = {"total": None, "cached": None}
 
     try:
-        for _turn in range(settings.scout_max_turns):
-            pending_tool_calls: list[ToolCall] = []
-            turn_text: list[str] = []
-
-            async for sse_chunk in _with_heartbeat(
-                _client_tokens(client, messages, whitelabel, turn_text, tools=tools_arg)
-            ):
-                if isinstance(sse_chunk, _TokenCarry):
-                    total_tokens = sse_chunk.total_tokens
-                    cached_tokens = sse_chunk.cached_tokens
-                    continue
-                if isinstance(sse_chunk, _ToolCallCarry):
-                    tc = sse_chunk.tool_call
-                    pending_tool_calls.append(tc)
-                    yield format_event(SseEvent("tool_call", {
-                        "hex": whitelabel,
-                        "id": tc.id,
-                        "name": tc.name,
-                        "input": tc.input,
-                    }))
-                    continue
-                # Raw bytes (token SSE event)
-                yield sse_chunk
-
-            collected.extend(turn_text)
-
-            if not pending_tool_calls:
-                break
-
-            # Append assistant turn with tool_calls, then resolve each tool.
-            messages.append(LLMMessage(
-                role="assistant",
-                content="".join(turn_text),
-                tool_calls=tuple(pending_tool_calls),
-            ))
-
-            for tc in pending_tool_calls:
-                if not settings.tavily_api_key:
-                    err_msg = "TAVILY_API_KEY not set"
-                    yield format_event(SseEvent("tool_result", {
-                        "hex": whitelabel,
-                        "id": tc.id,
-                        "name": tc.name,
-                        "summary": "",
-                        "urls": [],
-                        "result_count": 0,
-                        "error": err_msg,
-                    }))
-                    messages.append(LLMMessage(
-                        role="tool",
-                        content=json.dumps({"error": err_msg}),
-                        tool_use_id=tc.id,
-                    ))
-                    continue
-
-                try:
-                    result = await _dispatch_tool(
-                        tc,
-                        tavily_api_key=settings.tavily_api_key,
-                        scout_max_results=settings.scout_max_results,
-                    )
-                    yield format_event(SseEvent("tool_result", {
-                        "hex": whitelabel,
-                        "id": tc.id,
-                        "name": tc.name,
-                        "summary": result.summary,
-                        "urls": result.urls,
-                        "result_count": result.result_count,
-                    }))
-                    messages.append(LLMMessage(
-                        role="tool",
-                        content=json.dumps({
-                            "summary": result.summary,
-                            "urls": result.urls,
-                            "results": result.raw,
-                        }),
-                        tool_use_id=tc.id,
-                    ))
-                except Exception as e:
-                    err_msg = str(e)[:500]
-                    yield format_event(SseEvent("tool_result", {
-                        "hex": whitelabel,
-                        "id": tc.id,
-                        "name": tc.name,
-                        "summary": "",
-                        "urls": [],
-                        "result_count": 0,
-                        "error": err_msg,
-                    }))
-                    messages.append(LLMMessage(
-                        role="tool",
-                        content=json.dumps({"error": err_msg}),
-                        tool_use_id=tc.id,
-                    ))
+        async for sse_bytes in scout_auto_tool_messages(
+            client,
+            messages,
+            settings,
+            whitelabel,
+            with_tools=scout in ("auto", "force"),
+            collected=collected,
+            token_counts=token_counts,
+        ):
+            yield sse_bytes
 
     except Exception as e:
         query_row.status = "error"
@@ -368,6 +300,8 @@ async def _oracle_stream(
         yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": 0}))
         return
 
+    total_tokens = token_counts["total"]
+    cached_tokens = token_counts["cached"]
     full_text = "".join(collected)
 
     db.add(MessageRow(
@@ -390,5 +324,32 @@ async def _oracle_stream(
         "cached_tokens": cached_tokens or 0,
     }))
 
+    if primal:
+        try:
+            apex_client = get_client("Apex")
+            primal_text = await _run_primal_pass(apex_client, full_text)
+            yield format_event(SseEvent("primal", {"text": primal_text}))
+        except Exception as e:
+            # Don't fail the whole stream for primal failure
+            yield format_event(SseEvent(
+                "error",
+                {"hex": "Apex", "code": type(e).__name__, "message": str(e)[:500]},
+            ))
+
     duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
     yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
+
+
+async def _run_primal_pass(apex_client: LLMClient, text: str) -> str:
+    """Call Apex with caveman rewrite prompt, collect full text."""
+    from app.llm.base import Message as LLMMessage
+
+    messages: list[LLMMessage] = [
+        LLMMessage(role="system", content=_PRIMAL_SYSTEM, cache=True),
+        LLMMessage(role="user", content=text),
+    ]
+    parts: list[str] = []
+    async for chunk in apex_client.stream(messages):
+        if chunk.delta:
+            parts.append(chunk.delta)
+    return "".join(parts)

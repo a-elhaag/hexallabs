@@ -1,4 +1,5 @@
 from app.tools.registry import ToolSpec, anthropic_schema, openai_schema
+from app.tools.scout import scout_auto_tool_messages, scout_force
 from app.tools.web_search import WEB_SEARCH_SPEC, execute_web_search
 
 __all__ = [
@@ -7,4 +8,6 @@ __all__ = [
     "openai_schema",
     "WEB_SEARCH_SPEC",
     "execute_web_search",
+    "scout_force",
+    "scout_auto_tool_messages",
 ]

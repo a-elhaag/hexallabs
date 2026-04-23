@@ -60,20 +60,22 @@ def test_scout_bool_false_coerces_to_off(client: TestClient) -> None:
     assert r.status_code == 200
 
 
-def test_council_mode_returns_501(client: TestClient) -> None:
+def test_council_mode_accepted(client: TestClient) -> None:
+    # Council mode is now implemented; valid request should return 200 (streaming)
     r = client.post(
         "/api/query",
         json={"mode": "council", "query": "hi", "models": ["Apex", "Swift"]},
     )
-    assert r.status_code == 501
+    assert r.status_code == 200
 
 
-def test_workflow_mode_returns_501(client: TestClient) -> None:
+def test_workflow_empty_nodes_returns_422(client: TestClient) -> None:
+    """workflow mode with no workflow_nodes returns 422 (was 501 before implementation)."""
     r = client.post(
         "/api/query",
         json={"mode": "workflow", "query": "hi", "workflow_nodes": []},
     )
-    assert r.status_code == 501
+    assert r.status_code == 422
 
 
 def test_oracle_zero_models_returns_400(client: TestClient) -> None:

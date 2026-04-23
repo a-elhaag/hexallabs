@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.debug import router as debug_router
+from app.api.prompt_forge import router as forge_router
 from app.api.query import router as query_router
 from app.auth.middleware import get_current_user
 from app.auth.mock import mock_get_current_user
@@ -29,6 +30,7 @@ if os.getenv("MOCK_AUTH") == "1":
 
 app.include_router(debug_router)
 app.include_router(query_router)
+app.include_router(forge_router)
 
 
 @app.get("/health")

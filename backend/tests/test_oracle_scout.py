@@ -45,7 +45,7 @@ def test_scout_force_emits_tool_call_and_result(
     monkeypatch.setattr(query_module, "get_client", lambda _wl: FakeClient(["Paris"]))
     monkeypatch.setenv("TAVILY_API_KEY", "tvly-test")
 
-    with patch("app.api.query.execute_web_search", new=AsyncMock(return_value=fake_result)):
+    with patch("app.tools.scout._execute_web_search", new=AsyncMock(return_value=fake_result)):
         with patch("app.config.get_settings") as mock_settings:
             mock_settings.return_value.tavily_api_key = "tvly-test"
             mock_settings.return_value.scout_max_results = 5
@@ -110,7 +110,7 @@ def test_scout_force_search_exception_emits_error(
     monkeypatch.setattr(query_module, "get_client", lambda _wl: FakeClient(["should not emit"]))
 
     with patch(
-        "app.api.query.execute_web_search",
+        "app.tools.scout._execute_web_search",
         new=AsyncMock(side_effect=RuntimeError("network failure")),
     ):
         with patch("app.config.get_settings") as mock_settings:

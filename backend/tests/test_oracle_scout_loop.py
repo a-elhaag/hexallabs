@@ -183,7 +183,8 @@ def test_scout_auto_tool_loop(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _fake_dispatch(tc: ToolCall, *, tavily_api_key: str, scout_max_results: int) -> SearchResult:
         return fake_result
 
-    monkeypatch.setattr(query_module, "_dispatch_tool", _fake_dispatch)
+    import app.tools.scout as scout_module
+    monkeypatch.setattr(scout_module, "_dispatch_tool", _fake_dispatch)
 
     client = _setup_app(monkeypatch, _ToolCallingClient())
     try:
@@ -249,7 +250,8 @@ def test_scout_force_pre_search(monkeypatch: pytest.MonkeyPatch) -> None:
     async def _fake_search(query: str, max_results: int = 5, *, api_key: str) -> SearchResult:
         return fake_result
 
-    monkeypatch.setattr(query_module, "execute_web_search", _fake_search)
+    import app.tools.scout as scout_module
+    monkeypatch.setattr(scout_module, "_execute_web_search", _fake_search)
 
     client = _setup_app(monkeypatch, _ForcedClient())
     try:

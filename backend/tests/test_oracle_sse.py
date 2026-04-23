@@ -128,11 +128,12 @@ def test_oracle_requires_exactly_one_model(client: TestClient) -> None:
     assert r.status_code == 400
 
 
-def test_non_oracle_mode_not_implemented(client: TestClient) -> None:
+def test_non_oracle_modes_not_501(client: TestClient) -> None:
+    # Council mode is now implemented; it should return 200 (streaming), not 501.
     r = client.post(
         "/api/query", json={"mode": "council", "query": "hi", "models": ["Apex", "Swift"]}
     )
-    assert r.status_code == 501
+    assert r.status_code == 200
 
 
 def test_unknown_model_returns_400(monkeypatch: pytest.MonkeyPatch) -> None:

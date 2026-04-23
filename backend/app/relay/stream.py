@@ -4,7 +4,9 @@ import asyncio
 import contextlib
 import logging
 import time
+import uuid as _uuid
 from collections.abc import AsyncIterator
+from typing import Literal
 
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,10 +26,13 @@ from app.relay.triggers import (
 )
 from app.sse.events import SseEvent, format_event
 from app.sse.stream_utils import _TokenCarry, _client_tokens, _with_heartbeat
+from app.tools.scout import scout_force
 
 logger = logging.getLogger(__name__)
 
 _TAIL_WINDOW = 512
+
+ScoutMode = Literal["off", "auto", "force"]
 
 
 async def _relay_stream(
@@ -39,11 +44,48 @@ async def _relay_stream(
     prompt: str,
     whitelabel_a: str,
     whitelabel_b: str,
+    scout: ScoutMode = "off",
 ) -> AsyncIterator[bytes]:
     start_ns = time.monotonic_ns()
     session_id = str(query_row.session_id)
 
     yield format_event(SseEvent("session", {"session_id": session_id, "mode": "relay"}))
+
+    # Scout injection — both force and auto do pre-injection in relay context
+    # (agentic tool-use loop is incompatible with trigger-detection streaming)
+    prompt_messages: list[Message]
+    if scout in ("force", "auto"):
+        from app.config import get_settings
+        settings = get_settings()
+        try:
+            context_text, pre_result = await scout_force(prompt, settings)
+        except ValueError:
+            yield format_event(SseEvent("error", {"hex": whitelabel_a, "code": "MissingConfig", "message": "TAVILY_API_KEY not set"}))
+            yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": 0}))
+            return
+        force_id = f"force_{_uuid.uuid4().hex[:8]}"
+        yield format_event(SseEvent("tool_call", {
+            "hex": whitelabel_a,
+            "id": force_id,
+            "name": "web_search",
+            "input": {"query": prompt},
+            "forced": True,
+        }))
+        yield format_event(SseEvent("tool_result", {
+            "hex": whitelabel_a,
+            "id": force_id,
+            "name": "web_search",
+            "summary": pre_result.summary,
+            "urls": pre_result.urls,
+            "result_count": pre_result.result_count,
+        }))
+        prompt_messages = [
+            Message(role="system", content=context_text, cache=True),
+            Message(role="user", content=prompt),
+        ]
+    else:
+        prompt_messages = [Message(role="user", content=prompt)]
+
     yield format_event(SseEvent("hex_start", {"hex": whitelabel_a}))
 
     # Stage A — stream with trigger detection
@@ -59,7 +101,7 @@ async def _relay_stream(
         nonlocal triggered, handoff_detected
         total: int | None = None
         cached: int | None = None
-        async for chunk in client_a.stream([Message(role="user", content=prompt)]):
+        async for chunk in client_a.stream(prompt_messages):
             if chunk.total_tokens is not None:
                 total = chunk.total_tokens
             if chunk.cached_tokens is not None:
