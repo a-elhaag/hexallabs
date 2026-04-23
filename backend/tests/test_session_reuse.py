@@ -9,19 +9,26 @@ from app.api import query as query_module
 from app.auth.middleware import get_current_user
 from app.auth.models import AuthUser
 from app.db.models import Session as SessionRow
+from app.db.models.user_quota import UserQuota
 from app.db.session import get_session
 from app.main import app
 from tests.conftest import FakeClient, FakeSession
 
 
 class _FakeSessionWithLookup(FakeSession):
-    """FakeSession that returns a pre-configured SessionRow on db.get()."""
+    """FakeSession that returns a pre-configured SessionRow on db.get().
+
+    Returns None for UserQuota lookups so QuotaService.get_or_create creates a
+    fresh quota row (which is flushed/added but not verified by these tests).
+    """
 
     def __init__(self, session_row: SessionRow | None = None) -> None:
         super().__init__()
         self._session_row = session_row
 
     async def get(self, _model: object, _id: uuid.UUID) -> object | None:
+        if _model is UserQuota:
+            return None
         return self._session_row
 
 

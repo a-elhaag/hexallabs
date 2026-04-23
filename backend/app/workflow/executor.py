@@ -35,8 +35,10 @@ from typing import Literal
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.quota import QuotaService
 from app.db.models import Message as MessageRow
 from app.db.models import Query as QueryRow
+from app.db.models.user_quota import UserQuota
 from app.llm.base import Message as LLMMessage
 from app.llm.factory import get_client
 from app.sse.events import SseEvent, format_event
@@ -181,6 +183,7 @@ async def _workflow_stream(
     nodes: list[dict[str, object]],
     *,
     scout: ScoutMode = "off",
+    quota: UserQuota | None = None,
 ) -> AsyncIterator[bytes]:
     """Execute a workflow pipeline and stream SSE events.
 
@@ -325,6 +328,8 @@ async def _workflow_stream(
                     "tokens": total_tokens or 0,
                     "cached_tokens": cached_tokens or 0,
                 }))
+                if quota is not None and total_tokens:
+                    await QuotaService.deduct(db, quota, total_tokens, whitelabel)
 
         elif node_type == "passthrough":
             # Pass input through unchanged, no SSE events

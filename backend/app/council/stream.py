@@ -34,10 +34,12 @@ from typing import Literal, NamedTuple
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.quota import QuotaService
 from app.db.models import Message as MessageRow
 from app.db.models import PeerReview as PeerReviewRow
 from app.db.models import PromptLensEntry
 from app.db.models import Query as QueryRow
+from app.db.models.user_quota import UserQuota
 from app.lens.analyzer import LensInput, analyze_responses
 from app.llm.base import LLMClient, Message
 from app.llm.factory import get_client
@@ -290,6 +292,7 @@ async def _council_stream(
     *,
     primal: bool = False,
     scout: ScoutMode = "off",
+    quota: UserQuota | None = None,
 ) -> AsyncIterator[bytes]:
     """Stream Council mode: fan-out → peer review → Apex synthesis.
 
@@ -398,6 +401,8 @@ async def _council_stream(
                 },
             )
         )
+        if quota is not None and result.total_tokens:
+            await QuotaService.deduct(db, quota, result.total_tokens, result.whitelabel)
 
     # Flush so MessageRow IDs are populated (needed as PeerReview FKs)
     await db.flush()

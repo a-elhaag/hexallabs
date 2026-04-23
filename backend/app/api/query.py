@@ -11,11 +11,13 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import AuthUser, get_current_user
+from app.billing.quota import QuotaService
 from app.council.stream import _council_stream
 from app.db import get_session
 from app.db.models import Message as MessageRow
 from app.db.models import Query as QueryRow
 from app.db.models import Session as SessionRow
+from app.db.models.user_quota import UserQuota
 from app.llm.base import LLMClient
 from app.llm.factory import get_client
 from app.relay.stream import _relay_stream
@@ -59,6 +61,10 @@ async def query(
     user: AuthUser = Depends(get_current_user),  # noqa: B008
     db: AsyncSession = Depends(get_session),  # noqa: B008
 ) -> StreamingResponse:
+    # Quota check — must happen after auth, before streaming
+    quota = await QuotaService.get_or_create(db, user.id)
+    QuotaService.check(quota)
+
     if req.mode == "oracle":
         if len(req.models) != 1:
             raise HTTPException(
@@ -78,6 +84,7 @@ async def query(
             async for chunk in _oracle_stream(
                 db, client, query_row, req.query, whitelabel, req.scout,
                 primal=req.primal_protocol,
+                quota=quota,
             ):
                 yield chunk
 
@@ -109,6 +116,7 @@ async def query(
             async for chunk in _relay_stream(
                 db, client_a, client_b, apex_client, query_row, req.query, wl_a, wl_b,
                 scout=req.scout,
+                quota=quota,
             ):
                 yield chunk
 
@@ -147,6 +155,7 @@ async def query(
                 list(req.models),
                 primal=req.primal_protocol,
                 scout=req.scout,
+                quota=quota,
             ):
                 yield chunk
 
@@ -166,7 +175,11 @@ async def query(
         session_row, query_row = await _open_session_and_query(db, user.id, req, "workflow")
 
         async def _workflow() -> AsyncIterator[bytes]:
-            async for chunk in _workflow_stream(db, query_row, req.query, req.workflow_nodes, scout=req.scout):
+            async for chunk in _workflow_stream(
+                db, query_row, req.query, req.workflow_nodes,
+                scout=req.scout,
+                quota=quota,
+            ):
                 yield chunk
 
         return StreamingResponse(
@@ -221,6 +234,7 @@ async def _oracle_stream(
     scout: ScoutMode,
     *,
     primal: bool = False,
+    quota: UserQuota | None = None,
 ) -> AsyncIterator[bytes]:
     from app.config import get_settings
     from app.llm.base import Message as LLMMessage
@@ -335,6 +349,9 @@ async def _oracle_stream(
                 "error",
                 {"hex": "Apex", "code": type(e).__name__, "message": str(e)[:500]},
             ))
+
+    if quota is not None and total_tokens:
+        await QuotaService.deduct(db, quota, total_tokens, whitelabel)
 
     duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
     yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))

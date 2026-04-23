@@ -11,9 +11,11 @@ from typing import Literal
 from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.billing.quota import QuotaService
 from app.db.models import Message as MessageRow
 from app.db.models import Query as QueryRow
 from app.db.models import RelayHandoff
+from app.db.models.user_quota import UserQuota
 from app.llm.base import LLMClient, Message
 from app.relay.baton import build_baton
 from app.relay.triggers import (
@@ -45,6 +47,7 @@ async def _relay_stream(
     whitelabel_a: str,
     whitelabel_b: str,
     scout: ScoutMode = "off",
+    quota: UserQuota | None = None,
 ) -> AsyncIterator[bytes]:
     start_ns = time.monotonic_ns()
     session_id = str(query_row.session_id)
@@ -165,6 +168,8 @@ async def _relay_stream(
         query_row.completed_at = func.now()
         yield format_event(SseEvent("confidence", {"hex": whitelabel_a, "score": 10, "stage": "relay_0"}))
         yield format_event(SseEvent("hex_done", {"hex": whitelabel_a, "tokens": total_a or 0, "cached_tokens": cached_a or 0}))
+        if quota is not None and total_a:
+            await QuotaService.deduct(db, quota, total_a, whitelabel_a)
         duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
         yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
         return
@@ -249,6 +254,11 @@ async def _relay_stream(
 
     yield format_event(SseEvent("confidence", {"hex": whitelabel_b, "score": 10, "stage": "relay_1"}))
     yield format_event(SseEvent("hex_done", {"hex": whitelabel_b, "tokens": total_b or 0, "cached_tokens": cached_b or 0}))
+    if quota is not None:
+        if total_a:
+            await QuotaService.deduct(db, quota, total_a, whitelabel_a)
+        if total_b:
+            await QuotaService.deduct(db, quota, total_b, whitelabel_b)
     duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
     yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
 
