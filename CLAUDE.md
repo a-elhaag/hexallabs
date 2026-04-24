@@ -1,4 +1,4 @@
-# Hexallabs — Claude Code Instructions
+# HexalLabs — CLAUDE.md
 
 ## Project Overview
 Horizontal LLM council platform. Queries answered by 1–7 models in parallel, models anonymously peer-review each other, a chairman model synthesizes a final answer. Also supports single-model "Oracle" mode.
@@ -107,10 +107,11 @@ pnpm db:seed      # seed pricing tiers
 pnpm db:studio    # open Prisma Studio
 ```
 
-### Test DB connection
-```bash
-cd backend && python test_db.py
-```
+### SSE (`app/sse/`)
+- `SseEvent` is validated against `_ALLOWED_EVENTS` — any new event type must be added there AND follow `hexallabs-sse-contract` skill
+- `format_event()` emits `event: <name>\ndata: <json>\n\n`
+- Heartbeat: `: keep-alive\n\n` every 15s to keep connection warm
+- All modes (Oracle, Council, Relay, Workflow) emit the same event vocabulary so frontend has one consumer
 
 ## Azure AI Foundry
 - Endpoint: `AZURE_AI_FOUNDRY_ENDPOINT` env var
@@ -118,6 +119,36 @@ cd backend && python test_db.py
 - Uses OpenAI-compatible SDK (`openai.AsyncOpenAI` with custom base_url)
 - All 7 model deployment names set via `MODEL_*` env vars
 
-## MCP / Graph tools
-- Use `code-review-graph` MCP tools BEFORE Grep/Glob/Read for codebase exploration
-- `semantic_search_nodes` for finding functions, `get_impact_radius` for blast radius
+### Testing
+- pytest + pytest-asyncio, `conftest._default_env` seeds env creds
+- Mock SDKs via DI (e.g. `AzureFoundryClient(sdk=mock)`) — never mock `get_client` unless testing factory routing
+- Live API tests behind opt-in marker (`test_live.py`)
+
+## Custom Skills (HexalLabs-specific)
+Invoke via `Skill` tool. Auto-apply when editing relevant code:
+
+| Skill | When |
+|---|---|
+| `hexallabs-caching-rules` | Writing Apex synthesis / peer review / Council / Prompt Forge prompts |
+| `hexallabs-whitelabel-names` | Any user-facing string, API schema, frontend component |
+| `hexallabs-stack-constraints` | Before adding a dependency or changing a core tool |
+| `hexallabs-model-router` | Creating/editing any LLM client, factory, or model call site |
+| `hexallabs-sse-contract` | Adding/modifying any SSE endpoint |
+
+## What NOT to Build
+- Billing / tiers
+- Usage tracking
+- Admin dashboard
+- Rate limiting
+- Multi-tenant
+
+## Demo Flow (3 minutes)
+1. Type complex query → Prompt Forge improves it, accept
+2. Select 4–5 models, Council runs
+3. Hex grid lights up, streams in real-time
+4. Confidence scores update live per hex
+5. Peer review — connecting lines animate
+6. Apex synthesizes — center hex glows
+7. Toggle Primal Protocol — caveman rewrite
+8. Switch to Workflow — show 3-node pipeline
+9. Prompt Lens — show how models interpreted differently

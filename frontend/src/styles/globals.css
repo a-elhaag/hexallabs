@@ -4,3 +4,49 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
+
+
+/* Base */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-muted); border-radius: 3px; opacity: 0.5; }
+
+/* ── Chat extras (dark baseline) ── */
+:root {
+  --color-panel:  #1e1e1e;
+  --color-card:   #242424;
+  --color-border: rgba(168,144,128,0.12);
+  --color-mode:   #6290c3;
+  --color-nav:    rgba(44,44,44,0.9);
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --color-bg:      #f0ebe4;
+  --color-muted:   #8a7060;
+  --color-surface: #2c2c2c;
+  --color-accent:  #4d7ab5;
+  --color-panel:   #e8e2da;
+  --color-card:    #f5f0eb;
+  --color-border:  rgba(100,80,60,0.12);
+  --color-nav:     rgba(240,235,228,0.9);
+}
+
+/* Mode accent overrides */
+[data-mode="council"]  { --color-mode: #6290c3; }
+[data-mode="oracle"]   { --color-mode: #9b72cf; }
+[data-mode="relay"]    { --color-mode: #5ba08a; }
+[data-mode="workflow"] { --color-mode: #c09050; }
+[data-mode="scout"]    { --color-mode: #5b9062; }
