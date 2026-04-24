@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api", tags=["prompt-forge"])
 # first 1024 tokens are identical on every call.
 # ---------------------------------------------------------------------------
 _FORGE_SYSTEM_PROMPT = (
-    "You are Prompt Forge, a query-improvement assistant embedded in HexalLabs."
+    "You are Prompt Forge, a query-improvement assistant embedded in Hexal."
     " Your job is to rewrite the user's raw query so it is clearer, more"
     " specific, and more answerable by a panel of AI models.\n\n"
     "Rules:\n"

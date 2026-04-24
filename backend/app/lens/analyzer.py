@@ -7,14 +7,14 @@ model) generates:
 
 Results are emitted as `lens` SSE events before `done`, and persisted to DB.
 
-Caching strategy (hexallabs-caching-rules):
+Caching strategy (hexal-caching-rules):
   - System prompt: cache=True — invariant rubric, benefits from Azure automatic
     prefix cache (Spark is Azure; first 1024 tokens must be identical across
     requests for a cache hit). Session or user ID passed as cache_key for
     sticky routing and higher hit rate.
   - User message (query + response text): NOT cached — changes per model/run.
 
-White-label rules (hexallabs-whitelabel-names):
+White-label rules (hexal-whitelabel-names):
   - `whitelabel` field in LensInput/LensResult uses white-label names only.
   - Lens prompt does NOT reference real model names — uses "a model" / "this
     model" neutrally so Spark has no brand bias.

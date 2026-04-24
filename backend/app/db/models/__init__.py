@@ -5,6 +5,7 @@ from app.db.models.query import Query
 from app.db.models.relay_handoff import RelayHandoff
 from app.db.models.session_ import Session
 from app.db.models.user import User
+from app.db.models.user_quota import UserQuota
 from app.db.models.workflow import Workflow, WorkflowNodeRun, WorkflowRun
 
 __all__ = [
@@ -15,6 +16,7 @@ __all__ = [
     "RelayHandoff",
     "Session",
     "User",
+    "UserQuota",
     "Workflow",
     "WorkflowNodeRun",
     "WorkflowRun",

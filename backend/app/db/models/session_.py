@@ -23,7 +23,7 @@ class Session(Base):
     title: Mapped[str | None] = mapped_column(String, nullable=True)
     mode: Mapped[str] = mapped_column(String, nullable=False)
     primal_protocol: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    scout_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    scout_enabled: Mapped[str] = mapped_column(String(8), nullable=False, default="off")
     created_at: Mapped[datetime] = created_at_col()
     updated_at: Mapped[datetime] = updated_at_col()
 
