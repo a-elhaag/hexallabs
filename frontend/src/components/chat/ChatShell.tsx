@@ -9,7 +9,8 @@ import { ModelGrid } from "~/components/chat/ModelGrid";
 import { PromptForge } from "~/components/chat/PromptForge";
 import { ChatInput } from "~/components/chat/ChatInput";
 import { useChatStream } from "~/lib/api/useChatStream";
-import type { QueryRequest } from "~/lib/api/types";
+import type { QueryRequest, WorkspaceKind, ArtifactPayload } from "~/lib/api/types";
+import { WorkspaceHost } from "~/components/workspace/WorkspaceHost";
 
 function uid() {
   return Math.random().toString(36).slice(2);
@@ -37,6 +38,10 @@ export function ChatShell({ userEmail }: ChatShellProps) {
   const [forgeOriginal, setForgeOriginal]   = useState("");
   const [activePhase, setActivePhase]       = useState(0);
   const [apexText, setApexText]             = useState("");
+  const [workspaceKind, setWorkspaceKind]   = useState<WorkspaceKind>("chat");
+  const [workspaceReason, setWorkspaceReason] = useState<string>("");
+  const [artifact, setArtifact]             = useState<ArtifactPayload | null>(null);
+  const [workspaceOverride, setWorkspaceOverride] = useState<WorkspaceKind | null>(null);
 
   // Keep a ref to accumulate apex tokens without stale closure issues
   const apexTextRef = useRef("");
@@ -65,6 +70,15 @@ export function ChatShell({ userEmail }: ChatShellProps) {
   // Stable SSE callbacks
   const onSession = useCallback(() => {
     // no-op — session_id stored if needed in the future
+  }, []);
+
+  const onWorkspace = useCallback((data: { kind: WorkspaceKind; reason: string }) => {
+    setWorkspaceReason(data.reason);
+    if (workspaceOverride === null) setWorkspaceKind(data.kind);
+  }, [workspaceOverride]);
+
+  const onArtifact = useCallback((data: { kind: WorkspaceKind; payload: ArtifactPayload }) => {
+    setArtifact(data.payload);
   }, []);
 
   const onHexStart = useCallback(() => {
@@ -125,6 +139,8 @@ export function ChatShell({ userEmail }: ChatShellProps) {
 
   const stream = useChatStream({
     onSession,
+    onWorkspace,
+    onArtifact,
     onHexStart,
     onHexToken,
     onConfidence,
@@ -160,6 +176,11 @@ export function ChatShell({ userEmail }: ChatShellProps) {
     setActivePhase(0);
     apexTextRef.current = "";
     setApexText("");
+    setArtifact(null);
+    if (workspaceOverride === null) {
+      setWorkspaceKind("chat");
+      setWorkspaceReason("");
+    }
 
     const req: QueryRequest = {
       mode:
@@ -201,6 +222,15 @@ export function ChatShell({ userEmail }: ChatShellProps) {
     setInputValue("");
     apexTextRef.current = "";
     setApexText("");
+    setArtifact(null);
+    setWorkspaceKind("chat");
+    setWorkspaceReason("");
+    setWorkspaceOverride(null);
+  }
+
+  function handleWorkspaceOverride(kind: WorkspaceKind) {
+    setWorkspaceOverride(kind);
+    setWorkspaceKind(kind);
   }
 
   // Mobile: close sidebar on small screens when clicking outside
@@ -221,6 +251,8 @@ export function ChatShell({ userEmail }: ChatShellProps) {
         primalOn={primalOn}
         sidebarOpen={sidebarOpen}
         userEmail={userEmail}
+        workspaceKind={workspaceKind}
+        onWorkspaceChange={handleWorkspaceOverride}
         onModeChange={setActiveMode}
         onThemeToggle={handleThemeToggle}
         onScoutToggle={() => setScoutOn((v) => !v)}
@@ -248,8 +280,17 @@ export function ChatShell({ userEmail }: ChatShellProps) {
 
         {/* Main */}
         <div className="flex flex-col flex-1 overflow-hidden">
-          {chatState === "running" ? (
+          {chatState === "running" && workspaceKind === "chat" ? (
             <ModelGrid activePhase={activePhase} mode={activeMode} />
+          ) : workspaceKind !== "chat" ? (
+            <WorkspaceHost
+              kind={workspaceKind}
+              streamingText={apexText}
+              artifact={artifact}
+              isStreaming={chatState === "running"}
+              classifierReason={workspaceReason}
+              chatFallback={null}
+            />
           ) : (
             <MessageList
               messages={messages}

@@ -14,10 +14,14 @@ import type {
   ToolCallData,
   ToolResultData,
   ErrorData,
+  WorkspaceData,
+  ArtifactData,
 } from "./types";
 
 export interface ChatStreamCallbacks {
   onSession?: (data: SessionData) => void;
+  onWorkspace?: (data: WorkspaceData) => void;
+  onArtifact?: (data: ArtifactData) => void;
   onHexStart?: (data: HexStartData) => void;
   onHexToken?: (data: HexTokenData) => void;
   onConfidence?: (data: ConfidenceData) => void;
@@ -52,6 +56,12 @@ export function useChatStream(callbacks: ChatStreamCallbacks) {
           switch (event) {
             case "session":
               callbacks.onSession?.(data as SessionData);
+              break;
+            case "workspace":
+              callbacks.onWorkspace?.(data as WorkspaceData);
+              break;
+            case "artifact":
+              callbacks.onArtifact?.(data as ArtifactData);
               break;
             case "hex_start":
               callbacks.onHexStart?.(data as HexStartData);

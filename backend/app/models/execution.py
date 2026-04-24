@@ -28,6 +28,8 @@ class Execution(Base):
     peer_reviews: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
     synthesis: Mapped[str | None] = mapped_column(Text)
     cost_breakdown: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    workspace_kind: Mapped[str | None] = mapped_column(String)
+    artifact: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

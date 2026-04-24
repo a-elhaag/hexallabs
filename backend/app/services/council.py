@@ -24,6 +24,7 @@ from app.models.execution import Execution
 from app.schemas.council import ExecuteRequest
 from app.services import foundry
 from app.services import search as search_service
+from app.services import workspace_classifier
 
 CHAIRMAN_MODEL = "gpt-5.1-chat"
 BILLING_RATE = 0.60  # users billed at 60% of Azure output price
@@ -59,6 +60,127 @@ PRIMAL_PROTOCOL_SUFFIX = (
     "Drop articles, pleasantries, hedging. Fragments OK. "
     "Technical terms exact. Every word must earn its place."
 )
+
+_CHAIRMAN_BASE = (
+    "You are the chairman of a council of AI models. "
+    "Synthesize the following responses into a single, definitive answer."
+)
+
+_CHAIRMAN_SUFFIX: dict[str, str] = {
+    "code": (
+        " The user expects a code-first answer. Put the primary runnable code in a single fenced block "
+        "with a language tag (```python, ```ts, etc). Keep prose above/below the block minimal."
+    ),
+    "spreadsheet": (
+        " The user expects tabular data. Include a Markdown table that captures the comparison or dataset, "
+        "with a concrete header row."
+    ),
+    "diagram": (
+        " The user expects a visual. Include a mermaid block (```mermaid ...```) that captures the structure."
+    ),
+    "document": (
+        " The user expects a long-form write-up. Use Markdown with clear section headings (##) and "
+        "structured prose."
+    ),
+    "chat": "",
+}
+
+
+def _chairman_prompt(workspace_kind: str) -> str:
+    return _CHAIRMAN_BASE + _CHAIRMAN_SUFFIX.get(workspace_kind, "")
+
+
+def _extract_artifact(workspace_kind: str, synthesis: str) -> dict | None:
+    """Pull a structured payload from the synthesized text for non-chat workspaces.
+
+    Returns None when the workspace is chat or nothing extractable is found —
+    the frontend falls back to rendering the raw synthesis prose.
+    """
+    if workspace_kind == "chat":
+        return None
+    if workspace_kind == "code":
+        code, lang = _first_fenced_block(synthesis)
+        if not code:
+            return None
+        return {"language": lang or "text", "code": code, "filename": _guess_filename(lang)}
+    if workspace_kind == "diagram":
+        code, lang = _first_fenced_block(synthesis, prefer_lang="mermaid")
+        if not code:
+            return None
+        return {"diagram": code, "format": lang or "mermaid"}
+    if workspace_kind == "spreadsheet":
+        table = _first_markdown_table(synthesis)
+        if table is None:
+            return None
+        return table
+    if workspace_kind == "document":
+        return {"markdown": synthesis}
+    return None
+
+
+def _first_fenced_block(text: str, prefer_lang: str | None = None) -> tuple[str, str]:
+    """Return (code, lang) of the first fenced block. Prefers a matching lang if given."""
+    lines = text.splitlines()
+    blocks: list[tuple[str, str]] = []
+    inside = False
+    lang = ""
+    buf: list[str] = []
+    for line in lines:
+        stripped = line.lstrip()
+        if stripped.startswith("```"):
+            if inside:
+                blocks.append(("\n".join(buf), lang))
+                inside = False
+                lang = ""
+                buf = []
+            else:
+                inside = True
+                lang = stripped[3:].strip()
+        elif inside:
+            buf.append(line)
+    if prefer_lang:
+        for code, lng in blocks:
+            if lng.lower() == prefer_lang.lower():
+                return code, lng
+    if blocks:
+        return blocks[0]
+    return "", ""
+
+
+def _first_markdown_table(text: str) -> dict | None:
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if "|" in line and i + 1 < len(lines) and set(lines[i + 1].replace("|", "").strip()) <= set("-: "):
+            columns = [c.strip() for c in line.strip().strip("|").split("|")]
+            rows: list[list[str]] = []
+            for row_line in lines[i + 2 :]:
+                if "|" not in row_line or not row_line.strip():
+                    break
+                cells = [c.strip() for c in row_line.strip().strip("|").split("|")]
+                if len(cells) == len(columns):
+                    rows.append(cells)
+            if columns and rows:
+                return {"columns": columns, "rows": rows}
+    return None
+
+
+def _guess_filename(lang: str) -> str:
+    return {
+        "python": "main.py",
+        "py": "main.py",
+        "typescript": "main.ts",
+        "ts": "main.ts",
+        "tsx": "main.tsx",
+        "javascript": "main.js",
+        "js": "main.js",
+        "jsx": "main.jsx",
+        "go": "main.go",
+        "rust": "main.rs",
+        "rs": "main.rs",
+        "sql": "query.sql",
+        "bash": "script.sh",
+        "sh": "script.sh",
+    }.get((lang or "").lower(), f"snippet.{lang or 'txt'}")
 
 
 # ---------------------------------------------------------------------------
@@ -137,6 +259,17 @@ async def run_council(
 
     execution.status = "running"
     await db.commit()
+
+    # --- Phase 0: workspace classification (lightweight, non-blocking on failure) ---
+    workspace = await workspace_classifier.classify(execution.query)
+    workspace_kind = workspace["kind"]
+    execution.workspace_kind = workspace_kind
+    await db.commit()
+    yield {
+        "type": "workspace",
+        "kind": workspace_kind,
+        "reason": workspace["reason"],
+    }
 
     solo_mode = len(config.models) == 1
 
@@ -255,10 +388,7 @@ async def run_council(
         synthesis_chunks: list[str] = []
         async for chunk in foundry.stream_complete(
             model=CHAIRMAN_MODEL,
-            system_prompt=(
-                "You are the chairman of a council of AI models. "
-                "Synthesize the following responses into a single, definitive answer."
-            ),
+            system_prompt=_chairman_prompt(workspace_kind),
             user_message=f"Query: {execution.query}\n\nResponses:\n{responses_block}",
         ):
             yield {"type": "synthesis_token", "chunk": chunk}
@@ -266,6 +396,16 @@ async def run_council(
         synthesis = "".join(synthesis_chunks)
 
     yield {"type": "synthesis", "text": synthesis}
+
+    # --- Phase 3b: artifact (optional) ---
+    artifact_payload = _extract_artifact(workspace_kind, synthesis)
+    if artifact_payload is not None:
+        execution.artifact = artifact_payload
+        yield {
+            "type": "artifact",
+            "kind": workspace_kind,
+            "payload": artifact_payload,
+        }
 
     # --- Persist results ---
     cost_breakdown = {

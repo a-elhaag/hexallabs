@@ -2,7 +2,7 @@
 name = "hexallabs-backend"
 version = "0.1.0"
 description = "HexalLabs FastAPI backend"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
@@ -32,13 +32,13 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "ASYNC"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.12"
 strict = true
 packages = ["app"]
 

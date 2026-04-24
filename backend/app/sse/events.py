@@ -20,6 +20,8 @@ primal         {text: str}
 relay_handoff  {from: str, to: str, trigger: "marker"|"confidence"|"apex", reason: str, partial_chars: int}
 tool_call      {hex: str, id: str, name: str, input: dict, forced?: bool}
 tool_result    {hex: str, id: str, name: str, summary: str, urls: [str], result_count: int, error?: str}
+workspace      {kind: "chat"|"code"|"spreadsheet"|"diagram"|"document", reason: str}
+artifact       {kind: "chat"|"code"|"spreadsheet"|"diagram"|"document", payload: dict}
 done           {session_id: str, duration_ms: int}
 error          {hex: str, code: str, message: str}
 """
@@ -37,20 +39,27 @@ _ALLOWED_EVENTS = {
     "prompt_forge",
     "hex_start",
     "token",
+    "hex_token",
     "confidence",
     "peer_review",
     "hex_done",
     "synth_start",
     "synth_token",
     "synth_done",
+    "apex_token",
+    "apex_done",
     "lens",
     "primal",
     "relay_handoff",
     "tool_call",
     "tool_result",
+    "workspace",
+    "artifact",
     "done",
     "error",
 }
+
+WORKSPACE_KINDS = frozenset({"chat", "code", "spreadsheet", "diagram", "document"})
 
 
 @dataclass(frozen=True, slots=True)

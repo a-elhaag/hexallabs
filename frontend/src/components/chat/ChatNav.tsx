@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { type Mode, type Theme, MODES } from "~/components/chat/types";
+import type { WorkspaceKind } from "~/lib/api/types";
+import { WORKSPACE_KINDS, WORKSPACE_ICON, WORKSPACE_LABEL } from "~/components/workspace/types";
 
 interface Props {
   mode: Mode;
@@ -10,6 +12,8 @@ interface Props {
   primalOn: boolean;
   sidebarOpen: boolean;
   userEmail?: string;
+  workspaceKind: WorkspaceKind;
+  onWorkspaceChange: (k: WorkspaceKind) => void;
   onModeChange: (m: Mode) => void;
   onThemeToggle: () => void;
   onScoutToggle: () => void;
@@ -24,6 +28,8 @@ export function ChatNav({
   primalOn,
   sidebarOpen,
   userEmail,
+  workspaceKind,
+  onWorkspaceChange,
   onModeChange,
   onThemeToggle,
   onScoutToggle,
@@ -89,6 +95,36 @@ export function ChatNav({
             );
           })}
         </div>
+      </div>
+
+      {/* Workspace chips */}
+      <div
+        className="hidden md:flex items-center gap-1 rounded-full p-1 flex-shrink-0"
+        style={{
+          background: "var(--color-card)",
+          border: "1px solid var(--color-border)",
+        }}
+        title="Workspace view"
+      >
+        {WORKSPACE_KINDS.map((k) => {
+          const active = k === workspaceKind;
+          return (
+            <button
+              key={k}
+              type="button"
+              onClick={() => onWorkspaceChange(k)}
+              className="px-2.5 py-1 rounded-full text-[0.68rem] font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1"
+              style={{
+                background: active ? "var(--color-mode)" : "transparent",
+                color: active ? "#fff" : "var(--color-muted)",
+              }}
+              title={WORKSPACE_LABEL[k]}
+            >
+              <span>{WORKSPACE_ICON[k]}</span>
+              <span className="hidden lg:inline">{WORKSPACE_LABEL[k]}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Toggles */}

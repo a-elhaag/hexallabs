@@ -20,6 +20,8 @@ class ExecutionResponse(BaseModel):
     peer_reviews: dict[str, Any] | None = None
     synthesis: str | None = None
     cost_breakdown: dict[str, float] | None = None
+    workspace_kind: str | None = None
+    artifact: dict[str, Any] | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

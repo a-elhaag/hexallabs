@@ -72,15 +72,14 @@ hexallabs/
 
 ### Database
 - All timestamps UTC
-- Use Prisma for frontend DB access; SQLAlchemy (async) for backend
-- `DATABASE_URL` in root `.env` uses `postgresql://` (Prisma format)
-- Backend config auto-converts to `postgresql+asyncpg://` + `ssl=require`
-- Run schema changes: `pnpm db:push` (dev) or `pnpm db:migrate` (prod)
+- Cloud Supabase Postgres only — no local DB. Backend connects via pooler, bypasses RLS. Frontend uses anon key, RLS enforced.
+- Backend: SQLAlchemy async + asyncpg via `DATABASE_URL` (pooler connection string).
+- Schema changes: Alembic for tables (`alembic upgrade head`). Supabase-side SQL (RLS + triggers) lives in `supabase/` dir (no local CLI).
 
 ### Environment
-- Single root `.env` — both frontend and backend load from it
-- `backend/app/config.py` uses `env_file="../.env"` with `extra="ignore"`
-- `frontend/package.json` scripts use `dotenv -e ../.env --` prefix
+- Per-service `.env` files: `backend/.env`, `frontend/.env` (both gitignored)
+- Backend: pydantic-settings, `env_file=".env"`
+- Frontend: T3 Env schema in `src/env.js`, Next.js loads `.env` automatically
 - Never commit `.env` files
 
 ## Running Locally
@@ -88,23 +87,15 @@ hexallabs/
 ### Backend
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+uv sync --python 3.12
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Frontend
 ```bash
 cd frontend
-pnpm install
-pnpm dev
-```
-
-### DB scripts (run from frontend/)
-```bash
-pnpm db:push      # push schema changes (dev)
-pnpm db:seed      # seed pricing tiers
-pnpm db:studio    # open Prisma Studio
+bun install
+bun dev
 ```
 
 ### SSE (`app/sse/`)

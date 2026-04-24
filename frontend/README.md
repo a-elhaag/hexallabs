@@ -1,29 +1,36 @@
-# Create T3 App
+# HexalLabs Frontend
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Next.js 15 App Router + TypeScript + Tailwind CSS v4 + Supabase auth.
 
-## What's next? How do I make an app with this?
+## Stack
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- Next.js 15 (App Router)
+- TypeScript (strict)
+- Tailwind CSS v4
+- `@supabase/ssr` for auth (cookie-based session)
+- `@t3-oss/env-nextjs` + Zod for env validation
+- `framer-motion`, `gsap` for animation
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Setup
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```bash
+bun install
+cp .env.example .env   # fill in Supabase URL + anon key + backend URL
+bun dev
+```
 
-## Learn More
+## Env vars
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+See `.env.example`. All `NEXT_PUBLIC_*`.
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+- `NEXT_PUBLIC_SUPABASE_URL` — cloud Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — anon/public key from Supabase dashboard
+- `NEXT_PUBLIC_BACKEND_URL` — FastAPI backend base URL (e.g. `http://localhost:8000`)
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## Structure
 
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+- `src/app/` — App Router routes (`/login`, `/signup`, `/chat`, `/auth/callback`, `/auth/signout`)
+- `src/lib/supabase/` — browser + server Supabase clients + middleware
+- `src/lib/api/` — backend fetch wrapper + SSE stream hook
+- `src/components/chat/` — chat UI (ChatShell, ModelGrid, MessageList, etc.)
+- `src/middleware.ts` — Next.js middleware running session refresh + unauth redirect
