@@ -1,4 +1,4 @@
-# HexalLabs Backend
+# Hexal-LM Backend
 
 FastAPI + uv. Python 3.13.
 
@@ -55,6 +55,12 @@ uv run uvicorn app.main:app --reload --port 8000
 ```
 
 - Health: `GET http://localhost:8000/health`
+- Debug invoke (streams plain text):
+  ```bash
+  curl -N -X POST http://localhost:8000/api/debug/invoke \
+    -H "Content-Type: application/json" \
+    -d '{"model":"Apex","query":"Say hi in 5 words."}'
+  ```
 
 ## Test / lint / types
 
@@ -71,6 +77,7 @@ uv run mypy
 - `app/llm/anthropic_client.py` — Apex, Pulse (direct Anthropic Console)
 - `app/llm/azure_client.py` — Swift/Prism/Depth/Atlas/Horizon (Azure AI Foundry)
 - `app/llm/factory.py` — `get_client(whitelabel)` routes by provider
+- `app/api/debug.py` — `POST /api/debug/invoke` for sanity testing
 - `app/db/` — SQLAlchemy async engine, session dep, ORM models (`users`, `sessions`, `queries`, `messages`, `peer_reviews`, `relay_handoffs`, `workflows`, `workflow_runs`, `workflow_node_runs`, `prompt_lens_entries`)
 - `app/auth/` — JWKS-based Supabase JWT verification (`verify_supabase_jwt`) + FastAPI `get_current_user` dependency
 

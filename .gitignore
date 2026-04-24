@@ -29,8 +29,6 @@ yarn-error.log*
 # ── Database ──────────────────────────────────────────────────────────────────
 *.sqlite
 *.sqlite-journal
-prisma/db.sqlite
-prisma/db.sqlite-journal
 
 # ── Misc ──────────────────────────────────────────────────────────────────────
 .DS_Store
@@ -39,3 +37,4 @@ prisma/db.sqlite-journal
 .idea/
 next-env.d.ts
 .worktrees/
+.code-review-graph/
