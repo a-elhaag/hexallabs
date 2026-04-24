@@ -9,6 +9,7 @@ interface Props {
   scoutOn: boolean;
   primalOn: boolean;
   sidebarOpen: boolean;
+  userEmail?: string;
   onModeChange: (m: Mode) => void;
   onThemeToggle: () => void;
   onScoutToggle: () => void;
@@ -22,6 +23,7 @@ export function ChatNav({
   scoutOn,
   primalOn,
   sidebarOpen,
+  userEmail,
   onModeChange,
   onThemeToggle,
   onScoutToggle,
@@ -146,12 +148,38 @@ export function ChatNav({
         )}
       </button>
 
+      {/* Email + sign-out */}
+      <div className="flex items-center gap-2 flex-shrink-0">
+        {userEmail && (
+          <span
+            className="hidden sm:block text-[0.65rem] max-w-[140px] truncate"
+            style={{ color: "#a89080" }}
+            title={userEmail}
+          >
+            {userEmail}
+          </span>
+        )}
+        <form action="/auth/signout" method="post">
+          <button
+            type="submit"
+            className="px-2.5 py-1 rounded-full text-[0.68rem] font-semibold transition-all duration-200 cursor-pointer"
+            style={{
+              background: "var(--color-card)",
+              border:     "1px solid var(--color-border)",
+              color:      "var(--color-muted)",
+            }}
+          >
+            Sign out
+          </button>
+        </form>
+      </div>
+
       {/* Avatar */}
       <div
         className="w-7 h-7 rounded-full flex items-center justify-center text-[0.7rem] font-bold flex-shrink-0"
         style={{ background: "var(--color-mode)", color: "#fff" }}
       >
-        A
+        {userEmail ? userEmail[0]!.toUpperCase() : "A"}
       </div>
     </nav>
   );

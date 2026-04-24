@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { type Mode, type Theme, type ChatState, type Message, MODELS } from "~/components/chat/types";
 import { ChatNav } from "~/components/chat/ChatNav";
 import { Sidebar } from "~/components/chat/Sidebar";
@@ -8,6 +8,8 @@ import { MessageList } from "~/components/chat/MessageList";
 import { ModelGrid } from "~/components/chat/ModelGrid";
 import { PromptForge } from "~/components/chat/PromptForge";
 import { ChatInput } from "~/components/chat/ChatInput";
+import { useChatStream } from "~/lib/api/useChatStream";
+import type { QueryRequest } from "~/lib/api/types";
 
 function uid() {
   return Math.random().toString(36).slice(2);
@@ -16,22 +18,28 @@ function uid() {
 const IMPROVED_PROMPT =
   "Explain the transformer architecture — focus on the self-attention mechanism, positional encoding, and how it differs from RNN-based sequence models. Include a comparison of encoder-only, decoder-only, and encoder-decoder variants.";
 
-export function ChatShell() {
-  const [theme, setTheme]                 = useState<Theme>("dark");
-  const [sidebarOpen, setSidebarOpen]     = useState(true);
-  const [activeMode, setActiveMode]       = useState<Mode>("council");
-  const [chatState, setChatState]         = useState<ChatState>("empty");
-  const [messages, setMessages]           = useState<Message[]>([]);
+interface ChatShellProps {
+  userEmail?: string;
+}
+
+export function ChatShell({ userEmail }: ChatShellProps) {
+  const [theme, setTheme]                   = useState<Theme>("dark");
+  const [sidebarOpen, setSidebarOpen]       = useState(true);
+  const [activeMode, setActiveMode]         = useState<Mode>("council");
+  const [chatState, setChatState]           = useState<ChatState>("empty");
+  const [messages, setMessages]             = useState<Message[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>(
     MODELS.slice(0, 5).map((m) => m.id),
   );
-  const [scoutOn, setScoutOn]             = useState(false);
-  const [primalOn, setPrimalOn]           = useState(false);
-  const [inputValue, setInputValue]       = useState("");
-  const [forgeOriginal, setForgeOriginal] = useState("");
-  const [activePhase, setActivePhase]     = useState(0);
+  const [scoutOn, setScoutOn]               = useState(false);
+  const [primalOn, setPrimalOn]             = useState(false);
+  const [inputValue, setInputValue]         = useState("");
+  const [forgeOriginal, setForgeOriginal]   = useState("");
+  const [activePhase, setActivePhase]       = useState(0);
+  const [apexText, setApexText]             = useState("");
 
-  const phaseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Keep a ref to accumulate apex tokens without stale closure issues
+  const apexTextRef = useRef("");
 
   // Restore preferences from localStorage
   useEffect(() => {
@@ -53,6 +61,80 @@ export function ChatShell() {
   useEffect(() => {
     localStorage.setItem("hexallabs-sidebar", String(sidebarOpen));
   }, [sidebarOpen]);
+
+  // Stable SSE callbacks
+  const onSession = useCallback(() => {
+    // no-op — session_id stored if needed in the future
+  }, []);
+
+  const onHexStart = useCallback(() => {
+    setActivePhase(1);
+  }, []);
+
+  const onHexToken = useCallback(() => {
+    // no-op — ModelGrid animation handled by phase
+  }, []);
+
+  const onConfidence = useCallback(() => {
+    // no-op for now
+  }, []);
+
+  const onHexDone = useCallback(() => {
+    // no-op for now
+  }, []);
+
+  const onApexToken = useCallback((data: { token: string }) => {
+    apexTextRef.current += data.token;
+    setApexText((prev) => prev + data.token);
+    setActivePhase(2);
+  }, []);
+
+  const onApexDone = useCallback(() => {
+    const finalText = apexTextRef.current;
+    const assistantMsg: Message = {
+      id: uid(),
+      role: "assistant",
+      text: finalText,
+    };
+    setMessages((prev) => [...prev, assistantMsg]);
+    setActivePhase(3);
+  }, []);
+
+  const onPrimal = useCallback((data: { text: string }) => {
+    setMessages((prev) => {
+      const copy = [...prev];
+      // Replace the last assistant message with the primal text
+      for (let i = copy.length - 1; i >= 0; i--) {
+        if (copy[i]!.role === "assistant") {
+          copy[i] = { ...copy[i]!, text: data.text } as Message;
+          break;
+        }
+      }
+      return copy;
+    });
+  }, []);
+
+  const onError = useCallback((data: { code: string; message: string }) => {
+    console.error("[ChatShell] SSE error:", data.code, data.message);
+    setChatState("done");
+  }, []);
+
+  const onDone = useCallback(() => {
+    setChatState("done");
+  }, []);
+
+  const stream = useChatStream({
+    onSession,
+    onHexStart,
+    onHexToken,
+    onConfidence,
+    onHexDone,
+    onApexToken,
+    onApexDone,
+    onPrimal,
+    onError,
+    onDone,
+  });
 
   function handleThemeToggle() {
     setTheme((t) => (t === "dark" ? "light" : "dark"));
@@ -76,20 +158,23 @@ export function ChatShell() {
     setMessages((prev) => [...prev, userMsg]);
     setChatState("running");
     setActivePhase(0);
+    apexTextRef.current = "";
+    setApexText("");
 
-    // Simulate phase progression
-    phaseTimerRef.current = setTimeout(() => setActivePhase(1), 600);
-    phaseTimerRef.current = setTimeout(() => setActivePhase(2), 3500);
-    phaseTimerRef.current = setTimeout(() => setActivePhase(3), 5500);
-    phaseTimerRef.current = setTimeout(() => {
-      setChatState("done");
-      const assistantMsg: Message = {
-        id: uid(),
-        role: "assistant",
-        text: `The transformer architecture, introduced in <em>"Attention is All You Need"</em> (Vaswani et al., 2017), fundamentally replaced recurrence with self-attention — all tokens interact in parallel.<br><br><strong>Three key mechanisms:</strong><br>1. Self-attention — Q·Kᵀ/√d scores, weighted-sum values<br>2. Positional encoding — sinusoidal vectors preserve order<br>3. Feed-forward sublayers — per-token non-linear transformation`,
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-    }, 7000);
+    const req: QueryRequest = {
+      mode:
+        activeMode === "council"  ? "council"
+        : activeMode === "oracle" ? "oracle"
+        : activeMode === "relay"  ? "relay"
+        : "workflow",
+      query: promptText,
+      models: selectedModels,
+      primal_protocol: primalOn,
+      scout: scoutOn ? "auto" : "off",
+      session_id: null,
+    };
+
+    void stream.start(req);
   }
 
   function handleUseOriginal() {
@@ -104,16 +189,18 @@ export function ChatShell() {
   }
 
   function handleStop() {
-    if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+    stream.stop();
     setChatState("done");
   }
 
   function handleNewQuery() {
-    if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+    stream.stop();
     setMessages([]);
     setChatState("empty");
     setActivePhase(0);
     setInputValue("");
+    apexTextRef.current = "";
+    setApexText("");
   }
 
   // Mobile: close sidebar on small screens when clicking outside
@@ -133,6 +220,7 @@ export function ChatShell() {
         scoutOn={scoutOn}
         primalOn={primalOn}
         sidebarOpen={sidebarOpen}
+        userEmail={userEmail}
         onModeChange={setActiveMode}
         onThemeToggle={handleThemeToggle}
         onScoutToggle={() => setScoutOn((v) => !v)}

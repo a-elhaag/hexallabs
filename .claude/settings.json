@@ -73,7 +73,8 @@
       "Bash(chmod +x /tmp/test_all.sh)",
       "Bash(/tmp/test_all.sh)",
       "mcp__code-review-graph__get_minimal_context_tool",
-      "Bash(python -m pytest tests/test_scout_helper.py -v)"
+      "Bash(python -m pytest tests/test_scout_helper.py -v)",
+      "Bash(grep -E \"\\\\.py$\")"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",
