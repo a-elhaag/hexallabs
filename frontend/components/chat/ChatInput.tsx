@@ -37,6 +37,7 @@ export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onM
     if (e.key === '/' && value === '' && !slashOpen) {
       e.preventDefault()
       setSlashOpen(true)
+      setPlusOpen(false)
       return
     }
     if (e.key === 'Enter' && !e.shiftKey) {

@@ -105,6 +105,7 @@ export function ChatWindow() {
 
     let assistantTurn: Turn
     let singleId = ''
+    let synthId = ''
 
     if (isCouncil) {
       assistantTurn = {
@@ -117,6 +118,7 @@ export function ChatWindow() {
           isStreaming: true,
         })),
       }
+      synthId = uuidv4()
     } else {
       singleId = uuidv4()
       assistantTurn = {
@@ -150,6 +152,9 @@ export function ChatWindow() {
         if (last.type === 'single') {
           return [...prev.slice(0, -1), { ...last, msg: { ...last.msg, content: 'Not signed in — please sign in to chat.', isStreaming: false } }]
         }
+        if (last.type === 'council') {
+          return [...prev.slice(0, -1), { ...last, msgs: last.msgs.map(m => ({ ...m, isStreaming: false })) }]
+        }
         return prev
       })
       setStreaming(false)
@@ -167,7 +172,13 @@ export function ChatWindow() {
             appendDeltaById(singleId, d.delta)
           }
         },
-        synth_token: (d) => appendDeltaById(singleId, d.delta),
+        synth_start: () => {
+          if (isCouncil) {
+            const synthMsg: ChatMessage = { id: synthId, role: 'assistant', content: '', model: 'Apex' as ModelName, isStreaming: true }
+            setTurns(prev => [...prev, { type: 'single', msg: synthMsg }])
+          }
+        },
+        synth_token: (d) => appendDeltaById(isCouncil ? synthId : singleId, d.delta),
         hex_done: (d) => {
           if (isCouncil) {
             setTurns(prev => prev.map(turn => {
@@ -190,6 +201,9 @@ export function ChatWindow() {
             if (last.type === 'single') {
               return [...prev.slice(0, -1), { ...last, msg: { ...last.msg, content: `Error: ${d.message}`, isStreaming: false } }]
             }
+            if (last.type === 'council') {
+              return [...prev.slice(0, -1), { ...last, msgs: last.msgs.map(m => ({ ...m, isStreaming: false })) }]
+            }
             return prev
           })
           setStreaming(false)
@@ -202,6 +216,9 @@ export function ChatWindow() {
         if (last.type === 'single') {
           const msg = err instanceof Error ? `Error: ${err.message}` : 'Error'
           return [...prev.slice(0, -1), { ...last, msg: { ...last.msg, content: msg, isStreaming: false } }]
+        }
+        if (last.type === 'council') {
+          return [...prev.slice(0, -1), { ...last, msgs: last.msgs.map(m => ({ ...m, isStreaming: false })) }]
         }
         return prev
       })
