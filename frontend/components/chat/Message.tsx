@@ -38,7 +38,7 @@ export function Message({ msg }: { msg: ChatMessage }) {
           </div>
         </div>
       ) : (
-        <div className="text-sm leading-relaxed text-black">
+        <div className="text-sm leading-relaxed text-[#2c2c2c]">
           {msg.model && (
             <p className="text-[10px] font-black text-warm-gray/70 uppercase tracking-widest mb-2">
               {MODEL_DISPLAY[msg.model] ?? msg.model}
@@ -49,8 +49,13 @@ export function Message({ msg }: { msg: ChatMessage }) {
               p:      ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
               strong: ({ children }) => <strong className="font-bold">{children}</strong>,
               em:     ({ children }) => <em className="italic">{children}</em>,
-              code:   ({ children }) => <code className="bg-black/8 px-1 py-0.5 rounded-md text-xs font-mono">{children}</code>,
-              pre:    ({ children }) => <pre className="bg-black/8 rounded-xl p-3 overflow-x-auto text-xs font-mono my-2">{children}</pre>,
+              code:   ({ children, className }) => {
+                const isBlock = !!className
+                return isBlock
+                  ? <code className="text-xs font-mono">{children}</code>
+                  : <code className="bg-[#2c2c2c]/8 px-1 py-0.5 rounded-md text-xs font-mono">{children}</code>
+              },
+              pre:    ({ children }) => <pre className="bg-[#2c2c2c]/8 rounded-xl p-3 overflow-x-auto text-xs font-mono my-2">{children}</pre>,
               ul:     ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>,
               ol:     ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>,
               li:     ({ children }) => <li>{children}</li>,
