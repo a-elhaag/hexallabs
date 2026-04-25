@@ -236,7 +236,7 @@ export function ChatWindow() {
         {turns.map((turn, i) =>
           turn.type === 'single'
             ? <Message key={turn.msg.id} msg={turn.msg} />
-            : <CouncilGrid key={i} messages={turn.msgs} />
+            : <CouncilGrid key={turn.msgs[0]?.id ?? i} messages={turn.msgs} />
         )}
         <div ref={bottomRef} />
       </div>
