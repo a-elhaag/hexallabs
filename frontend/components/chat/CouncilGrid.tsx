@@ -26,7 +26,6 @@ function CouncilCard({ msg }: { msg: ChatMessage }) {
     <div
       ref={ref}
       className={`bg-white border border-warm-gray/20 rounded-2xl p-4 shadow-sm transition-opacity duration-300 ${hasContent ? 'opacity-100' : 'opacity-40'}`}
-      style={{ opacity: 0 }}
     >
       {msg.model && (
         <p className="text-[10px] font-black text-warm-gray/70 uppercase tracking-widest mb-2">
