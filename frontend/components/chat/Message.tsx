@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { ChatMessage, MODEL_DISPLAY } from '@/lib/types'
 
 function StreamingCursor() {
@@ -24,33 +25,45 @@ export function Message({ msg }: { msg: ChatMessage }) {
   return (
     <div
       ref={ref}
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'} px-5 py-1.5`}
+      className="w-full max-w-[600px] mx-auto px-6 py-1.5"
       style={{ opacity: 0 }}
     >
-      {!isUser && (
-        <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center shrink-0 mr-2.5 mt-0.5 self-start">
-          <span className="text-cream font-black text-[10px]">
-            {msg.model ? (MODEL_DISPLAY[msg.model] ?? msg.model)[0] : 'H'}
-          </span>
+      {isUser ? (
+        <div className="flex justify-end">
+          <div
+            className="max-w-[75%] px-4 py-3 text-sm leading-relaxed bg-denim text-white rounded-3xl rounded-br-lg"
+            style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
+          >
+            {msg.content}
+          </div>
+        </div>
+      ) : (
+        <div className="text-sm leading-relaxed text-black">
+          {msg.model && (
+            <p className="text-[10px] font-black text-warm-gray/70 uppercase tracking-widest mb-2">
+              {MODEL_DISPLAY[msg.model] ?? msg.model}
+            </p>
+          )}
+          <ReactMarkdown
+            components={{
+              p:      ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+              strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+              em:     ({ children }) => <em className="italic">{children}</em>,
+              code:   ({ children }) => <code className="bg-black/8 px-1 py-0.5 rounded-md text-xs font-mono">{children}</code>,
+              pre:    ({ children }) => <pre className="bg-black/8 rounded-xl p-3 overflow-x-auto text-xs font-mono my-2">{children}</pre>,
+              ul:     ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>,
+              ol:     ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>,
+              li:     ({ children }) => <li>{children}</li>,
+              h1:     ({ children }) => <h1 className="font-black text-base mb-1">{children}</h1>,
+              h2:     ({ children }) => <h2 className="font-bold text-sm mb-1">{children}</h2>,
+              h3:     ({ children }) => <h3 className="font-semibold text-sm mb-1">{children}</h3>,
+            }}
+          >
+            {msg.content}
+          </ReactMarkdown>
+          {msg.isStreaming && <StreamingCursor />}
         </div>
       )}
-
-      <div
-        className={`max-w-[72%] px-4 py-3 text-sm leading-relaxed ${
-          isUser
-            ? 'bg-denim text-white rounded-3xl rounded-br-lg'
-            : 'bg-white border border-warm-gray/20 text-black rounded-3xl rounded-bl-lg shadow-sm'
-        }`}
-        style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}
-      >
-        {!isUser && msg.model && (
-          <p className="text-[10px] font-bold text-warm-gray/70 uppercase tracking-widest mb-1.5">
-            {MODEL_DISPLAY[msg.model] ?? msg.model}
-          </p>
-        )}
-        <span>{msg.content}</span>
-        {msg.isStreaming && <StreamingCursor />}
-      </div>
     </div>
   )
 }
