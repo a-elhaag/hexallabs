@@ -33,6 +33,7 @@ export function ChatWindow() {
   const [scout, setScout]         = useState<ScoutMode>('off')
   const [streaming, setStreaming] = useState(false)
   const [forgeHint, setForgeHint] = useState<string | null>(null)
+  const [hasSent, setHasSent]     = useState(false)
   const bottomRef                 = useRef<HTMLDivElement>(null)
   const abortRef                  = useRef<AbortController | null>(null)
 
@@ -56,6 +57,7 @@ export function ChatWindow() {
         .catch(() => {})
     }
 
+    setHasSent(true)
     const userMsg: ChatMessage = { id: uuidv4(), role: 'user', content: query }
     const assistantId = uuidv4()
     const assistantMsg: ChatMessage = {
@@ -70,14 +72,26 @@ export function ChatWindow() {
       ? (models.length === 1 ? models : ['apex' as ModelName])
       : models.length > 0 ? models : ['apex' as ModelName]
 
+    let url: string, token: string, body: string
     try {
-      const { url, token, body } = await buildQueryRequest({
+      ;({ url, token, body } = await buildQueryRequest({
         mode,
         query,
         models: effectiveModels,
         primal_protocol: primal,
         scout,
-      })
+      }))
+    } catch {
+      setMessages(prev => prev.map(m =>
+        m.id === assistantId
+          ? { ...m, content: 'Not signed in — please sign in to chat.', isStreaming: false }
+          : m
+      ))
+      setStreaming(false)
+      return
+    }
+
+    try {
 
       abortRef.current = new AbortController()
 
@@ -119,8 +133,8 @@ export function ChatWindow() {
       )}
 
       <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-1 relative">
-        {/* Empty state */}
-        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 transition-opacity duration-150 pointer-events-none ${messages.length > 0 ? 'opacity-0 invisible' : 'opacity-50 visible'}`}>
+        {/* Empty state — latches off on first send, never flickers during streaming */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 pointer-events-none ${hasSent ? 'hidden' : 'opacity-50'}`}>
           <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center">
             <span className="text-cream font-black text-base">H</span>
           </div>
@@ -142,7 +156,7 @@ export function ChatWindow() {
         onPrimal={setPrimal}
         scout={scout}
         onScout={setScout}
-        onClear={() => setMessages([])}
+        onClear={() => { setMessages([]); setHasSent(false) }}
       />
     </div>
   )
