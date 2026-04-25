@@ -5,19 +5,24 @@ export type Mode = 'oracle' | 'council' | 'relay' | 'workflow'
 export type ScoutMode = 'off' | 'auto' | 'force'
 
 export const MODELS = [
-  'apex', 'swift', 'prism', 'depth', 'atlas', 'horizon', 'pulse'
+  'Apex', 'Swift', 'Prism', 'Depth', 'Atlas', 'Horizon', 'Pulse',
+  'Bolt', 'Craft', 'Flux', 'Spark'
 ] as const
 
 export type ModelName = typeof MODELS[number]
 
 export const MODEL_DISPLAY: Record<ModelName, string> = {
-  apex:    'Apex',
-  swift:   'Swift',
-  prism:   'Prism',
-  depth:   'Depth',
-  atlas:   'Atlas',
-  horizon: 'Horizon',
-  pulse:   'Pulse',
+  Apex:    'Apex',
+  Swift:   'Swift',
+  Prism:   'Prism',
+  Depth:   'Depth',
+  Atlas:   'Atlas',
+  Horizon: 'Horizon',
+  Pulse:   'Pulse',
+  Bolt:    'Bolt',
+  Craft:   'Craft',
+  Flux:    'Flux',
+  Spark:   'Spark',
 }
 
 export interface ChatMessage {

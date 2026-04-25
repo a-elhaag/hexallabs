@@ -28,7 +28,7 @@ function ModeHeader({ mode, models }: { mode: Mode; models: ModelName[] }) {
 export function ChatWindow() {
   const [messages, setMessages]   = useState<ChatMessage[]>([])
   const [mode, setMode]           = useState<Mode>('oracle')
-  const [models, setModels]       = useState<ModelName[]>(['apex'])
+  const [models, setModels]       = useState<ModelName[]>(['Apex'])
   const [primal, setPrimal]       = useState(false)
   const [scout, setScout]         = useState<ScoutMode>('off')
   const [streaming, setStreaming] = useState(false)
@@ -69,8 +69,8 @@ export function ChatWindow() {
     setForgeHint(null)
 
     const effectiveModels = mode === 'oracle'
-      ? (models.length === 1 ? models : ['apex' as ModelName])
-      : models.length > 0 ? models : ['apex' as ModelName]
+      ? (models.length === 1 ? models : ['Apex' as ModelName])
+      : models.length > 0 ? models : ['Apex' as ModelName]
 
     let url: string, token: string, body: string
     try {
