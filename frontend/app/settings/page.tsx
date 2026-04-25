@@ -59,13 +59,6 @@ export default function SettingsPage() {
           )}
         </section>
 
-        <section>
-          <h2 className="font-bold text-xs text-warm-gray uppercase tracking-widest mb-4">API</h2>
-          <div className="bg-white border border-warm-gray/20 rounded-xl p-5">
-            <p className="text-xs text-warm-gray font-semibold mb-1">Backend endpoint</p>
-            <p className="text-sm font-mono text-black break-all">{process.env.NEXT_PUBLIC_API_URL}</p>
-          </div>
-        </section>
       </div>
     </AppShell>
   )
