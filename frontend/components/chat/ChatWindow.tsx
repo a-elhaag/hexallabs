@@ -8,18 +8,22 @@ import { streamQuery } from '@/lib/sse'
 import { Message } from './Message'
 import { ChatInput } from './ChatInput'
 
+const MODE_LABEL: Record<Mode, string> = {
+  oracle: 'Oracle', council: 'The Council', relay: 'The Relay', workflow: 'Workflow',
+}
+
 function ModeHeader({ mode, models }: { mode: Mode; models: ModelName[] }) {
-  const label = mode === 'oracle' ? 'Oracle'
-    : mode === 'council' ? 'The Council'
-    : mode === 'relay'   ? 'The Relay'
-    : 'Workflow'
   return (
-    <div className="h-12 flex items-center px-4 border-b border-warm-gray/20 bg-cream/80 backdrop-blur-sm flex-shrink-0">
-      <span className="font-black text-sm text-black tracking-tight">{label}</span>
+    <div className="h-12 flex items-center px-5 border-b border-warm-gray/15 bg-cream/90 backdrop-blur-sm shrink-0">
+      <span className="font-black text-sm text-black tracking-tight">{MODE_LABEL[mode]}</span>
       {mode === 'council' && models.length > 0 && (
-        <span className="ml-2 text-xs text-warm-gray font-semibold">
-          · {models.join(', ')}
-        </span>
+        <div className="ml-3 flex gap-1">
+          {models.map(m => (
+            <span key={m} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/8 text-warm-gray">
+              {m}
+            </span>
+          ))}
+        </div>
       )}
     </div>
   )
@@ -124,22 +128,24 @@ export function ChatWindow() {
       <ModeHeader mode={mode} models={models} />
 
       {forgeHint && (
-        <div className="px-4 py-2 bg-denim/10 border-b border-denim/20 flex items-center gap-3 text-xs">
-          <span className="text-denim font-semibold">Forge suggests:</span>
+        <div className="mx-5 my-2 px-4 py-2.5 bg-denim/8 border border-denim/20 rounded-2xl flex items-center gap-3 text-xs">
+          <span className="text-denim font-bold shrink-0">Forge suggests:</span>
           <span className="text-black flex-1 truncate">{forgeHint}</span>
-          <button onClick={() => { send(forgeHint); setForgeHint(null) }} className="text-denim font-bold hover:underline">Use it</button>
-          <button onClick={() => setForgeHint(null)} className="text-warm-gray hover:text-black">Dismiss</button>
+          <button onClick={() => { send(forgeHint); setForgeHint(null) }} className="text-denim font-bold hover:underline shrink-0">Use it</button>
+          <button onClick={() => setForgeHint(null)} className="text-warm-gray hover:text-black shrink-0">✕</button>
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-1 relative">
-        {/* Empty state — latches off on first send, never flickers during streaming */}
-        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 pointer-events-none ${hasSent ? 'hidden' : 'opacity-50'}`}>
-          <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center">
-            <span className="text-cream font-black text-base">H</span>
+      <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-0.5 relative">
+        {/* Empty state — latches off on first send */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6 pointer-events-none ${hasSent ? 'hidden' : ''}`}>
+          <div className="w-12 h-12 bg-black rounded-3xl flex items-center justify-center shadow-lg">
+            <span className="text-cream font-black text-lg">H</span>
           </div>
-          <p className="font-black text-xl text-black">Ask anything</p>
-          <p className="text-sm text-warm-gray">Press / to change mode or select models</p>
+          <div className="flex flex-col gap-1">
+            <p className="font-black text-xl text-black">Ask anything</p>
+            <p className="text-sm text-warm-gray">Press <kbd className="px-1.5 py-0.5 bg-black/8 rounded-md text-xs font-mono">/</kbd> to switch modes</p>
+          </div>
         </div>
         {messages.map(m => <Message key={m.id} msg={m} />)}
         <div ref={bottomRef} />
