@@ -138,7 +138,6 @@ export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onM
               onKeyDown={handleKeyDown}
               placeholder="Ask anything…"
               rows={1}
-              disabled={streaming}
               className="flex-1 resize-none bg-transparent outline-none text-sm text-[#2c2c2c] placeholder:text-warm-gray/50 py-0.5 leading-relaxed max-h-36 overflow-y-auto"
               style={{ fieldSizing: 'content' } as React.CSSProperties}
             />
