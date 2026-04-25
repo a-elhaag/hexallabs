@@ -1,4 +1,3 @@
-// app/auth/signup/page.tsx
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -18,18 +17,35 @@ export default function SignupPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
-    const { error: err } = await supabase.auth.signUp({ email, password })
+    const { data, error: err } = await supabase.auth.signUp({ email, password })
     setLoading(false)
-    if (err) { setError(err.message); return }
-    router.push('/auth/login?confirmed=1')
+
+    if (err) {
+      if (err.message.toLowerCase().includes('already registered') || err.message.toLowerCase().includes('user already')) {
+        setError('Account already exists.')
+      } else {
+        setError(err.message)
+      }
+      return
+    }
+
+    // If email confirmation is required, session will be null
+    if (!data.session) {
+      router.push('/auth/login?confirmed=1')
+      return
+    }
+
+    // Email confirmation disabled — logged in immediately
+    router.refresh()
+    router.push('/chat')
   }
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-4">
       <div className="w-full max-w-sm flex flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-            <span className="text-cream font-black text-base">H</span>
+          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center">
+            <span className="text-cream font-black text-lg">H</span>
           </div>
           <h1 className="font-black text-2xl text-black tracking-tight">Create account</h1>
           <p className="text-warm-gray text-sm">Join HexalLabs</p>
@@ -56,7 +72,12 @@ export default function SignupPage() {
             minLength={8}
             autoComplete="new-password"
           />
-          <Button type="submit" loading={loading} className="w-full py-3 mt-2">
+          {error === 'Account already exists.' && (
+            <p className="text-sm text-warm-gray -mt-2">
+              <Link href="/auth/login" className="text-denim font-semibold hover:underline">Sign in instead →</Link>
+            </p>
+          )}
+          <Button type="submit" loading={loading} className="w-full py-3 mt-2 rounded-2xl">
             Create account
           </Button>
         </form>

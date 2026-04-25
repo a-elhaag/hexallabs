@@ -97,7 +97,7 @@ export function ChatInput({ onSend, disabled, mode, onMode, models, onModels, pr
       <div className="flex items-end gap-2 p-3">
         <button
           onClick={() => setPlusOpen(v => !v)}
-          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-warm-gray hover:text-black hover:bg-black/5 transition-colors"
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl text-warm-gray hover:text-black hover:bg-black/5 transition-colors"
           aria-label="More options"
         >
           {plusOpen ? <X size={18} /> : <Plus size={18} />}
@@ -117,7 +117,7 @@ export function ChatInput({ onSend, disabled, mode, onMode, models, onModels, pr
         <button
           onClick={handleSend}
           disabled={!value.trim() || disabled}
-          className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-denim text-white rounded-lg disabled:opacity-30 transition-transform duration-150 hover:scale-[1.05] active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-denim text-white rounded-xl disabled:opacity-30 transition-transform duration-150 hover:scale-[1.05] active:scale-95 cursor-pointer disabled:cursor-not-allowed"
           aria-label="Send"
         >
           <Send size={15} />

@@ -8,7 +8,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', loading, children, className = '', disabled, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-semibold text-sm transition-transform duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-denim focus-visible:outline-offset-2 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]'
+    const base = 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm transition-transform duration-150 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-denim focus-visible:outline-offset-2 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]'
 
     const variants = {
       primary: 'bg-denim text-white',

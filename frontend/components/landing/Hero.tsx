@@ -29,24 +29,36 @@ export function Hero() {
     <section className="relative min-h-screen bg-black flex flex-col items-center justify-center text-center px-6 overflow-hidden">
       <HexGrid />
       <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center gap-6">
-        <p className="text-warm-gray text-sm font-semibold tracking-widest uppercase">
+        <p
+          className="text-warm-gray text-sm font-semibold tracking-widest uppercase"
+          style={{ animation: 'fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s both' }}
+        >
           Multi-model AI Council
         </p>
-        <h1 className="text-cream font-black text-5xl md:text-7xl leading-none tracking-tight">
+        <h1
+          className="text-cream font-black text-5xl md:text-7xl leading-none tracking-tight"
+          style={{ animation: 'fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.22s both' }}
+        >
           Seven minds.<br />One answer.
         </h1>
-        <p className="text-warm-gray text-lg max-w-md leading-relaxed">
+        <p
+          className="text-warm-gray text-lg max-w-md leading-relaxed"
+          style={{ animation: 'fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.36s both' }}
+        >
           Ask once. Seven AI models reason in parallel, peer-review each other,
           and synthesize one confident response.
         </p>
-        <div className="flex items-center gap-4 mt-2">
+        <div
+          className="flex items-center gap-4 mt-2"
+          style={{ animation: 'fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.48s both' }}
+        >
           <Link href="/auth/signup">
-            <Button variant="primary" className="px-8 py-3 text-base">
+            <Button variant="primary" className="px-8 py-3 text-base rounded-2xl">
               Start for free
             </Button>
           </Link>
           <Link href="#features">
-            <Button variant="outline" className="px-8 py-3 text-base border-warm-gray text-warm-gray hover:border-cream hover:text-cream">
+            <Button variant="outline" className="px-8 py-3 text-base rounded-2xl border-warm-gray text-warm-gray hover:border-cream hover:text-cream">
               See how it works
             </Button>
           </Link>
