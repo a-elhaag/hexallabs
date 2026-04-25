@@ -49,9 +49,10 @@ export function ChatWindow() {
   async function send(query: string) {
     if (streaming) return
 
-    if (query.length > 20) {
+    // Forge hint — fire in background, ignore failures
+    if (query.length > 30) {
       improveQuery(query)
-        .then(r => { if (r.improved_query !== query) setForgeHint(r.improved_query) })
+        .then(r => { if (r.improved_query && r.improved_query !== query) setForgeHint(r.improved_query) })
         .catch(() => {})
     }
 
@@ -118,8 +119,8 @@ export function ChatWindow() {
       )}
 
       <div className="flex-1 overflow-y-auto py-4 flex flex-col gap-1 relative">
-        {/* Empty state — CSS hidden so no flicker on first message */}
-        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 opacity-50 transition-opacity duration-200 pointer-events-none ${messages.length > 0 ? 'opacity-0' : 'opacity-50'}`}>
+        {/* Empty state */}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 text-center px-6 transition-opacity duration-150 pointer-events-none ${messages.length > 0 ? 'opacity-0 invisible' : 'opacity-50 visible'}`}>
           <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center">
             <span className="text-cream font-black text-base">H</span>
           </div>
