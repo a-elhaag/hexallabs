@@ -11,6 +11,7 @@ import { Message } from './Message'
 import { CouncilGrid } from './CouncilGrid'
 import { ChatInput } from './ChatInput'
 import { ScoutSearchBubble, ScoutResult } from './ScoutSearchBubble'
+import { WorkflowOverlay } from '../workflow/WorkflowOverlay'
 
 // A "turn" is either a single ChatMessage (oracle/relay) or a group (council)
 type Turn =
@@ -30,6 +31,8 @@ export function ChatWindow() {
   const [forgeHint, setForgeHint] = useState<string | null>(null)
   const [hasSent, setHasSent]     = useState(false)
   const [loadingSession, setLoadingSession] = useState(false)
+  const [workflowOpen, setWorkflowOpen]   = useState(false)
+  const pendingQueryRef                    = useRef<string>('')
   const bottomRef                 = useRef<HTMLDivElement>(null)
   const abortRef                  = useRef<AbortController | null>(null)
   const sessionIdRef              = useRef<string | null>(null)
@@ -119,7 +122,14 @@ export function ChatWindow() {
     }))
   }
 
-  async function send(query: string) {
+  function handleWorkflowRun(serialized: Record<string, unknown>[]) {
+    setWorkflowOpen(false)
+    setTimeout(() => {
+      send(pendingQueryRef.current || 'Run workflow', serialized)
+    }, 320)
+  }
+
+  async function send(query: string, wfNodes?: Record<string, unknown>[]) {
     if (streaming) return
 
     if (query.length > 30) {
@@ -146,18 +156,8 @@ export function ChatWindow() {
       ? [effectiveModels[0] ?? 'Apex', effectiveModels[1] ?? 'Swift']
       : ['Apex', 'Swift']
 
-    // Workflow: build nodes from selected models (or default Swift→Apex chain)
-    const workflowModels = effectiveModels.length >= 2
-      ? effectiveModels
-      : ['Swift', 'Apex'] as ModelName[]
-    const workflowNodes = isWorkflow
-      ? workflowModels.map((m, i) => ({
-          id: `node_${i}`,
-          type: 'model',
-          model: m,
-          inputs: i === 0 ? [] : [`node_${i - 1}`],
-        }))
-      : undefined
+    // Workflow: nodes come from the visual builder passed into send()
+    const workflowNodes = isWorkflow ? (wfNodes ?? []) : undefined
 
     let assistantTurn: Turn
     let singleId = ''
@@ -165,7 +165,11 @@ export function ChatWindow() {
     let synthId = ''
 
     if (isCouncil || isWorkflow) {
-      const councilModels = isWorkflow ? workflowModels : effectiveModels
+      const councilModels = isWorkflow
+        ? ((wfNodes ?? []).map(n => n.model as ModelName).filter(Boolean).length > 0
+            ? (wfNodes ?? []).map(n => n.model as ModelName).filter(Boolean)
+            : effectiveModels)
+        : effectiveModels
       assistantTurn = {
         type: 'council',
         msgs: councilModels.map(m => ({
@@ -372,14 +376,26 @@ export function ChatWindow() {
             <div className="w-6 h-6 border-2 border-[#2c2c2c]/20 border-t-[#2c2c2c]/60 rounded-full animate-spin" />
           </div>
         )}
-        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6 pointer-events-none ${hasSent || loadingSession ? 'hidden' : ''}`}>
-          <div className="w-12 h-12 bg-[#2c2c2c] rounded-3xl flex items-center justify-center shadow-lg">
+        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6 ${hasSent || loadingSession ? 'hidden' : ''}`}>
+          <div className="w-12 h-12 bg-[#2c2c2c] rounded-3xl flex items-center justify-center shadow-lg pointer-events-none">
             <span className="text-cream font-black text-lg">H</span>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="font-black text-xl text-[#2c2c2c]">Ask anything</p>
-            <p className="text-sm text-warm-gray">Press <kbd className="px-1.5 py-0.5 bg-[#2c2c2c]/8 rounded-md text-xs font-mono">/</kbd> to switch modes</p>
-          </div>
+          {mode === 'workflow' ? (
+            <div className="flex flex-col gap-2 items-center">
+              <p className="font-black text-xl text-[#2c2c2c] pointer-events-none">No pipeline yet</p>
+              <button
+                onClick={() => setWorkflowOpen(true)}
+                className="px-5 py-2 bg-[#2c2c2c] text-cream rounded-xl font-bold text-sm hover:bg-denim transition-colors active:scale-95"
+              >
+                Build pipeline →
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1 pointer-events-none">
+              <p className="font-black text-xl text-[#2c2c2c]">Ask anything</p>
+              <p className="text-sm text-warm-gray">Press <kbd className="px-1.5 py-0.5 bg-[#2c2c2c]/8 rounded-md text-xs font-mono">/</kbd> to switch modes</p>
+            </div>
+          )}
         </div>
 
         {turns.map((turn, i) =>
@@ -412,6 +428,13 @@ export function ChatWindow() {
         onPrimal={setPrimal}
         scout={scout}
         onScout={setScout}
+        onWorkflowOpen={() => setWorkflowOpen(true)}
+        onQueryChange={(q: string) => { pendingQueryRef.current = q }}
+      />
+      <WorkflowOverlay
+        open={workflowOpen}
+        onClose={() => setWorkflowOpen(false)}
+        onRun={handleWorkflowRun}
       />
     </div>
   )
