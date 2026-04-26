@@ -109,6 +109,7 @@ class _ModelResult:
     total_tokens: int = 0
     cached_tokens: int = 0
     confidence: int = _DEFAULT_CONFIDENCE
+    failed: bool = False
     msg_row: MessageRow | None = None  # set after Phase 1 DB persist + flush
 
 
@@ -146,15 +147,14 @@ async def _fanout_one(
     prompt: str,
     result: _ModelResult,
     session_id: str,
+    queue: asyncio.Queue[bytes | None],
     *,
     scout_context: Message | None = None,
-) -> list[bytes]:
-    """Stream one council model; fill result.parts, .confidence, .tokens.
+) -> None:
+    """Stream one council model; push SSE bytes into queue as they arrive.
 
-    Returns list of SSE token bytes for this model. Caller collects all models
-    in parallel via asyncio.gather then emits bytes in order.
+    Puts None into queue when done to signal completion to the collector.
     """
-    sse_chunks: list[bytes] = []
     messages: list[Message] = []
     if scout_context is not None:
         messages.append(scout_context)
@@ -165,19 +165,25 @@ async def _fanout_one(
         Message(role="user", content=prompt),
     ]
 
-    async for chunk in client.stream(messages, cache_key=session_id):
-        if chunk.total_tokens is not None:
-            result.total_tokens = chunk.total_tokens
-        if chunk.cached_tokens is not None:
-            result.cached_tokens = chunk.cached_tokens
-        if chunk.delta:
-            result.parts.append(chunk.delta)
-            sse_chunks.append(
-                format_event(SseEvent("token", {"hex": result.whitelabel, "delta": chunk.delta}))
-            )
-
-    result.confidence = _extract_confidence("".join(result.parts))
-    return sse_chunks
+    try:
+        async for chunk in client.stream(messages, cache_key=session_id):
+            if chunk.total_tokens is not None:
+                result.total_tokens = chunk.total_tokens
+            if chunk.cached_tokens is not None:
+                result.cached_tokens = chunk.cached_tokens
+            if chunk.delta:
+                result.parts.append(chunk.delta)
+                await queue.put(
+                    format_event(SseEvent("token", {"hex": result.whitelabel, "delta": chunk.delta}))
+                )
+    except Exception as exc:
+        result.failed = True
+        await queue.put(
+            format_event(SseEvent("error", {"hex": result.whitelabel, "code": type(exc).__name__, "message": str(exc)[:300]}))
+        )
+    finally:
+        result.confidence = _extract_confidence("".join(result.parts))
+        await queue.put(None)  # sentinel: this model is done
 
 
 # ---------------------------------------------------------------------------
@@ -338,32 +344,35 @@ async def _council_stream(
     results: list[_ModelResult] = [_ModelResult(whitelabel=wl) for wl in whitelabels]
 
     # -----------------------------------------------------------------------
-    # Phase 1 — Parallel fan-out
+    # Phase 1 — Parallel fan-out (true interleaved streaming)
     # -----------------------------------------------------------------------
 
     for wl in whitelabels:
         yield format_event(SseEvent("hex_start", {"hex": wl}))
 
-    raw_outcomes = await asyncio.gather(
-        *[
-            _fanout_one(client, prompt, result, session_id, scout_context=scout_system_msg)
-            for client, result in zip(clients, results)
-        ],
-        return_exceptions=True,
-    )
+    # Shared queue: all models push tokens as they arrive; None = model done.
+    queue: asyncio.Queue[bytes | None] = asyncio.Queue()
+    tasks = [
+        asyncio.create_task(
+            _fanout_one(client, prompt, result, session_id, queue, scout_context=scout_system_msg)
+        )
+        for client, result in zip(clients, results)
+    ]
 
-    # Separate successful SSE chunks from per-model failures
-    per_model_sse: list[list[bytes]] = []
-    failed_indices: list[int] = []
-    for idx, outcome in enumerate(raw_outcomes):
-        if isinstance(outcome, BaseException):
-            failed_indices.append(idx)
-            wl = whitelabels[idx]
-            per_model_sse.append([
-                format_event(SseEvent("error", {"hex": wl, "code": type(outcome).__name__, "message": str(outcome)[:300]}))
-            ])
+    # Drain queue until all N models have sent their sentinel (None).
+    pending = len(tasks)
+    while pending > 0:
+        item = await queue.get()
+        if item is None:
+            pending -= 1
         else:
-            per_model_sse.append(outcome)
+            yield item
+
+    # Ensure all tasks are done (they should be, but await for clean teardown).
+    await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Detect which models failed inside _fanout_one.
+    failed_indices = [i for i, r in enumerate(results) if r.failed]
 
     # If ALL models failed, abort
     if len(failed_indices) == len(whitelabels):
@@ -374,16 +383,6 @@ async def _council_stream(
         duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
         yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
         return
-
-    # Mark failed models so they're excluded from peer review + synthesis
-    for idx in failed_indices:
-        results[idx].parts = []
-        results[idx].confidence = 0
-
-    # Emit token bytes in per-model order (each model's tokens are sequential)
-    for model_chunks in per_model_sse:
-        for chunk_bytes in model_chunks:
-            yield chunk_bytes
 
     # Persist Phase 1 messages; emit hex_done + confidence(initial) per model
     for result in results:

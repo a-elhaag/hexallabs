@@ -1,6 +1,7 @@
 // app/page.tsx
 import { Navbar } from '@/components/landing/Navbar'
 import { Hero } from '@/components/landing/Hero'
+import { Models } from '@/components/landing/Models'
 import { Features } from '@/components/landing/Features'
 
 export default function LandingPage() {
@@ -8,6 +9,7 @@ export default function LandingPage() {
     <>
       <Navbar />
       <Hero />
+      <Models />
       <Features />
     </>
   )

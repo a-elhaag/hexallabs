@@ -26,7 +26,6 @@ from app.relay.stream import _relay_stream
 from app.sse import SseEvent, _with_heartbeat, format_event
 from app.synthesis.apex import _PRIMAL_SYSTEM
 from app.tools.scout import scout_auto_tool_messages, scout_force
-from app.workflow.executor import _workflow_stream
 
 router = APIRouter(prefix="/api", tags=["query"])
 
@@ -40,11 +39,10 @@ ScoutMode = Literal["off", "auto", "force"]
 
 
 class QueryRequest(BaseModel):
-    mode: Literal["council", "oracle", "relay", "workflow"]
+    mode: Literal["council", "oracle", "relay"]
     query: str = Field(min_length=1)
     models: list[str] = Field(default_factory=list)
     relay_chain: list[str] = Field(default_factory=list)
-    workflow_nodes: list[dict[str, object]] = Field(default_factory=list)
     primal_protocol: bool = False
     scout: ScoutMode = "off"
     session_id: uuid.UUID | None = None
@@ -167,28 +165,6 @@ async def query(
             headers=_SSE_HEADERS,
         )
 
-    else:
-        # req.mode == "workflow"
-        if not req.workflow_nodes:
-            raise HTTPException(
-                status_code=422,
-                detail="workflow mode requires workflow_nodes",
-            )
-        session_row, query_row = await _open_session_and_query(db, user.id, req, "workflow")
-
-        async def _workflow() -> AsyncIterator[bytes]:
-            async for chunk in _workflow_stream(
-                db, query_row, req.query, req.workflow_nodes,
-                scout=req.scout,
-                quota=quota,
-            ):
-                yield chunk
-
-        return StreamingResponse(
-            _with_heartbeat(_workflow()),
-            media_type="text/event-stream",
-            headers=_SSE_HEADERS,
-        )
 
 
 async def _open_session_and_query(

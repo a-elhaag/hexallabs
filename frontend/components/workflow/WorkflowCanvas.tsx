@@ -36,6 +36,7 @@ function bezier(x1: number, y1: number, x2: number, y2: number) {
 export function WorkflowCanvas({ nodes, onChange, selectedId, onSelect }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [dragConn, setDragConn] = useState<DragConn | null>(null)
+  const dragConnRef = useRef<DragConn | null>(null)
   const [hoveredConn, setHoveredConn] = useState<string | null>(null)
 
   const selectedNode = nodes.find(n => n.id === selectedId) ?? null
@@ -75,10 +76,16 @@ export function WorkflowCanvas({ nodes, onChange, selectedId, onSelect }: Props)
     const p = portPos(node, 'out')
 
     function onMove(ev: MouseEvent) {
-      setDragConn({ fromId: nodeId, x1: p.x, y1: p.y, x2: ev.clientX - rect.left, y2: ev.clientY - rect.top })
+      const d = { fromId: nodeId, x1: p.x, y1: p.y, x2: ev.clientX - rect.left, y2: ev.clientY - rect.top }
+      dragConnRef.current = d
+      setDragConn(d)
     }
     function onUp() {
-      setDragConn(null)
+      // Use a small delay so React's synthetic onMouseUp on the target port fires first
+      setTimeout(() => {
+        dragConnRef.current = null
+        setDragConn(null)
+      }, 0)
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup', onUp)
     }
@@ -87,15 +94,19 @@ export function WorkflowCanvas({ nodes, onChange, selectedId, onSelect }: Props)
   }, [nodes])
 
   const onPortMouseUp = useCallback((e: React.MouseEvent, nodeId: string, port: 'in' | 'out') => {
-    if (port !== 'in' || !dragConn) return
+    if (port !== 'in') return
+    // Read from ref — state may already be null if window mouseup fired first
+    const conn = dragConnRef.current
+    if (!conn) return
     e.preventDefault()
-    const { fromId } = dragConn
+    const { fromId } = conn
     const toId = nodeId
-    if (fromId === toId || wouldCreateCycle(nodes, fromId, toId)) { setDragConn(null); return }
+    dragConnRef.current = null
+    setDragConn(null)
+    if (fromId === toId || wouldCreateCycle(nodes, fromId, toId)) return
     // Append fromId to toId's inputs if not already present
     onChange(nodes.map(n => n.id === toId && !n.inputs.includes(fromId) ? { ...n, inputs: [...n.inputs, fromId] } : n))
-    setDragConn(null)
-  }, [dragConn, nodes, onChange])
+  }, [nodes, onChange])
 
   return (
     <div

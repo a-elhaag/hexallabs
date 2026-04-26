@@ -1,0 +1,35 @@
+<h2>What node types can users add?</h2>
+<p class="subtitle">Backend executor already supports: <code>model</code>, <code>passthrough</code>, <code>prompt_template</code>. Which should be exposed in UI?</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="model" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Model node</h3>
+      <p>Pick any of the 7 white-label models (Apex, Swift, Prism…). Gets input from upstream, streams a response. Core node.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="prompt" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Prompt template node</h3>
+      <p>Inject a static system prompt or transformation before a model. E.g. "Translate the above to Spanish, then pass to Swift."</p>
+    </div>
+  </div>
+  <div class="option" data-choice="scout" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Scout (web search) node</h3>
+      <p>Runs a web search, injects results as context into the next node.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="merge" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>Merge node</h3>
+      <p>Combines outputs of multiple upstream nodes into one input. Useful for fan-out → synthesize patterns.</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:1.5rem">Select all you want. Multi-select enabled.</p>

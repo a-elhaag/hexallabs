@@ -11,7 +11,6 @@ import { Message } from './Message'
 import { CouncilGrid } from './CouncilGrid'
 import { ChatInput } from './ChatInput'
 import { ScoutSearchBubble, ScoutResult } from './ScoutSearchBubble'
-import { WorkflowOverlay } from '../workflow/WorkflowOverlay'
 
 // A "turn" is either a single ChatMessage (oracle/relay) or a group (council)
 type Turn =
@@ -31,8 +30,6 @@ export function ChatWindow() {
   const [forgeHint, setForgeHint] = useState<string | null>(null)
   const [hasSent, setHasSent]     = useState(false)
   const [loadingSession, setLoadingSession] = useState(false)
-  const [workflowOpen, setWorkflowOpen]   = useState(false)
-  const pendingQueryRef                    = useRef<string>('')
   const bottomRef                 = useRef<HTMLDivElement>(null)
   const abortRef                  = useRef<AbortController | null>(null)
   const sessionIdRef              = useRef<string | null>(null)
@@ -122,14 +119,7 @@ export function ChatWindow() {
     }))
   }
 
-  function handleWorkflowRun(serialized: Record<string, unknown>[]) {
-    setWorkflowOpen(false)
-    setTimeout(() => {
-      send(pendingQueryRef.current || 'Run workflow', serialized)
-    }, 320)
-  }
-
-  async function send(query: string, wfNodes?: Record<string, unknown>[]) {
+  async function send(query: string) {
     if (streaming) return
 
     if (query.length > 30) {
@@ -149,30 +139,21 @@ export function ChatWindow() {
 
     const isCouncil = mode === 'council'
     const isRelay = mode === 'relay'
-    const isWorkflow = mode === 'workflow'
 
     // Relay needs exactly 2 models; fall back to Apex+Swift if not configured
     const relayChain: [ModelName, ModelName] = isRelay
       ? [effectiveModels[0] ?? 'Apex', effectiveModels[1] ?? 'Swift']
       : ['Apex', 'Swift']
 
-    // Workflow: nodes come from the visual builder passed into send()
-    const workflowNodes = isWorkflow ? (wfNodes ?? []) : undefined
-
     let assistantTurn: Turn
     let singleId = ''
     let relayBId = ''
     let synthId = ''
 
-    if (isCouncil || isWorkflow) {
-      const councilModels = isWorkflow
-        ? ((wfNodes ?? []).map(n => n.model as ModelName).filter(Boolean).length > 0
-            ? (wfNodes ?? []).map(n => n.model as ModelName).filter(Boolean)
-            : effectiveModels)
-        : effectiveModels
+    if (isCouncil) {
       assistantTurn = {
         type: 'council',
-        msgs: councilModels.map(m => ({
+        msgs: effectiveModels.map(m => ({
           id: uuidv4(),
           role: 'assistant' as const,
           content: '',
@@ -180,7 +161,7 @@ export function ChatWindow() {
           isStreaming: true,
         })),
       }
-      if (isCouncil) synthId = uuidv4()
+      synthId = uuidv4()
     } else {
       singleId = uuidv4()
       assistantTurn = {
@@ -205,7 +186,6 @@ export function ChatWindow() {
         query,
         models: effectiveModels,
         relay_chain: isRelay ? relayChain : undefined,
-        workflow_nodes: workflowNodes,
         primal_protocol: primal,
         scout,
         session_id: sessionIdRef.current ?? undefined,
@@ -238,7 +218,7 @@ export function ChatWindow() {
           sessionIdRef.current = d.session_id
         },
         token: (d) => {
-          if (isCouncil || isWorkflow) {
+          if (isCouncil) {
             appendDeltaByHex(d.hex, d.delta)
           } else if (isRelay && relayBId && d.hex === relayChain[1]) {
             appendDeltaById(relayBId, d.delta)
@@ -274,7 +254,7 @@ export function ChatWindow() {
         },
         synth_token: (d) => appendDeltaById(isCouncil ? synthId : singleId, d.delta),
         hex_done: (d) => {
-          if (isCouncil || isWorkflow) {
+          if (isCouncil) {
             setTurns(prev => prev.map(turn => {
               if (turn.type !== 'council') return turn
               return { ...turn, msgs: turn.msgs.map(m => m.model === d.hex ? { ...m, isStreaming: false } : m) }
@@ -380,22 +360,10 @@ export function ChatWindow() {
           <div className="w-12 h-12 bg-[#2c2c2c] rounded-3xl flex items-center justify-center shadow-lg pointer-events-none">
             <span className="text-cream font-black text-lg">H</span>
           </div>
-          {mode === 'workflow' ? (
-            <div className="flex flex-col gap-2 items-center">
-              <p className="font-black text-xl text-[#2c2c2c] pointer-events-none">No pipeline yet</p>
-              <button
-                onClick={() => setWorkflowOpen(true)}
-                className="px-5 py-2 bg-[#2c2c2c] text-cream rounded-xl font-bold text-sm hover:bg-denim transition-colors active:scale-95"
-              >
-                Build pipeline →
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-1 pointer-events-none">
-              <p className="font-black text-xl text-[#2c2c2c]">Ask anything</p>
-              <p className="text-sm text-warm-gray">Press <kbd className="px-1.5 py-0.5 bg-[#2c2c2c]/8 rounded-md text-xs font-mono">/</kbd> to switch modes</p>
-            </div>
-          )}
+          <div className="flex flex-col gap-1 pointer-events-none">
+            <p className="font-black text-xl text-[#2c2c2c]">Ask anything</p>
+            <p className="text-sm text-warm-gray">Press <kbd className="px-1.5 py-0.5 bg-[#2c2c2c]/8 rounded-md text-xs font-mono">/</kbd> to switch modes</p>
+          </div>
         </div>
 
         {turns.map((turn, i) =>
@@ -428,13 +396,6 @@ export function ChatWindow() {
         onPrimal={setPrimal}
         scout={scout}
         onScout={setScout}
-        onWorkflowOpen={() => setWorkflowOpen(true)}
-        onQueryChange={(q: string) => { pendingQueryRef.current = q }}
-      />
-      <WorkflowOverlay
-        open={workflowOpen}
-        onClose={() => setWorkflowOpen(false)}
-        onRun={handleWorkflowRun}
       />
     </div>
   )

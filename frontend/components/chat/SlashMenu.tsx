@@ -1,7 +1,7 @@
 // components/chat/SlashMenu.tsx
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Zap, Users, GitBranch, Flame, Workflow } from 'lucide-react'
+import { Zap, Users, GitBranch, Flame } from 'lucide-react'
 import { Mode, ModelName } from '@/lib/types'
 import { ModelSelector } from './ModelSelector'
 
@@ -13,17 +13,15 @@ interface Props {
   onModels: (ms: ModelName[]) => void
   primal: boolean
   onPrimal: (v: boolean) => void
-  onWorkflowOpen?: () => void
 }
 
 const MODES: { id: Mode; label: string; icon: React.ElementType; desc: string }[] = [
   { id: 'oracle',   label: 'Oracle',       icon: Zap,      desc: 'Single model, full focus' },
   { id: 'council',  label: 'The Council',  icon: Users,    desc: '7 models, peer review, synthesis' },
   { id: 'relay',    label: 'The Relay',    icon: GitBranch,desc: 'Chain models mid-conversation' },
-  { id: 'workflow', label: 'Workflow',     icon: Workflow, desc: 'Multi-node pipeline' },
 ]
 
-export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onPrimal, onWorkflowOpen }: Props) {
+export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onPrimal }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [focused, setFocused] = useState(0)
 
@@ -59,15 +57,7 @@ export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onP
           return (
             <button
               key={m.id}
-              onClick={() => {
-                onMode(m.id)
-                if (m.id === 'workflow') {
-                  onWorkflowOpen?.()
-                  onClose()
-                } else if (m.id !== 'council') {
-                  onClose()
-                }
-              }}
+              onClick={() => { onMode(m.id); if (m.id !== 'council') onClose() }}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors duration-100 ${
                 active ? 'bg-denim text-white' : i === focused ? 'bg-black/5 text-black' : 'text-black hover:bg-black/5'
               }`}

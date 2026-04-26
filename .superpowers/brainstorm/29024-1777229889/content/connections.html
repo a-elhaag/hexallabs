@@ -1,0 +1,26 @@
+<h2>How do users wire nodes together?</h2>
+<p class="subtitle">How connections are created between nodes on the canvas.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Drag port → port</h3>
+      <p>Each node has an output port (right) and input port (left). Drag from output to input to connect. Standard node-graph UX (like Figma, n8n). Most flexible.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Click to connect</h3>
+      <p>Click a node's output → it highlights → click another node's input to connect. No drag needed. Better for touch/trackpad.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Auto-chain (linear only)</h3>
+      <p>Nodes snap into a left→right chain automatically. Add node → it attaches to the last one. No manual wiring. Simple but no branching/merging.</p>
+    </div>
+  </div>
+</div>

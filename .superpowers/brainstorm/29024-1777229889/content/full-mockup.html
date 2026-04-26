@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow Builder — Full Mockup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a1a; color: #f5f1ed; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .toolbar { background: #f5f1ed; border-bottom: 1.5px solid #e0d8d0; padding: 10px 20px; display: flex; align-items: center; gap: 12px; }
+  .toolbar-title { font-weight: 900; font-size: 13px; color: #2c2c2c; letter-spacing: -0.02em; }
+  .toolbar-sep { width: 1px; height: 20px; background: #a89080; opacity: 0.3; }
+  .node-palette { display: flex; gap: 6px; }
+  .palette-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 8px; border: 1.5px solid; font-size: 11px; font-weight: 700; cursor: pointer; user-select: none; transition: all .15s; }
+  .palette-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+  .palette-btn.model   { border-color: #6290c3; color: #6290c3; background: #6290c315; }
+  .palette-btn.prompt  { border-color: #a89080; color: #a89080; background: #a8908015; }
+  .palette-btn.scout   { border-color: #2c8c4a; color: #2c8c4a; background: #2c8c4a15; }
+  .palette-btn.merge   { border-color: #c36290; color: #c36290; background: #c3629015; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  .spacer { flex: 1; }
+  .run-btn { background: #2c2c2c; color: #f5f1ed; border: none; border-radius: 10px; padding: 7px 18px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .15s; }
+  .run-btn:hover { background: #6290c3; transform: scale(1.02); }
+  .close-btn { background: none; border: none; font-size: 18px; color: #a89080; cursor: pointer; padding: 0 4px; line-height: 1; }
+  .close-btn:hover { color: #2c2c2c; }
+
+  /* Canvas */
+  .canvas { flex: 1; background: #f5f1ed; background-image: radial-gradient(circle, #a8908028 1px, transparent 1px); background-size: 22px 22px; position: relative; overflow: hidden; min-height: 460px; }
+
+  /* SVG connections */
+  .connections { position: absolute; inset: 0; pointer-events: none; }
+
+  /* Nodes */
+  .node { position: absolute; background: white; border: 1.5px solid; border-radius: 14px; padding: 12px 16px; min-width: 130px; cursor: grab; box-shadow: 0 2px 10px rgba(0,0,0,0.08); user-select: none; }
+  .node:active { cursor: grabbing; box-shadow: 0 6px 20px rgba(0,0,0,0.14); }
+  .node.model  { border-color: #6290c3; }
+  .node.prompt { border-color: #a89080; }
+  .node.scout  { border-color: #2c8c4a; }
+  .node.merge  { border-color: #c36290; }
+
+  .node-type { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+  .node.model  .node-type { color: #6290c3; }
+  .node.prompt .node-type { color: #a89080; }
+  .node.scout  .node-type { color: #2c8c4a; }
+  .node.merge  .node-type { color: #c36290; }
+
+  .node-label { font-size: 13px; font-weight: 700; color: #2c2c2c; }
+  .node-sub   { font-size: 10px; color: #a89080; margin-top: 2px; }
+
+  /* Ports */
+  .ports { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .port { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; cursor: crosshair; transition: transform .12s; }
+  .port:hover { transform: scale(1.5); }
+  .port.in  { border-color: #a89080; background: white; }
+  .port.out { background: currentColor; }
+  .node.model  .port.out { color: #6290c3; border-color: #6290c3; }
+  .node.prompt .port.out { color: #a89080; border-color: #a89080; }
+  .node.scout  .port.out { color: #2c8c4a; border-color: #2c8c4a; }
+  .node.merge  .port.out { color: #c36290; border-color: #c36290; }
+
+  .port-label { font-size: 9px; color: #a89080; font-weight: 600; }
+
+  /* Delete button */
+  .node-del { position: absolute; top: 6px; right: 8px; background: none; border: none; font-size: 12px; color: #a89080; cursor: pointer; opacity: 0; transition: opacity .12s; line-height: 1; }
+  .node:hover .node-del { opacity: 1; }
+  .node-del:hover { color: #c33; }
+
+  /* Selected node */
+  .node.selected { box-shadow: 0 0 0 3px #6290c340, 0 4px 16px rgba(0,0,0,0.12); }
+
+  /* Config panel */
+  .config-panel { position: absolute; right: 16px; top: 16px; width: 220px; background: white; border: 1.5px solid #e0d8d0; border-radius: 16px; padding: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.10); }
+  .config-title { font-size: 11px; font-weight: 800; color: #2c2c2c; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em; }
+  .config-field { margin-bottom: 10px; }
+  .config-label { font-size: 10px; font-weight: 700; color: #a89080; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; }
+  .config-select { width: 100%; padding: 6px 8px; border: 1.5px solid #e0d8d0; border-radius: 8px; font-size: 12px; font-weight: 600; color: #2c2c2c; background: #f5f1ed; appearance: none; cursor: pointer; }
+  .config-select:focus { outline: none; border-color: #6290c3; }
+  .config-textarea { width: 100%; padding: 6px 8px; border: 1.5px solid #e0d8d0; border-radius: 8px; font-size: 11px; color: #2c2c2c; background: #f5f1ed; resize: vertical; min-height: 60px; font-family: inherit; }
+  .config-textarea:focus { outline: none; border-color: #a89080; }
+  .config-tag { display: inline-block; background: #6290c315; color: #6290c3; border-radius: 6px; padding: 2px 7px; font-size: 10px; font-weight: 700; margin-top: 4px; }
+
+  /* Empty hint */
+  .canvas-hint { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; pointer-events: none; opacity: 0.45; }
+  .canvas-hint-icon { font-size: 36px; }
+  .canvas-hint-text { font-size: 13px; font-weight: 700; color: #a89080; }
+  .canvas-hint-sub { font-size: 11px; color: #a89080; }
+
+  /* Footer bar */
+  .footer { background: #f5f1ed; border-top: 1.5px solid #e0d8d0; padding: 8px 20px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: #a89080; font-weight: 600; }
+  .footer-dot { width: 6px; height: 6px; border-radius: 50%; background: #a89080; }
+  .footer-dot.ok { background: #2c8c4a; }
+
+  /* Annotation */
+  .ann { position: absolute; background: #2c2c2c; color: #f5f1ed; font-size: 10px; font-weight: 700; padding: 4px 9px; border-radius: 20px; white-space: nowrap; pointer-events: none; }
+  .ann::after { content: ''; position: absolute; left: 50%; bottom: -5px; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #2c2c2c; }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <span class="toolbar-title">Workflow Builder</span>
+  <div class="toolbar-sep"></div>
+  <div class="node-palette">
+    <button class="palette-btn model"><div class="dot"></div> + Model</button>
+    <button class="palette-btn prompt"><div class="dot"></div> + Prompt</button>
+    <button class="palette-btn scout"><div class="dot"></div> + Scout</button>
+    <button class="palette-btn merge"><div class="dot"></div> + Merge</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="run-btn">▶ Run pipeline</button>
+  <div class="toolbar-sep"></div>
+  <button class="close-btn" title="Close">✕</button>
+</div>
+
+<!-- Canvas -->
+<div class="canvas" id="canvas">
+
+  <!-- SVG for connections -->
+  <svg class="connections" id="svg">
+    <!-- Prompt → Swift -->
+    <path d="M 258 168 C 298 168 318 188 358 188" stroke="#a89080" stroke-width="2" fill="none" stroke-dasharray="none" marker-end="url(#arr-prompt)"/>
+    <!-- Swift → Apex -->
+    <path d="M 516 188 C 556 188 576 238 616 238" stroke="#6290c3" stroke-width="2" fill="none" marker-end="url(#arr-model)"/>
+    <!-- Scout → Apex -->
+    <path d="M 516 298 C 556 298 576 258 616 258" stroke="#2c8c4a" stroke-width="2" fill="none" marker-end="url(#arr-scout)"/>
+    <!-- Apex → Merge -->
+    <path d="M 774 248 C 814 248 824 248 864 248" stroke="#6290c3" stroke-width="2" fill="none" marker-end="url(#arr-model)"/>
+
+    <defs>
+      <marker id="arr-model" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#6290c3"/>
+      </marker>
+      <marker id="arr-prompt" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#a89080"/>
+      </marker>
+      <marker id="arr-scout" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#2c8c4a"/>
+      </marker>
+      <marker id="arr-merge" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L0,6 L8,3 z" fill="#c36290"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <!-- Node 1: Prompt template -->
+  <div class="node prompt" style="left:110px;top:148px;">
+    <button class="node-del">✕</button>
+    <div class="node-type">Prompt</div>
+    <div class="node-label">System context</div>
+    <div class="node-sub">"You are a researcher…"</div>
+    <div class="ports">
+      <span class="port-label">in</span>
+      <div class="port in"></div>
+      <div class="spacer"></div>
+      <div class="port out"></div>
+      <span class="port-label">out</span>
+    </div>
+  </div>
+
+  <!-- Node 2: Model Swift -->
+  <div class="node model selected" style="left:370px;top:168px;">
+    <button class="node-del">✕</button>
+    <div class="node-type">Model</div>
+    <div class="node-label">Swift</div>
+    <div class="node-sub">Fast summarise</div>
+    <div class="ports">
+      <span class="port-label">in</span>
+      <div class="port in"></div>
+      <div class="spacer"></div>
+      <div class="port out"></div>
+      <span class="port-label">out</span>
+    </div>
+  </div>
+
+  <!-- Node 3: Scout -->
+  <div class="node scout" style="left:370px;top:278px;">
+    <button class="node-del">✕</button>
+    <div class="node-type">Scout</div>
+    <div class="node-label">Web search</div>
+    <div class="node-sub">auto mode</div>
+    <div class="ports">
+      <span class="port-label">in</span>
+      <div class="port in"></div>
+      <div class="spacer"></div>
+      <div class="port out"></div>
+      <span class="port-label">out</span>
+    </div>
+  </div>
+
+  <!-- Node 4: Apex synthesise -->
+  <div class="node model" style="left:630px;top:218px;">
+    <button class="node-del">✕</button>
+    <div class="node-type">Model</div>
+    <div class="node-label">Apex</div>
+    <div class="node-sub">Synthesise</div>
+    <div class="ports">
+      <span class="port-label">in</span>
+      <div class="port in"></div>
+      <div class="spacer"></div>
+      <div class="port out"></div>
+      <span class="port-label">out</span>
+    </div>
+  </div>
+
+  <!-- Node 5: Merge -->
+  <div class="node merge" style="left:880px;top:228px;">
+    <button class="node-del">✕</button>
+    <div class="node-type">Merge</div>
+    <div class="node-label">Merge outputs</div>
+    <div class="node-sub">join separator</div>
+    <div class="ports">
+      <span class="port-label">in</span>
+      <div class="port in"></div>
+      <div class="spacer"></div>
+      <div class="port out"></div>
+      <span class="port-label">out</span>
+    </div>
+  </div>
+
+  <!-- Annotation: drag port -->
+  <div class="ann" style="left:370px;top:116px;">Drag output port → input port to connect</div>
+
+  <!-- Config panel (for selected Swift node) -->
+  <div class="config-panel">
+    <div class="config-title">Node config — Swift</div>
+    <div class="config-field">
+      <div class="config-label">Model</div>
+      <select class="config-select">
+        <option>Swift</option>
+        <option>Apex</option>
+        <option>Prism</option>
+        <option>Depth</option>
+        <option>Atlas</option>
+        <option>Horizon</option>
+        <option>Pulse</option>
+      </select>
+    </div>
+    <div class="config-field">
+      <div class="config-label">System prompt (optional)</div>
+      <textarea class="config-textarea" placeholder="Override system prompt for this node…"></textarea>
+    </div>
+    <div class="config-field">
+      <div class="config-label">Inputs</div>
+      <span class="config-tag">← System context</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-dot ok"></div>
+  4 nodes · 4 connections · no cycles detected
+  <div class="spacer"></div>
+  Click node to configure · Drag output port to connect · Drag node to reposition
+</div>
+
+</body>
+</html>
