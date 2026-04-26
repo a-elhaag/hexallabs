@@ -2,13 +2,13 @@
 import { useReveal } from '@/lib/useReveal'
 
 const models = [
-  { name: 'Apex', role: 'Chairman', desc: 'Synthesizes the final answer. Weighs every voice.' },
-  { name: 'Swift', role: 'Organizer', desc: 'Structures fast. Keeps the Council on track.' },
-  { name: 'Prism', role: 'Reasoner', desc: 'Logic-first. No shortcuts. No assumptions.' },
-  { name: 'Depth', role: 'Analyst', desc: 'Slow and brutal. Catches what everyone else missed.' },
-  { name: 'Atlas', role: 'Open-source', desc: 'Different priors. Brings perspectives others can\'t.' },
-  { name: 'Horizon', role: 'Context', desc: 'Holds the full picture. Nothing slips through.' },
-  { name: 'Pulse', role: 'Reasoning', desc: 'Cutting edge. Latest capabilities, pushed hard.' },
+  { name: 'Apex', role: 'Chairman', by: 'Anthropic', model: 'claude-opus-4-7', desc: 'Synthesizes the final answer. Weighs every voice.' },
+  { name: 'Pulse', role: 'Reasoning', by: 'Anthropic', model: 'claude-sonnet-4-6', desc: 'Cutting edge. Latest capabilities, pushed hard.' },
+  { name: 'Swift', role: 'Organizer', by: 'Anthropic', model: 'claude-haiku-4-5', desc: 'Structures fast. Keeps the Council on track.' },
+  { name: 'Prism', role: 'Reasoner', by: 'xAI', model: 'grok-4-20-reasoning', desc: 'Logic-first. No shortcuts. No assumptions.' },
+  { name: 'Depth', role: 'Analyst', by: 'DeepSeek', model: 'DeepSeek-V3.2', desc: 'Slow and brutal. Catches what everyone else missed.' },
+  { name: 'Atlas', role: 'Open-source', by: 'Meta', model: 'Llama-4-Maverick', desc: 'Different priors. Brings perspectives others can\'t.' },
+  { name: 'Horizon', role: 'Long Context', by: 'Moonshot AI', model: 'Kimi-K2.5', desc: 'Holds the full picture. Nothing slips through.' },
 ]
 
 function HexCard({ model, i }: { model: typeof models[0]; i: number }) {
@@ -32,6 +32,10 @@ function HexCard({ model, i }: { model: typeof models[0]; i: number }) {
         </div>
       </div>
       <p className="text-warm-gray text-sm leading-relaxed">{model.desc}</p>
+      <div className="flex items-center justify-between mt-1 pt-2 border-t border-warm-gray/15">
+        <span className="text-warm-gray/60 text-[11px] font-semibold">{model.by}</span>
+        <span className="font-mono text-[10px] text-denim/60">{model.model}</span>
+      </div>
     </div>
   )
 }

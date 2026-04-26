@@ -20,15 +20,15 @@ This isn't prompt chaining. This isn't RAG. This is a governance layer on top of
 
 ## The 7
 
-| Name | Specialty |
-|---|---|
-| **Apex** | Chairman. Synthesis. Final word. |
-| **Swift** | Fast organizer. Structure and speed. |
-| **Prism** | Reasoning. Logic-first, no shortcuts. |
-| **Depth** | Deep analysis. Slow, thorough, brutal. |
-| **Atlas** | Open-source perspective. Different priors. |
-| **Horizon** | Long context. Holds the full picture. |
-| **Pulse** | Latest reasoning. Cutting edge. |
+| Name | Real model | Specialty |
+|---|---|---|
+| **Apex** | claude-opus-4-7 | Chairman. Synthesis. Final word. |
+| **Pulse** | claude-sonnet-4-6 | Latest reasoning. Cutting edge. |
+| **Swift** | claude-haiku-4-5 | Fast organizer. Structure and speed. |
+| **Prism** | grok-4-20-reasoning | Reasoning. Logic-first, no shortcuts. |
+| **Depth** | DeepSeek-V3.2-Speciale | Deep analysis. Slow, thorough, brutal. |
+| **Atlas** | Llama-4-Maverick-17B | Open-source perspective. Different priors. |
+| **Horizon** | Kimi-K2.5 | Long context. Holds the full picture. |
 
 Mix and match. Use 2 for speed, 7 for decisions that matter.
 
