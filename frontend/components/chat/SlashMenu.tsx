@@ -48,7 +48,7 @@ export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onP
   return (
     <div
       ref={ref}
-      className="absolute bottom-full left-0 right-0 mb-2 bg-cream/95 backdrop-blur-md border border-black rounded-xl shadow-xl overflow-hidden z-30"
+      className="absolute bottom-full left-0 mb-2 w-72 max-h-96 bg-cream/95 backdrop-blur-md border border-black rounded-xl shadow-xl overflow-y-auto z-30"
     >
       <div className="p-2 flex flex-col gap-0.5">
         <p className="text-[10px] font-bold text-warm-gray uppercase tracking-widest px-2 py-1">Mode</p>

@@ -78,7 +78,10 @@
       "Bash(bash \"/Users/anas/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/brainstorming/scripts/start-server.sh\" --project-dir /Users/anas/Projects/hexallabs)",
       "Bash(python3 \"/Users/anas/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"AI council chat SaaS minimal dark premium\" --design-system -p \"HexalLabs\" -f markdown)",
       "Bash(python3 \"/Users/anas/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"chat interface command menu slash sidebar navigation\" --domain ux -n 8)",
-      "Bash(xargs cat *)"
+      "Bash(xargs cat *)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__apply_migration"
     ],
     "additionalDirectories": [
       "/Users/anas/.claude/plans",

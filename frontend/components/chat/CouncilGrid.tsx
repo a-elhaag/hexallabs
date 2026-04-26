@@ -25,14 +25,14 @@ function CouncilCard({ msg }: { msg: ChatMessage }) {
   return (
     <div
       ref={ref}
-      className={`bg-cream border border-warm-gray/20 rounded-2xl p-4 shadow-sm transition-opacity duration-300 ${hasContent ? 'opacity-100' : 'opacity-40'}`}
+      className={`bg-cream border border-warm-gray/20 rounded-2xl p-4 shadow-sm transition-opacity duration-300 flex flex-col max-h-80 ${hasContent ? 'opacity-100' : 'opacity-40'}`}
     >
       {msg.model && (
-        <p className="text-[10px] font-black text-warm-gray/70 uppercase tracking-widest mb-2">
+        <p className="text-[10px] font-black text-warm-gray/70 uppercase tracking-widest mb-2 shrink-0">
           {MODEL_DISPLAY[msg.model as ModelName] ?? msg.model}
         </p>
       )}
-      <div className="text-sm leading-relaxed text-[#2c2c2c]">
+      <div className="text-sm leading-relaxed text-[#2c2c2c] overflow-y-auto flex-1 min-h-0">
         {hasContent ? (
           <ReactMarkdown
             components={{
@@ -51,6 +51,12 @@ function CouncilCard({ msg }: { msg: ChatMessage }) {
               h1:     ({ children }) => <h1 className="font-black text-base mb-1">{children}</h1>,
               h2:     ({ children }) => <h2 className="font-bold text-sm mb-1">{children}</h2>,
               h3:     ({ children }) => <h3 className="font-semibold text-sm mb-1">{children}</h3>,
+              table:  ({ children }) => <div className="overflow-x-auto my-3"><table className="w-full text-xs border-collapse">{children}</table></div>,
+              thead:  ({ children }) => <thead className="bg-[#2c2c2c]/8">{children}</thead>,
+              tbody:  ({ children }) => <tbody>{children}</tbody>,
+              tr:     ({ children }) => <tr className="border-b border-warm-gray/20">{children}</tr>,
+              th:     ({ children }) => <th className="px-3 py-2 text-left font-bold text-[#2c2c2c]">{children}</th>,
+              td:     ({ children }) => <td className="px-3 py-2 text-[#2c2c2c]">{children}</td>,
             }}
           >
             {msg.content}
@@ -65,9 +71,9 @@ function CouncilCard({ msg }: { msg: ChatMessage }) {
 }
 
 export function CouncilGrid({ messages }: { messages: ChatMessage[] }) {
-  const cols = messages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'
+  const cols = messages.length === 1 ? 'grid-cols-1' : messages.length >= 4 ? 'grid-cols-3' : 'grid-cols-2'
   return (
-    <div className="w-full max-w-[600px] mx-auto px-6 py-1.5">
+    <div className="w-full max-w-4xl mx-auto px-6 py-1.5">
       <div className={`grid ${cols} gap-3`}>
         {messages.map(msg => (
           <CouncilCard key={msg.id} msg={msg} />

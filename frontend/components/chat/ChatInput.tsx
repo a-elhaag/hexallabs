@@ -69,12 +69,12 @@ export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onM
 
   return (
     <div
-      className="px-4 pb-4 pt-2 bg-cream"
+      className="px-4 pb-4 pt-2 bg-cream flex justify-center"
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      <div className="relative">
+      <div className="relative w-full max-w-4xl">
         {slashOpen && (
           <SlashMenu
             onClose={() => setSlashOpen(false)}
@@ -107,7 +107,7 @@ export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onM
         )}
 
         <div
-          className={`flex flex-col bg-white rounded-3xl border transition-all duration-200 shadow-sm ${
+          className={`flex flex-col bg-white rounded-3xl border transition-all duration-200 shadow-sm w-full ${
             dragging ? 'border-denim shadow-denim/20 shadow-md' : 'border-warm-gray/25 hover:border-warm-gray/50'
           }`}
         >

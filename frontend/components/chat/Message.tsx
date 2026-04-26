@@ -25,7 +25,7 @@ export function Message({ msg }: { msg: ChatMessage }) {
   return (
     <div
       ref={ref}
-      className="w-full max-w-[600px] mx-auto px-6 py-1.5"
+      className="w-full max-w-4xl mx-auto px-6 py-1.5"
       style={{ opacity: 0 }}
     >
       {isUser ? (
@@ -62,6 +62,12 @@ export function Message({ msg }: { msg: ChatMessage }) {
               h1:     ({ children }) => <h1 className="font-black text-base mb-1">{children}</h1>,
               h2:     ({ children }) => <h2 className="font-bold text-sm mb-1">{children}</h2>,
               h3:     ({ children }) => <h3 className="font-semibold text-sm mb-1">{children}</h3>,
+              table:  ({ children }) => <div className="overflow-x-auto my-3"><table className="w-full text-xs border-collapse">{children}</table></div>,
+              thead:  ({ children }) => <thead className="bg-[#2c2c2c]/8">{children}</thead>,
+              tbody:  ({ children }) => <tbody>{children}</tbody>,
+              tr:     ({ children }) => <tr className="border-b border-warm-gray/20">{children}</tr>,
+              th:     ({ children }) => <th className="px-3 py-2 text-left font-bold text-[#2c2c2c]">{children}</th>,
+              td:     ({ children }) => <td className="px-3 py-2 text-[#2c2c2c]">{children}</td>,
             }}
           >
             {msg.content}

@@ -1,10 +1,12 @@
 // components/chat/ChatWindow.tsx
 'use client'
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { ChatMessage, Mode, ModelName, ScoutMode } from '@/lib/types'
 import { buildQueryRequest, improveQuery } from '@/lib/api'
 import { streamQuery } from '@/lib/sse'
+import { getSessionMessages } from '@/lib/db'
 import { Message } from './Message'
 import { CouncilGrid } from './CouncilGrid'
 import { ChatInput } from './ChatInput'
@@ -36,6 +38,7 @@ function ModeHeader({ mode, models }: { mode: Mode; models: ModelName[] }) {
 }
 
 export function ChatWindow() {
+  const searchParams = useSearchParams()
   const [turns, setTurns]         = useState<Turn[]>([])
   const [mode, setMode]           = useState<Mode>('oracle')
   const [models, setModels]       = useState<ModelName[]>(['Apex'])
@@ -44,12 +47,57 @@ export function ChatWindow() {
   const [streaming, setStreaming] = useState(false)
   const [forgeHint, setForgeHint] = useState<string | null>(null)
   const [hasSent, setHasSent]     = useState(false)
+  const [loadingSession, setLoadingSession] = useState(false)
   const bottomRef                 = useRef<HTMLDivElement>(null)
   const abortRef                  = useRef<AbortController | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [turns])
+
+  // Load session from ?session= param, or reset for ?new=1
+  useEffect(() => {
+    const sessionId = searchParams.get('session')
+    const isNew = searchParams.get('new') === '1'
+
+    abortRef.current?.abort()
+    setStreaming(false)
+
+    if (isNew || (!sessionId && !isNew)) {
+      setTurns([])
+      setHasSent(false)
+      setForgeHint(null)
+      return
+    }
+
+    if (!sessionId) return
+
+    setLoadingSession(true)
+    setTurns([])
+    setHasSent(false)
+
+    getSessionMessages(sessionId)
+      .then(messages => {
+        const loaded: Turn[] = messages
+          .filter(m => m.content?.trim())
+          .map(m => ({
+            type: 'single' as const,
+            msg: {
+              id: uuidv4(),
+              role: m.role === 'model' ? 'assistant' : m.role as 'user' | 'assistant',
+              content: m.content,
+              model: m.model as ModelName | undefined,
+            },
+          }))
+        if (loaded.length > 0) {
+          setTurns(loaded)
+          setHasSent(true)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingSession(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('session'), searchParams.get('new')])
 
   // For oracle/relay: append delta to single message by id
   const appendDeltaById = useCallback((id: string, delta: string) => {
@@ -240,7 +288,12 @@ export function ChatWindow() {
       )}
 
       <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-0.5 relative">
-        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6 pointer-events-none ${hasSent ? 'hidden' : ''}`}>
+        {loadingSession && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-6 h-6 border-2 border-[#2c2c2c]/20 border-t-[#2c2c2c]/60 rounded-full animate-spin" />
+          </div>
+        )}
+        <div className={`absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6 pointer-events-none ${hasSent || loadingSession ? 'hidden' : ''}`}>
           <div className="w-12 h-12 bg-[#2c2c2c] rounded-3xl flex items-center justify-center shadow-lg">
             <span className="text-cream font-black text-lg">H</span>
           </div>

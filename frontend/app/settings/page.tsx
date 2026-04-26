@@ -6,6 +6,31 @@ import { getUser } from '@/lib/auth'
 import { getQuota } from '@/lib/api'
 import type { QuotaStatus } from '@/lib/types'
 
+function formatCountdown(ms: number): string {
+  if (ms <= 0) return 'now'
+  const totalMinutes = Math.floor(ms / 60000)
+  const days    = Math.floor(totalMinutes / 1440)
+  const hours   = Math.floor((totalMinutes % 1440) / 60)
+  const minutes = totalMinutes % 60
+  const parts: string[] = []
+  if (days)    parts.push(`${days}d`)
+  if (hours)   parts.push(`${hours}h`)
+  if (minutes || parts.length === 0) parts.push(`${minutes}m`)
+  return parts.join(' ')
+}
+
+function ResetCountdown({ resetsAt }: { resetsAt: string }) {
+  const target = new Date(resetsAt).getTime()
+  const [remaining, setRemaining] = useState(() => target - Date.now())
+
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(target - Date.now()), 60000)
+    return () => clearInterval(id)
+  }, [target])
+
+  return <span>{formatCountdown(remaining)}</span>
+}
+
 export default function SettingsPage() {
   const [email, setEmail] = useState('')
   const [quota, setQuota] = useState<QuotaStatus | null>(null)
@@ -52,7 +77,7 @@ export default function SettingsPage() {
               </div>
               {quota.resets_at && (
                 <p className="text-xs text-warm-gray">
-                  Resets: {new Date(quota.resets_at).toLocaleString()}
+                  Resets: <ResetCountdown resetsAt={quota.resets_at} />
                 </p>
               )}
             </div>
