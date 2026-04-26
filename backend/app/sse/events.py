@@ -20,6 +20,7 @@ primal         {text: str}
 relay_handoff  {from: str, to: str, trigger: "marker"|"confidence"|"apex", reason: str, partial_chars: int}
 tool_call      {hex: str, id: str, name: str, input: dict, forced?: bool}
 tool_result    {hex: str, id: str, name: str, summary: str, urls: [str], result_count: int, error?: str}
+quota_warning  {percentage_used: float, resets_at: str}
 done           {session_id: str, duration_ms: int}
 error          {hex: str, code: str, message: str}
 """
@@ -48,6 +49,7 @@ _ALLOWED_EVENTS = {
     "relay_handoff",
     "tool_call",
     "tool_result",
+    "quota_warning",
     "done",
     "error",
 }

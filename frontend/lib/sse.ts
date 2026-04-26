@@ -30,7 +30,17 @@ export async function streamQuery(
   })
 
   if (!res.ok) {
-    handlers._error?.(new Error(`Query failed: ${res.status}`))
+    if (res.status === 429) {
+      try {
+        const body = await res.json() as { detail?: { resets_at?: string } }
+        const resetsAt = body?.detail?.resets_at
+        handlers._error?.(Object.assign(new Error('quota_exceeded'), { resetsAt }))
+      } catch {
+        handlers._error?.(new Error('quota_exceeded'))
+      }
+    } else {
+      handlers._error?.(new Error(`Query failed: ${res.status}`))
+    }
     return
   }
 

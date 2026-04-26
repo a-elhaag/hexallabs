@@ -48,6 +48,7 @@ async def _relay_stream(
     whitelabel_b: str,
     scout: ScoutMode = "off",
     quota: UserQuota | None = None,
+    force_demo: bool = False,
 ) -> AsyncIterator[bytes]:
     start_ns = time.monotonic_ns()
     session_id = str(query_row.session_id)
@@ -100,6 +101,8 @@ async def _relay_stream(
     total_a: int | None = None
     cached_a: int | None = None
 
+    _DEMO_HANDOFF_CHARS = 300
+
     async def drive_a() -> AsyncIterator[bytes | _TokenCarry]:
         nonlocal triggered, handoff_detected
         total: int | None = None
@@ -113,6 +116,14 @@ async def _relay_stream(
                 partial_a.append(chunk.delta)
                 buf = "".join(partial_a)
                 buf_tail = buf[-_TAIL_WINDOW:] if len(buf) > _TAIL_WINDOW else buf
+                if force_demo and len(buf) >= _DEMO_HANDOFF_CHARS:
+                    if not reason_box:
+                        reason_box.append("demo handoff")
+                    triggered = TriggerFired("marker", "demo handoff")
+                    handoff_detected = True
+                    fire_event.set()
+                    yield _TokenCarry(total_tokens=total, cached_tokens=cached)
+                    return
                 t = scan_marker(buf_tail) or scan_confidence(buf_tail)
                 if t:
                     if not reason_box:

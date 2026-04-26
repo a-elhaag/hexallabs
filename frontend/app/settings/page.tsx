@@ -38,9 +38,10 @@ export default function SettingsPage() {
 
   useEffect(() => {
     getUser().then(u => setEmail(u?.email ?? ''))
-    getQuota()
-      .then(setQuota)
-      .catch(() => setError('Could not load quota'))
+    const fetchQuota = () => getQuota().then(setQuota).catch(() => setError('Could not load quota'))
+    fetchQuota()
+    window.addEventListener('focus', fetchQuota)
+    return () => window.removeEventListener('focus', fetchQuota)
   }, [])
 
   return (

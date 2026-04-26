@@ -1,7 +1,7 @@
 // components/chat/SlashMenu.tsx
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { Zap, Users, GitBranch, Flame } from 'lucide-react'
+import { Zap, Users, GitBranch, Flame, Workflow } from 'lucide-react'
 import { Mode, ModelName } from '@/lib/types'
 import { ModelSelector } from './ModelSelector'
 
@@ -16,9 +16,10 @@ interface Props {
 }
 
 const MODES: { id: Mode; label: string; icon: React.ElementType; desc: string }[] = [
-  { id: 'oracle',   label: 'Oracle',      icon: Zap,      desc: 'Single model, full focus' },
-  { id: 'council',  label: 'The Council', icon: Users,    desc: '7 models, peer review, synthesis' },
-  { id: 'relay',    label: 'The Relay',   icon: GitBranch,desc: 'Chain models mid-conversation' },
+  { id: 'oracle',   label: 'Oracle',       icon: Zap,      desc: 'Single model, full focus' },
+  { id: 'council',  label: 'The Council',  icon: Users,    desc: '7 models, peer review, synthesis' },
+  { id: 'relay',    label: 'The Relay',    icon: GitBranch,desc: 'Chain models mid-conversation' },
+  { id: 'workflow', label: 'Workflow',     icon: Workflow, desc: 'Multi-node pipeline' },
 ]
 
 export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onPrimal }: Props) {
@@ -70,6 +71,12 @@ export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onP
         })}
       </div>
 
+      {mode === 'oracle' && (
+        <div className="border-t border-warm-gray/20 p-3">
+          <ModelSelector selected={models.slice(0, 1)} onChange={ms => onModels(ms.slice(0, 1))} max={1} label="Oracle" />
+        </div>
+      )}
+
       {mode === 'council' && (
         <div className="border-t border-warm-gray/20 p-3">
           <ModelSelector selected={models} onChange={onModels} />
@@ -78,7 +85,7 @@ export function SlashMenu({ onClose, mode, onMode, models, onModels, primal, onP
 
       {mode === 'relay' && (
         <div className="border-t border-warm-gray/20 p-3">
-          <ModelSelector selected={models.slice(0, 2)} onChange={ms => onModels(ms.slice(0, 2))} max={2} />
+          <ModelSelector selected={models.slice(0, 2)} onChange={ms => onModels(ms.slice(0, 2))} max={2} label="Pick 2" />
         </div>
       )}
 

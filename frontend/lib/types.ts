@@ -1,6 +1,6 @@
 // lib/types.ts
 
-export type Mode = 'oracle' | 'council' | 'relay'
+export type Mode = 'oracle' | 'council' | 'relay' | 'workflow'
 
 export type ScoutMode = 'off' | 'auto' | 'force'
 
@@ -23,6 +23,20 @@ export const MODEL_DISPLAY: Record<ModelName, string> = {
   Craft:   'Craft',
   Flux:    'Flux',
   Spark:   'Spark',
+}
+
+export const MODEL_SUBTITLE: Record<ModelName, string> = {
+  Apex:    'Claude Opus 4.7',
+  Pulse:   'Claude Sonnet 4.6',
+  Swift:   'Claude Haiku 4.5',
+  Prism:   'Grok 4 Reasoning',
+  Bolt:    'Grok 4 Fast',
+  Craft:   'GPT-5.4 Mini',
+  Flux:    'GPT-5.3',
+  Spark:   'GPT-5.4 Nano',
+  Depth:   'DeepSeek V3.2',
+  Atlas:   'Llama 4 Maverick',
+  Horizon: 'Kimi K2.5',
 }
 
 export interface ChatMessage {
@@ -67,6 +81,7 @@ export type SseEventMap = {
   primal:         { text: string }
   lens:           { hex: string; interpretation: string }
   prompt_forge:   { original: string; improved: string }
+  quota_warning:  { percentage_used: number; resets_at: string }
 }
 
 export interface QueryRequest {
@@ -78,6 +93,7 @@ export interface QueryRequest {
   primal_protocol?: boolean
   scout?: ScoutMode
   session_id?: string
+  force_relay_demo?: boolean
 }
 
 export interface ForgeResponse {

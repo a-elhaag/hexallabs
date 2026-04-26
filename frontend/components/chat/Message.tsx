@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { ChatMessage, MODEL_DISPLAY } from '@/lib/types'
 
 function StreamingCursor() {
@@ -45,6 +46,7 @@ export function Message({ msg }: { msg: ChatMessage }) {
             </p>
           )}
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
               p:      ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
               strong: ({ children }) => <strong className="font-bold">{children}</strong>,

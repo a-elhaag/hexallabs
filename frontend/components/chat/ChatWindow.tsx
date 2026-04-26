@@ -10,32 +10,13 @@ import { getSessionMessages } from '@/lib/db'
 import { Message } from './Message'
 import { CouncilGrid } from './CouncilGrid'
 import { ChatInput } from './ChatInput'
-
-const MODE_LABEL: Record<Mode, string> = {
-  oracle: 'Oracle', council: 'The Council', relay: 'The Relay',
-}
+import { ScoutSearchBubble, ScoutResult } from './ScoutSearchBubble'
 
 // A "turn" is either a single ChatMessage (oracle/relay) or a group (council)
 type Turn =
-  | { type: 'single'; msg: ChatMessage }
-  | { type: 'council'; msgs: ChatMessage[] }
+  | { type: 'single'; msg: ChatMessage; scout?: ScoutResult }
+  | { type: 'council'; msgs: ChatMessage[]; scout?: ScoutResult }
 
-function ModeHeader({ mode, models }: { mode: Mode; models: ModelName[] }) {
-  return (
-    <div className="h-12 flex items-center px-5 border-b border-warm-gray/15 bg-cream/90 backdrop-blur-sm shrink-0">
-      <span className="font-black text-sm text-[#2c2c2c] tracking-tight">{MODE_LABEL[mode]}</span>
-      {mode === 'council' && models.length > 0 && (
-        <div className="ml-3 flex gap-1">
-          {models.map(m => (
-            <span key={m} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#2c2c2c]/8 text-warm-gray">
-              {m}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export function ChatWindow() {
   const searchParams = useSearchParams()
@@ -158,21 +139,36 @@ export function ChatWindow() {
 
     const isCouncil = mode === 'council'
     const isRelay = mode === 'relay'
+    const isWorkflow = mode === 'workflow'
 
     // Relay needs exactly 2 models; fall back to Apex+Swift if not configured
     const relayChain: [ModelName, ModelName] = isRelay
       ? [effectiveModels[0] ?? 'Apex', effectiveModels[1] ?? 'Swift']
       : ['Apex', 'Swift']
 
+    // Workflow: build nodes from selected models (or default Swift→Apex chain)
+    const workflowModels = effectiveModels.length >= 2
+      ? effectiveModels
+      : ['Swift', 'Apex'] as ModelName[]
+    const workflowNodes = isWorkflow
+      ? workflowModels.map((m, i) => ({
+          id: `node_${i}`,
+          type: 'model',
+          model: m,
+          inputs: i === 0 ? [] : [`node_${i - 1}`],
+        }))
+      : undefined
+
     let assistantTurn: Turn
     let singleId = ''
     let relayBId = ''
     let synthId = ''
 
-    if (isCouncil) {
+    if (isCouncil || isWorkflow) {
+      const councilModels = isWorkflow ? workflowModels : effectiveModels
       assistantTurn = {
         type: 'council',
-        msgs: effectiveModels.map(m => ({
+        msgs: councilModels.map(m => ({
           id: uuidv4(),
           role: 'assistant' as const,
           content: '',
@@ -180,7 +176,7 @@ export function ChatWindow() {
           isStreaming: true,
         })),
       }
-      synthId = uuidv4()
+      if (isCouncil) synthId = uuidv4()
     } else {
       singleId = uuidv4()
       assistantTurn = {
@@ -205,9 +201,11 @@ export function ChatWindow() {
         query,
         models: effectiveModels,
         relay_chain: isRelay ? relayChain : undefined,
+        workflow_nodes: workflowNodes,
         primal_protocol: primal,
         scout,
         session_id: sessionIdRef.current ?? undefined,
+        force_relay_demo: isRelay && searchParams.get('demo') === '1' ? true : undefined,
       }))
     } catch {
       setTurns(prev => {
@@ -236,7 +234,7 @@ export function ChatWindow() {
           sessionIdRef.current = d.session_id
         },
         token: (d) => {
-          if (isCouncil) {
+          if (isCouncil || isWorkflow) {
             appendDeltaByHex(d.hex, d.delta)
           } else if (isRelay && relayBId && d.hex === relayChain[1]) {
             appendDeltaById(relayBId, d.delta)
@@ -272,12 +270,26 @@ export function ChatWindow() {
         },
         synth_token: (d) => appendDeltaById(isCouncil ? synthId : singleId, d.delta),
         hex_done: (d) => {
-          if (isCouncil) {
+          if (isCouncil || isWorkflow) {
             setTurns(prev => prev.map(turn => {
               if (turn.type !== 'council') return turn
               return { ...turn, msgs: turn.msgs.map(m => m.model === d.hex ? { ...m, isStreaming: false } : m) }
             }))
           }
+        },
+        tool_call: () => {
+          setTurns(prev => {
+            const last = prev[prev.length - 1]
+            if (!last) return prev
+            return [...prev.slice(0, -1), { ...last, scout: { summary: '', urls: [], result_count: 0, pending: true } }]
+          })
+        },
+        tool_result: (d) => {
+          setTurns(prev => {
+            const last = prev[prev.length - 1]
+            if (!last) return prev
+            return [...prev.slice(0, -1), { ...last, scout: { summary: d.summary, urls: d.urls, result_count: d.result_count, error: d.error, pending: false } }]
+          })
         },
         done: () => {
           setTurns(prev => prev.map(turn => {
@@ -300,27 +312,50 @@ export function ChatWindow() {
           })
           setStreaming(false)
         },
+        _error: (err) => {
+          setTurns(prev => {
+            const last = prev[prev.length - 1]
+            if (!last) return prev
+            if (last.type === 'single') {
+              return [...prev.slice(0, -1), { ...last, msg: { ...last.msg, content: `Error: ${err.message}`, isStreaming: false } }]
+            }
+            if (last.type === 'council') {
+              return [...prev.slice(0, -1), { ...last, msgs: last.msgs.map(m => ({ ...m, isStreaming: false })) }]
+            }
+            return prev
+          })
+          setStreaming(false)
+        },
       }, abortRef.current.signal)
     } catch (err) {
-      setTurns(prev => {
-        const last = prev[prev.length - 1]
-        if (!last) return prev
-        if (last.type === 'single') {
-          const msg = err instanceof Error ? `Error: ${err.message}` : 'Error'
-          return [...prev.slice(0, -1), { ...last, msg: { ...last.msg, content: msg, isStreaming: false } }]
-        }
-        if (last.type === 'council') {
-          return [...prev.slice(0, -1), { ...last, msgs: last.msgs.map(m => ({ ...m, isStreaming: false })) }]
-        }
-        return prev
-      })
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setTurns(prev => {
+          const last = prev[prev.length - 1]
+          if (!last) return prev
+          if (last.type === 'single') {
+            return [...prev.slice(0, -1), { ...last, msg: { ...last.msg, content: `Error: ${err.message}`, isStreaming: false } }]
+          }
+          if (last.type === 'council') {
+            return [...prev.slice(0, -1), { ...last, msgs: last.msgs.map(m => ({ ...m, isStreaming: false })) }]
+          }
+          return prev
+        })
+      }
       setStreaming(false)
     }
   }
 
+  const isDemoMode = searchParams.get('demo') === '1'
+
   return (
     <div className="flex flex-col h-full">
-      <ModeHeader mode={mode} models={models} />
+
+      {isDemoMode && mode === 'relay' && (
+        <div className="mx-5 mt-2 px-4 py-2 bg-denim/10 border border-denim/30 rounded-2xl flex items-center gap-2 text-xs">
+          <span className="w-2 h-2 rounded-full bg-denim animate-pulse shrink-0" />
+          <span className="text-denim font-bold">Demo mode — handoff fires after ~300 chars</span>
+        </div>
+      )}
 
       {forgeHint && (
         <div className="mx-5 my-2 px-4 py-2.5 bg-denim/8 border border-denim/20 rounded-2xl flex items-center gap-3 text-xs">
@@ -348,9 +383,19 @@ export function ChatWindow() {
         </div>
 
         {turns.map((turn, i) =>
-          turn.type === 'single'
-            ? <Message key={turn.msg.id} msg={turn.msg} />
-            : <CouncilGrid key={turn.msgs[0]?.id ?? i} messages={turn.msgs} />
+          turn.type === 'single' ? (
+            <div key={turn.msg.id}>
+              {turn.scout && turn.msg.role === 'assistant' && (
+                <ScoutSearchBubble result={turn.scout} />
+              )}
+              <Message msg={turn.msg} />
+            </div>
+          ) : (
+            <div key={turn.msgs[0]?.id ?? i}>
+              {turn.scout && <ScoutSearchBubble result={turn.scout} />}
+              <CouncilGrid messages={turn.msgs} />
+            </div>
+          )
         )}
         <div ref={bottomRef} />
       </div>
@@ -367,7 +412,6 @@ export function ChatWindow() {
         onPrimal={setPrimal}
         scout={scout}
         onScout={setScout}
-        onClear={() => { setTurns([]); setHasSent(false); sessionIdRef.current = null }}
       />
     </div>
   )

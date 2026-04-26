@@ -48,6 +48,7 @@ class QueryRequest(BaseModel):
     primal_protocol: bool = False
     scout: ScoutMode = "off"
     session_id: uuid.UUID | None = None
+    force_relay_demo: bool = False
 
     @field_validator("scout", mode="before")
     @classmethod
@@ -63,9 +64,7 @@ async def query(
     user: AuthUser = Depends(get_current_user),  # noqa: B008
     db: AsyncSession = Depends(get_session),  # noqa: B008
 ) -> StreamingResponse:
-    # Quota check — must happen after auth, before streaming
     quota = await QuotaService.get_or_create(db, user.id)
-    QuotaService.check(quota)
 
     if req.mode == "oracle":
         if len(req.models) != 1:
@@ -119,6 +118,7 @@ async def query(
                 db, client_a, client_b, apex_client, query_row, req.query, wl_a, wl_b,
                 scout=req.scout,
                 quota=quota,
+                force_demo=req.force_relay_demo,
             ):
                 yield chunk
 
@@ -285,6 +285,20 @@ async def _load_history(
     return pairs
 
 
+def _quota_warning_event(quota: UserQuota) -> bytes | None:
+    """Return a quota_warning SSE event after every response with current usage."""
+    from datetime import timedelta
+    available = QuotaService.available(quota)
+    if not available:
+        return None
+    pct = min(quota.daily_used / available * 100, 100.0)
+    resets_at = QuotaService._window_start_utc(quota) + timedelta(hours=24)
+    return format_event(SseEvent("quota_warning", {
+        "percentage_used": round(pct, 2),
+        "resets_at": resets_at.isoformat(),
+    }))
+
+
 async def _oracle_stream(
     db: AsyncSession,
     client: object,
@@ -417,6 +431,9 @@ async def _oracle_stream(
 
     if quota is not None and total_tokens:
         await QuotaService.deduct(db, quota, total_tokens, whitelabel)
+        warning = _quota_warning_event(quota)
+        if warning:
+            yield warning
 
     duration_ms = (time.monotonic_ns() - start_ns) // 1_000_000
     yield format_event(SseEvent("done", {"session_id": session_id, "duration_ms": duration_ms}))
