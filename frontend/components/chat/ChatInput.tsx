@@ -16,10 +16,12 @@ interface Props {
   onPrimal: (v: boolean) => void
   scout: ScoutMode
   onScout: (s: ScoutMode) => void
+  onWorkflowOpen?: () => void
+  onQueryChange?: (q: string) => void
 }
 
 
-export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onModels, primal, onPrimal, scout, onScout }: Props) {
+export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onModels, primal, onPrimal, scout, onScout, onWorkflowOpen, onQueryChange }: Props) {
   const [value, setValue]         = useState('')
   const [slashOpen, setSlashOpen] = useState(false)
   const [plusOpen, setPlusOpen]   = useState(false)
@@ -78,6 +80,7 @@ export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onM
             onModels={onModels}
             primal={primal}
             onPrimal={onPrimal}
+            onWorkflowOpen={onWorkflowOpen}
           />
         )}
 
@@ -133,28 +136,30 @@ export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onM
             </button>
 
             {/* Scout button */}
-            <button
-              onClick={() => {
-                const next: ScoutMode = scout === 'off' ? 'auto' : scout === 'auto' ? 'force' : 'off'
-                onScout(next)
-              }}
-              title={scout === 'auto' ? 'Scout · Auto (click for Force)' : scout === 'force' ? 'Scout · Force (click to disable)' : 'Enable Scout web search'}
-              className={`shrink-0 w-7 h-7 flex items-center justify-center rounded-full transition-colors mb-0.5 ${
-                scout === 'force'
-                  ? 'bg-denim text-white'
-                  : scout === 'auto'
-                    ? 'text-denim bg-denim/12 hover:bg-denim/20'
-                    : 'text-warm-gray hover:text-[#2c2c2c] hover:bg-[#2c2c2c]/6'
-              }`}
-              aria-label="Toggle Scout web search"
-            >
-              <Globe size={15} />
-            </button>
+            {mode !== 'workflow' && (
+              <button
+                onClick={() => {
+                  const next: ScoutMode = scout === 'off' ? 'auto' : scout === 'auto' ? 'force' : 'off'
+                  onScout(next)
+                }}
+                title={scout === 'auto' ? 'Scout · Auto (click for Force)' : scout === 'force' ? 'Scout · Force (click to disable)' : 'Enable Scout web search'}
+                className={`shrink-0 w-7 h-7 flex items-center justify-center rounded-full transition-colors mb-0.5 ${
+                  scout === 'force'
+                    ? 'bg-denim text-white'
+                    : scout === 'auto'
+                      ? 'text-denim bg-denim/12 hover:bg-denim/20'
+                      : 'text-warm-gray hover:text-[#2c2c2c] hover:bg-[#2c2c2c]/6'
+                }`}
+                aria-label="Toggle Scout web search"
+              >
+                <Globe size={15} />
+              </button>
+            )}
 
             <textarea
               ref={textareaRef}
               value={value}
-              onChange={e => setValue(e.target.value)}
+              onChange={e => { setValue(e.target.value); onQueryChange?.(e.target.value) }}
               onKeyDown={handleKeyDown}
               placeholder="Ask anything…"
               rows={1}
