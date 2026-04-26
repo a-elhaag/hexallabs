@@ -69,8 +69,8 @@ export function serializeNodes(nodes: WorkflowNode[]): Record<string, unknown>[]
 }
 
 /** Generate a unique node id */
-export function newNodeId(nodes: WorkflowNode[]): string {
-  return `node_${nodes.length}_${Math.random().toString(36).slice(2, 6)}`
+export function newNodeId(): string {
+  return `node_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`
 }
 
 /** Node border/accent color by type */
