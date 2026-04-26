@@ -27,7 +27,7 @@ export function WorkflowNodeCard({
     el.style.transform = 'scale(0.85)'
     el.style.opacity = '0'
     requestAnimationFrame(() => {
-      el.style.transition = 'transform 200ms cubic-bezier(0.16,1,0.3,1), opacity 200ms ease'
+      el.style.transition = 'transform 200ms cubic-bezier(0.16,1,0.3,1), opacity 200ms cubic-bezier(0.16,1,0.3,1)'
       el.style.transform = 'scale(1)'
       el.style.opacity = '1'
     })
@@ -84,16 +84,13 @@ export function WorkflowNodeCard({
         minWidth: 140,
         zIndex: selected ? 15 : 12,
       }}
-      className="bg-white border-[1.5px] rounded-2xl p-3 cursor-grab active:cursor-grabbing select-none"
+      className="group bg-white border-[1.5px] rounded-2xl p-3 cursor-grab active:cursor-grabbing select-none"
     >
       {/* Delete button */}
       <button
         data-del="1"
         onClick={e => { e.stopPropagation(); onDelete(node.id) }}
-        className="absolute top-1.5 right-2 text-warm-gray hover:text-red-500 text-xs transition-opacity"
-        style={{ opacity: selected ? 1 : 0 }}
-        onMouseOver={e => (e.currentTarget.style.opacity = '1')}
-        onMouseOut={e => (e.currentTarget.style.opacity = selected ? '1' : '0')}
+        className={`absolute top-1.5 right-2 text-warm-gray hover:text-red-500 text-xs transition-all duration-150 ${selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
       >✕</button>
 
       <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color }}>
