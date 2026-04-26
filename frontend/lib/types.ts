@@ -1,6 +1,6 @@
 // lib/types.ts
 
-export type Mode = 'oracle' | 'council' | 'relay' | 'workflow'
+export type Mode = 'oracle' | 'council' | 'relay'
 
 export type ScoutMode = 'off' | 'auto' | 'force'
 

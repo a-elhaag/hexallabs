@@ -1,18 +1,10 @@
 // components/layout/AppShell.tsx
-'use client'
-import { useRouter } from 'next/navigation'
-import { Sidebar } from './Sidebar'
+import { Navbar } from './Navbar'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-
-  function handleSessionSelect(id: string) {
-    router.push(`/chat?session=${id}`)
-  }
-
   return (
-    <div className="flex h-screen overflow-hidden bg-cream">
-      <Sidebar onSessionSelect={handleSessionSelect} />
+    <div className="flex flex-col h-screen overflow-hidden bg-cream">
+      <Navbar />
       <main className="flex-1 flex flex-col overflow-hidden">
         {children}
       </main>

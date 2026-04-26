@@ -5,19 +5,22 @@ import { MODELS, MODEL_DISPLAY, ModelName } from '@/lib/types'
 interface Props {
   selected: ModelName[]
   onChange: (models: ModelName[]) => void
+  max?: number
 }
 
-export function ModelSelector({ selected, onChange }: Props) {
+export function ModelSelector({ selected, onChange, max }: Props) {
   function toggle(m: ModelName) {
-    onChange(
-      selected.includes(m) ? selected.filter(x => x !== m) : [...selected, m]
-    )
+    if (selected.includes(m)) {
+      onChange(selected.filter(x => x !== m))
+    } else if (max === undefined || selected.length < max) {
+      onChange([...selected, m])
+    }
   }
 
   return (
     <div className="flex flex-col gap-1">
       <p className="text-[10px] font-bold text-warm-gray uppercase tracking-widest px-1 mb-1">
-        Models — Council
+        Models{max !== undefined ? ` — pick ${max}` : ' — Council'}
       </p>
       {MODELS.map(m => {
         const on = selected.includes(m)

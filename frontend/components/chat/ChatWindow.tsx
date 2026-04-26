@@ -1,7 +1,7 @@
 // components/chat/ChatWindow.tsx
 'use client'
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { ChatMessage, Mode, ModelName, ScoutMode } from '@/lib/types'
 import { buildQueryRequest, improveQuery } from '@/lib/api'
@@ -12,7 +12,7 @@ import { CouncilGrid } from './CouncilGrid'
 import { ChatInput } from './ChatInput'
 
 const MODE_LABEL: Record<Mode, string> = {
-  oracle: 'Oracle', council: 'The Council', relay: 'The Relay', workflow: 'Workflow',
+  oracle: 'Oracle', council: 'The Council', relay: 'The Relay',
 }
 
 // A "turn" is either a single ChatMessage (oracle/relay) or a group (council)
@@ -39,6 +39,7 @@ function ModeHeader({ mode, models }: { mode: Mode; models: ModelName[] }) {
 
 export function ChatWindow() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [turns, setTurns]         = useState<Turn[]>([])
   const [mode, setMode]           = useState<Mode>('oracle')
   const [models, setModels]       = useState<ModelName[]>(['Apex'])
@@ -50,6 +51,7 @@ export function ChatWindow() {
   const [loadingSession, setLoadingSession] = useState(false)
   const bottomRef                 = useRef<HTMLDivElement>(null)
   const abortRef                  = useRef<AbortController | null>(null)
+  const sessionIdRef              = useRef<string | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -60,18 +62,23 @@ export function ChatWindow() {
     const sessionId = searchParams.get('session')
     const isNew = searchParams.get('new') === '1'
 
-    abortRef.current?.abort()
-    setStreaming(false)
-
     if (isNew || (!sessionId && !isNew)) {
+      abortRef.current?.abort()
+      setStreaming(false)
       setTurns([])
       setHasSent(false)
       setForgeHint(null)
+      sessionIdRef.current = null
       return
     }
 
     if (!sessionId) return
 
+    // URL just caught up to an in-progress session — don't reload
+    if (sessionIdRef.current === sessionId) return
+
+    abortRef.current?.abort()
+    setStreaming(false)
     setLoadingSession(true)
     setTurns([])
     setHasSent(false)
@@ -150,9 +157,16 @@ export function ChatWindow() {
       : models.length > 0 ? models : ['Apex' as ModelName]
 
     const isCouncil = mode === 'council'
+    const isRelay = mode === 'relay'
+
+    // Relay needs exactly 2 models; fall back to Apex+Swift if not configured
+    const relayChain: [ModelName, ModelName] = isRelay
+      ? [effectiveModels[0] ?? 'Apex', effectiveModels[1] ?? 'Swift']
+      : ['Apex', 'Swift']
 
     let assistantTurn: Turn
     let singleId = ''
+    let relayBId = ''
     let synthId = ''
 
     if (isCouncil) {
@@ -176,7 +190,7 @@ export function ChatWindow() {
           role: 'assistant',
           content: '',
           isStreaming: true,
-          model: mode === 'oracle' ? effectiveModels[0] : undefined,
+          model: isRelay ? relayChain[0] : mode === 'oracle' ? effectiveModels[0] : undefined,
         },
       }
     }
@@ -190,8 +204,10 @@ export function ChatWindow() {
         mode,
         query,
         models: effectiveModels,
+        relay_chain: isRelay ? relayChain : undefined,
         primal_protocol: primal,
         scout,
+        session_id: sessionIdRef.current ?? undefined,
       }))
     } catch {
       setTurns(prev => {
@@ -213,12 +229,40 @@ export function ChatWindow() {
       abortRef.current = new AbortController()
 
       await streamQuery(url, token, body, {
+        session: (d) => {
+          if (!sessionIdRef.current) {
+            router.replace(`/chat?session=${d.session_id}`)
+          }
+          sessionIdRef.current = d.session_id
+        },
         token: (d) => {
           if (isCouncil) {
             appendDeltaByHex(d.hex, d.delta)
+          } else if (isRelay && relayBId && d.hex === relayChain[1]) {
+            appendDeltaById(relayBId, d.delta)
           } else {
             appendDeltaById(singleId, d.delta)
           }
+        },
+        relay_handoff: (d) => {
+          relayBId = uuidv4()
+          const bMsg: ChatMessage = {
+            id: relayBId,
+            role: 'assistant',
+            content: '',
+            model: d.to as ModelName,
+            isStreaming: true,
+          }
+          setTurns(prev => {
+            // mark model A done
+            const updated = prev.map(turn => {
+              if (turn.type === 'single' && turn.msg.id === singleId) {
+                return { ...turn, msg: { ...turn.msg, isStreaming: false } }
+              }
+              return turn
+            })
+            return [...updated, { type: 'single' as const, msg: bMsg }]
+          })
         },
         synth_start: () => {
           if (isCouncil) {
@@ -323,7 +367,7 @@ export function ChatWindow() {
         onPrimal={setPrimal}
         scout={scout}
         onScout={setScout}
-        onClear={() => { setTurns([]); setHasSent(false) }}
+        onClear={() => { setTurns([]); setHasSent(false); sessionIdRef.current = null }}
       />
     </div>
   )

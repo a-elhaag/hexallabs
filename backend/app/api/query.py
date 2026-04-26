@@ -10,6 +10,8 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from sqlalchemy import select
+
 from app.auth import AuthUser, get_current_user
 from app.billing.quota import QuotaService
 from app.council.stream import _council_stream
@@ -196,11 +198,14 @@ async def _open_session_and_query(
     whitelabel: str,
 ) -> tuple[SessionRow, QueryRow]:
     if req.session_id is None:
+        raw = req.query.strip()
+        title = raw[:60] + "…" if len(raw) > 60 else raw
         session_row = SessionRow(
             user_id=user_id,
             mode=req.mode,
             primal_protocol=req.primal_protocol,
             scout_enabled=req.scout,
+            title=title,
         )
         db.add(session_row)
         await db.flush()
@@ -223,6 +228,61 @@ async def _open_session_and_query(
     db.add(query_row)
     await db.flush()
     return session_row, query_row
+
+
+_MAX_HISTORY_TURNS = 20  # user+assistant pairs
+
+
+async def _load_history(
+    db: AsyncSession,
+    session_id: uuid.UUID,
+) -> list[tuple[str, str]]:
+    """Return [(role, content), ...] for all prior turns in session, oldest first.
+
+    Reconstructs conversation as alternating user/assistant pairs by joining
+    queries (raw_prompt) with their model messages (stage='initial' or relay/council).
+    """
+    from app.llm.base import Message as LLMMessage
+
+    # Fetch completed queries in session order
+    q_result = await db.execute(
+        select(QueryRow)
+        .where(QueryRow.session_id == session_id, QueryRow.status == "done")
+        .order_by(QueryRow.created_at)
+        .limit(_MAX_HISTORY_TURNS)
+    )
+    queries: list[QueryRow] = list(q_result.scalars().all())
+    if not queries:
+        return []
+
+    query_ids = [q.id for q in queries]
+
+    # Fetch one representative assistant message per query (prefer synthesis for council)
+    msg_result = await db.execute(
+        select(MessageRow)
+        .where(MessageRow.query_id.in_(query_ids), MessageRow.role == "model")
+        .order_by(MessageRow.created_at)
+    )
+    msgs: list[MessageRow] = list(msg_result.scalars().all())
+
+    # Index best assistant message per query_id
+    best: dict[uuid.UUID, str] = {}
+    for m in msgs:
+        qid = m.query_id
+        # Prefer synthesis stage, then relay_1, then first seen
+        if qid not in best:
+            best[qid] = m.content
+        elif m.stage in ("synthesis", "relay_1"):
+            best[qid] = m.content
+
+    pairs: list[tuple[str, str]] = []
+    for q in queries:
+        assistant_content = best.get(q.id)
+        if assistant_content:
+            pairs.append(("user", q.raw_prompt))
+            pairs.append(("assistant", assistant_content))
+
+    return pairs
 
 
 async def _oracle_stream(
@@ -248,7 +308,7 @@ async def _oracle_stream(
 
     messages: list[LLMMessage] = []
 
-    # Force mode: pre-execute search, inject as system context.
+    # Force mode: pre-execute search, inject as system context (must be first).
     if scout == "force":
         try:
             context_text, pre_result = await scout_force(prompt, settings)
@@ -285,6 +345,11 @@ async def _oracle_stream(
         }))
 
         messages.append(LLMMessage(role="system", content=context_text, cache=True))
+
+    # Conversation history (prior turns in this session)
+    history = await _load_history(db, query_row.session_id)
+    for role, content in history:
+        messages.append(LLMMessage(role=role, content=content))
 
     messages.append(LLMMessage(role="user", content=prompt))
 

@@ -1,4 +1,4 @@
-// components/layout/Sidebar.tsx
+// components/layout/Navbar.tsx
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
@@ -7,9 +7,9 @@ import { PenSquare, Settings, LogOut } from 'lucide-react'
 import { Avatar } from '@/components/ui/Avatar'
 import { signOut, getUser } from '@/lib/auth'
 
-export function Sidebar({ onSessionSelect: _onSessionSelect }: { onSessionSelect?: (id: string) => void }) {
-  const pathname  = usePathname()
-  const router    = useRouter()
+export function Navbar() {
+  const pathname = usePathname()
+  const router   = useRouter()
   const [email, setEmail]       = useState<string | undefined>()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef                 = useRef<HTMLDivElement>(null)
@@ -36,31 +36,48 @@ export function Sidebar({ onSessionSelect: _onSessionSelect }: { onSessionSelect
   }
 
   return (
-    <aside
-      className="w-14 shrink-0 h-screen flex flex-col items-center py-3 gap-3"
+    <header
+      className="h-12 shrink-0 flex items-center px-4 gap-3 relative z-40"
       style={{
-        background: 'rgba(28, 28, 28, 0.75)',
+        background: 'rgba(28, 28, 28, 0.88)',
         backdropFilter: 'blur(24px) saturate(1.5)',
         WebkitBackdropFilter: 'blur(24px) saturate(1.5)',
-        borderRight: '1px solid rgba(255,255,255,0.07)',
-        borderRadius: '0 20px 20px 0',
-        boxShadow: '4px 0 40px rgba(0,0,0,0.22), inset -1px 0 0 rgba(255,255,255,0.04)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
       }}
     >
-      {/* Avatar → dropdown menu */}
-      <div className="relative" ref={menuRef}>
+      {/* Logo */}
+      <Link href="/chat" className="text-white font-black text-sm tracking-wide opacity-90 mr-1">
+        HEXALLABS
+      </Link>
+
+      {/* New chat */}
+      <Link
+        href="/chat?new=1"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-white/50 hover:text-white hover:bg-white/8 transition-all text-xs font-medium"
+        style={{ transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)' }}
+        aria-label="New chat"
+      >
+        <PenSquare size={14} />
+        New chat
+      </Link>
+
+      <div className="flex-1" />
+
+      {/* Avatar → dropdown */}
+      <div className="relative flex items-center" ref={menuRef}>
         <button
           onClick={() => setMenuOpen(o => !o)}
-          className="rounded-full ring-2 ring-transparent hover:ring-white/20 transition-all"
+          className="flex items-center justify-center rounded-full ring-2 ring-transparent hover:ring-white/20 transition-all"
           aria-label="Account menu"
           aria-expanded={menuOpen}
         >
-          <Avatar email={email} size="md" />
+          <Avatar email={email} size="sm" />
         </button>
 
         {menuOpen && (
           <div
-            className="absolute left-full top-0 ml-2 w-52 rounded-2xl overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 w-52 rounded-2xl z-50"
             style={{
               background: 'rgba(32, 32, 32, 0.95)',
               backdropFilter: 'blur(20px)',
@@ -68,13 +85,10 @@ export function Sidebar({ onSessionSelect: _onSessionSelect }: { onSessionSelect
               boxShadow: '0 8px 32px rgba(0,0,0,0.40)',
             }}
           >
-            {/* Email header */}
-            <div className="px-4 py-3 border-b border-white/8">
+            <div className="px-4 py-3 border-b border-white/8 rounded-t-2xl">
               <p className="text-white/40 text-[11px] truncate">{email}</p>
             </div>
-
-            {/* Menu items */}
-            <div className="p-1.5 flex flex-col gap-0.5">
+            <div className="p-1.5 flex flex-col gap-0.5 rounded-b-2xl">
               <Link
                 href="/settings"
                 onClick={() => setMenuOpen(false)}
@@ -98,16 +112,6 @@ export function Sidebar({ onSessionSelect: _onSessionSelect }: { onSessionSelect
           </div>
         )}
       </div>
-
-      {/* New chat button */}
-      <Link
-        href="/chat?new=1"
-        className="w-9 h-9 flex items-center justify-center rounded-xl text-white/40 hover:text-white/80 hover:bg-white/8 transition-all"
-        aria-label="New chat"
-        style={{ transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)' }}
-      >
-        <PenSquare size={18} />
-      </Link>
-    </aside>
+    </header>
   )
 }

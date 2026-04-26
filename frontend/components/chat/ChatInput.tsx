@@ -23,7 +23,6 @@ const MODE_LABEL: Record<Mode, string> = {
   oracle:   'Oracle',
   council:  'Council',
   relay:    'Relay',
-  workflow: 'Workflow',
 }
 
 export function ChatInput({ onSend, onStop, streaming, mode, onMode, models, onModels, primal, onPrimal, scout, onScout, onClear }: Props) {
